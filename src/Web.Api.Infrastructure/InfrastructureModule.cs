@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using System;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Infrastructure.Auth;
@@ -10,6 +11,7 @@ namespace Web.Api.Infrastructure
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
+            //builder.RegisterType<ServerRepository()>.As<IServerRepository>().InstancePerLifetimeScope();
             builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();
         }
     }
