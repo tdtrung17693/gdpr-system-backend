@@ -5,6 +5,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200828103418_Initial.cs" />
+    <Compile Remove="Migrations\20200828103418_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200828103837_Initial.cs" />
+    <Compile Remove="Migrations\20200828103837_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200828104104_Initial.cs" />
+    <Compile Remove="Migrations\20200828104104_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200828104155_Initial.cs" />
+    <Compile Remove="Migrations\20200828104155_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200828104326_Initial.cs" />
+    <Compile Remove="Migrations\20200828104326_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200828104534_Initial.cs" />
+    <Compile Remove="Migrations\20200828104534_Initial.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="automapper" Version="7.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0-preview2-35157" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0-preview2-35157" />
@@ -30,6 +45,7 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>appsettings.json</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
 

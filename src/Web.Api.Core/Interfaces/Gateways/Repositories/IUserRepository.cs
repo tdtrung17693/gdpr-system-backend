@@ -9,5 +9,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         Task<CreateUserResponse> Create(User user, string password);
         Task<User> FindByName(string userName);
         Task<bool> CheckPassword(User user, string password);
+        Task<User[]> FindAll();
     }
 }

@@ -6,10 +6,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Entities
 {
     public class BaseEntity
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public BaseEntity()
+        {
+            Status = true;
+        }
+
         [Key]
-        public int Id { get; set; }
-        public DateTime Created { get; set; }
-        public DateTime Modified { get; set; }
+        public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public Guid? CreatedBy { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
+
+        public Guid? UpdatedBy { get; set; }
+
+        public DateTime DeletedAt { get; set; }
+
+        public Guid? DeletedBy { get; set; }
+
+        public bool Status { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

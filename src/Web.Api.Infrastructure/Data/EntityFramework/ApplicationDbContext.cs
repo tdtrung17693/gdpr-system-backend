@@ -9,12 +9,21 @@ using Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
-    {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+    public class ApplicationDbContext :DbContext    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
+        DbSet<User> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                // Use the entity name instead of the Context.DbSet<T> name
+                // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
+                modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+            }
+        }
         public override int SaveChanges()
         {
             AddAuitInfo();
@@ -34,9 +43,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
             {
                 if (entry.State == EntityState.Added)
                 {
-                    ((BaseEntity)entry.Entity).Created = DateTime.UtcNow;
+                    ((BaseEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
                 }
-                ((BaseEntity)entry.Entity).Modified = DateTime.UtcNow;
+                ((BaseEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
             }
         }
     }

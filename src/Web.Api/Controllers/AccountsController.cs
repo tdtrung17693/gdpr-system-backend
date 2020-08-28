@@ -30,5 +30,11 @@ namespace Web.Api.Controllers
             await _registerUserUseCase.Handle(new RegisterUserRequest(request.FirstName,request.LastName,request.Email, request.UserName,request.Password), _registerUserPresenter);
             return _registerUserPresenter.ContentResult;
         }
+
+        [HttpGet]
+        public string Get()
+        {
+            return "Hey there";
+        }
     }
 }
