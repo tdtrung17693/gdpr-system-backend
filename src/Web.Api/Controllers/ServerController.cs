@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
-using Web.Api.Infrastructure.Data.Entities;
+//using Web.Api.Infrastructure.Data.Entities;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
 
@@ -26,7 +28,7 @@ namespace Web.Api.Controllers
 
         
         [HttpGet]
-        public ActionResult<IEnumerable<Server>> GetAllCommands()
+        public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
             var serverItems = _repository.GetAllCommand();
             //return Ok(commandItems);
