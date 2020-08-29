@@ -18,7 +18,7 @@ namespace Web.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IServerRepository _repository;
 
-        public ServerController(IMapper mapper, IServerRepository repository)
+        public ServerController(IMapper mapper, IServerRepository repository)   
         {   
             _mapper = mapper;
             _repository = repository;

@@ -10,4 +10,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
             return new ApplicationDbContext(options);
         }
     }
+
+    //public class DbContextFactory : DesignTimeDbContextFactoryBase<GdprContext>
+    //{
+    //    protected override GpdrContext CreateNewInstance(DbContextOptions<GdprContext> options)
+    //    {
+    //        return new AppliContext(options);
+    //    }
+    //}
 }

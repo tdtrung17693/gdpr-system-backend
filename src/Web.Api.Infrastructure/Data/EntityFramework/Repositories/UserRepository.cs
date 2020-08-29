@@ -15,7 +15,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
   {
     private readonly UserManager<AppUser> _userManager;
     private readonly IMapper _mapper;
-
     public UserRepository(UserManager<AppUser> userManager, IMapper mapper)
     {
       _userManager = userManager;
@@ -38,5 +37,5 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       {
          return await _userManager.CheckPasswordAsync(_mapper.Map<AppUser>(user), password);
       }
-  }
+   }
 }

@@ -11,7 +11,7 @@ namespace Web.Api.Infrastructure
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
-            //builder.RegisterType<ServerRepository()>.As<IServerRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<ServerRepository>().As<IServerRepository>().InstancePerLifetimeScope();
             builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();
         }
     }

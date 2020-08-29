@@ -6,31 +6,32 @@ namespace Web.Api.Core.Domain.Entities
 {
     public class Server
     {
-        public Guid Id { get; }
-        public DateTime CreatedBy { get; }
-        public DateTime CreatedAt { get; }
-        public DateTime UpdatedBy { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public DateTime DeletedBy { get; set; }
-        public DateTime DeletedAt { get; set; }
+        public Guid Id { get; set; }
+        public Guid CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public Guid? UpdatedBy { get; set; }
+        public Nullable<DateTime> UpdatedAt { get; set; }
+        public Guid? DeletedBy { get; set; }
+        public Nullable<DateTime> DeletedAt { get; set; }
         public bool isDeleted { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public Nullable<DateTime> StartDate { get; set; }
+        public Nullable<DateTime> EndDate { get; set; }
 
-        internal Server(string Id, DateTime CreatedBy, DateTime CreatedAt, DateTime UpdatedBy, DateTime UpdatedAt, bool isDeleted, string Name, string IpAddress, DateTime StartDate, DateTime EndDate)
+        internal Server(Guid Id, Guid CreatedBy, DateTime CreatedAt, Guid? UpdatedBy, Nullable<DateTime> UpdatedAt, Guid? DeletedBy, Nullable<DateTime> DeletedAt, bool isDeleted, string Name, string IpAddress, Nullable<DateTime> StartDate, Nullable<DateTime> EndDate)
         {
             Id = Id;
+
             CreatedBy = CreatedBy;
 
             CreatedAt = CreatedAt;
-            
-            UpdatedBy = UpdatedBy;
+
+            UpdatedBy = UpdatedBy == null ? Guid.Empty : UpdatedBy;
             
             UpdatedAt = UpdatedAt;
-            
-            DeletedBy = DeletedBy;
+
+            DeletedBy = DeletedBy == null ? Guid.Empty : DeletedBy;
             
             DeletedAt = DeletedAt;
             
