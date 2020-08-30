@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
+using Web.Api.Core.Dto.UseCaseResponses;
 
 namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
     public interface IServerRepository
     {
+        //Todo: Read list server
        IEnumerable<Server> GetAllCommand();
+
+        //Todo:  Create a new server
+       Task<CreateNewServerResponse> Create(Server server);
+
+        //Todo: Update a server
+
+        //Todo: Delete a server
     }
 } 
