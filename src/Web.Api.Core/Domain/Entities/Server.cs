@@ -21,29 +21,29 @@ namespace Web.Api.Core.Domain.Entities
 
         internal Server(Guid Id, Guid CreatedBy, DateTime CreatedAt, Guid? UpdatedBy, Nullable<DateTime> UpdatedAt, Guid? DeletedBy, Nullable<DateTime> DeletedAt, bool isDeleted, string Name, string IpAddress, Nullable<DateTime> StartDate, Nullable<DateTime> EndDate)
         {
-            Id = Id;
+            this.Id = Id;
 
-            CreatedBy = CreatedBy;
+            this.CreatedBy = CreatedBy;
 
-            CreatedAt = CreatedAt;
+            this.CreatedAt = CreatedAt;
 
-            UpdatedBy = UpdatedBy == null ? Guid.Empty : UpdatedBy;
+            this.UpdatedBy = UpdatedBy == null ? Guid.Empty : UpdatedBy;
             
-            UpdatedAt = UpdatedAt;
+            this.UpdatedAt = UpdatedAt;
 
-            DeletedBy = DeletedBy == null ? Guid.Empty : DeletedBy;
+            this.DeletedBy = DeletedBy == null ? Guid.Empty : DeletedBy;
             
-            DeletedAt = DeletedAt;
+            this.DeletedAt = DeletedAt;
             
-            isDeleted = isDeleted;
+            this.isDeleted = isDeleted;
             
-            Name = Name;
+            this.Name = Name;
             
-            IpAddress = IpAddress;
+            this.IpAddress = IpAddress;
             
-            StartDate = StartDate;
+            this.StartDate = StartDate;
             
-            EndDate = EndDate;
+            this.EndDate = EndDate;
 
         }
     }
