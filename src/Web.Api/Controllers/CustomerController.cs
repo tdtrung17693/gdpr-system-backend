@@ -43,5 +43,27 @@ namespace Web.Api.Controllers
             var newCustomer = _mapper.Map<Customer>(request);
             return Ok(await _repository.Create(newCustomer)); 
         }
+
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] Models.Request.CustomerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            var newCustomer = _mapper.Map<Customer>(request);
+            return Ok(await _repository.Update(newCustomer));
+        }
+
+        [HttpDelete]
+        public async Task<ActionResult> Delete([FromBody] Models.Request.CustomerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            var newCustomer = _mapper.Map<Customer>(request);
+            return Ok(await _repository.Delete(newCustomer));
+        }
     }
 }

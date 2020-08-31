@@ -28,15 +28,36 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             return _context.Customer.ToList();
         }
 
-        public async Task<CreateCustomerResponse> Create(Customer customer)
+        public async Task<CRUDCustomerResponse> Create(Customer customer)
         {
-            var newCustomer = _mapper.Map<Customer>(customer);
-            await _context.Customer.AddAsync(newCustomer);
+            //var newCustomer = _mapper.Map<Customer>(customer);
+            await _context.Customer.AddAsync(customer);
             var success = await _context.SaveChangesAsync();
             /*return new CreateCustomerResponse(newCustomer.Id, success > 0, 
                 success > 0 ? null : new IdentityError(){Description = $"Could not add user {customer.Id}."});*/
-            return new CreateCustomerResponse(newCustomer.Id, success > 0,
+            return new CRUDCustomerResponse(customer.Id, success > 0,
                 null);
         }
+
+        public async Task<CRUDCustomerResponse> Update(Customer customer)
+        {
+            var oldCustomer = _mapper.Map<Customer>(await _context.Customer.FindAsync(customer.Id));
+            var updatedCustomer = _mapper.Map<Customer>(customer);
+            _context.Customer.Remove(oldCustomer);
+            await _context.SaveChangesAsync();
+            await _context.Customer.AddAsync(updatedCustomer);
+            var success = await _context.SaveChangesAsync();
+            return new CRUDCustomerResponse(customer.Id, success > 0,
+                null);
+        }
+
+        public async Task<CRUDCustomerResponse> Delete(Customer customer)
+        {
+            var deletedCustomer = _mapper.Map<Customer>(await _context.Customer.FindAsync(customer.Id));
+            _context.Customer.Remove(deletedCustomer);
+            var success = await _context.SaveChangesAsync();
+            return new CRUDCustomerResponse(customer.Id, success > 0,
+                null);
+        }   
     }
 }
