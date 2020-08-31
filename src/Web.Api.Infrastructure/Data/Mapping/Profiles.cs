@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using Web.Api.Core.Domain.Entities;
-using Web.Api.Infrastructure.Data.Entities;
-
+using DomainEntities = Web.Api.Core.Domain.Entities;
+using DataEntities = Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.Mapping
 {
@@ -9,15 +8,16 @@ namespace Web.Api.Infrastructure.Data.Mapping
     {
         public DataProfile()
         {
-            CreateMap<User, AppUser>().ConstructUsing(u => 
-                new AppUser {
-                    Id=u.Id, 
-                    FirstName = u.FirstName, 
-                    LastName = u.LastName, 
-                    UserName = u.UserName,
-                    PasswordHash = u.PasswordHash
-                });
-            CreateMap<AppUser, User>().ConstructUsing(au => new User(au.FirstName, au.LastName, au.Email, au.UserName, au.Id, au.PasswordHash));
+            CreateMap<DataEntities.Account, DomainEntities.User>().ConstructUsing(acc =>
+            {
+                return new DomainEntities.User(
+                    acc.User.FirstName,
+                    acc.User.LastName, 
+                    acc.User.Email,
+                    acc.Username,
+                    acc.Id.ToString(),
+                    System.Text.Encoding.Default.GetString(acc.HashedPassword));
+            });
 
         }
     }

@@ -10,9 +10,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Entities
         [Key]
         public Guid Id { get; set; }
         public string Username { get; set; }
-        public string HashedPassword { get; set; }
+        public byte[] HashedPassword { get; set; }
         public string Salt { get; set; }
 
         public virtual Role Role { get; set; }
+        public virtual User User { get; set; }
     }
 }

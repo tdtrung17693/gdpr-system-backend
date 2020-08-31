@@ -17,6 +17,12 @@
     <Compile Remove="Migrations\20200828104326_Initial.Designer.cs" />
     <Compile Remove="Migrations\20200828104534_Initial.cs" />
     <Compile Remove="Migrations\20200828104534_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200831035421_Initial.cs" />
+    <Compile Remove="Migrations\20200831035421_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200831035559_Initial.cs" />
+    <Compile Remove="Migrations\20200831035559_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200831040432_Initial.cs" />
+    <Compile Remove="Migrations\20200831040432_Initial.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,10 +64,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Web.Api.Core\Web.Api.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
  
 

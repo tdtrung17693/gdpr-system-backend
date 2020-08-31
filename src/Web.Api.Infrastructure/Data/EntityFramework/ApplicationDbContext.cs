@@ -9,12 +9,17 @@ using Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework
 {
-    public class ApplicationDbContext :DbContext    {
+    public class ApplicationDbContext : DbContext
+    {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
-        DbSet<User> Users { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<PermissionRole> PermissionRoles { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -23,7 +28,19 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
                 // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
                 modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
             }
+
+            modelBuilder.Entity<PermissionRole>()
+                .HasKey(bc => new { bc.PermissionId, bc.RoleId });
+            modelBuilder.Entity<PermissionRole>()
+                .HasOne(bc => bc.Permission)
+                .WithMany(b => b.PermissionRoles)
+                .HasForeignKey(bc => bc.PermissionId);
+            modelBuilder.Entity<PermissionRole>()
+                .HasOne(bc => bc.Role)
+                .WithMany(c => c.PermissionRoles)
+                .HasForeignKey(bc => bc.RoleId);
         }
+
         public override int SaveChanges()
         {
             AddAuitInfo();

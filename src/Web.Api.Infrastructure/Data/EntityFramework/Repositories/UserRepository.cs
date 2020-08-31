@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Web.Api.Core.Domain.Entities;
-using Web.Api.Core.Dto;
+using Web.Api.Core;
+using DomainEntities = Web.Api.Core.Domain.Entities;
+using DataEntities = Web.Api.Infrastructure.Data.EntityFramework.Entities;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Infrastructure.Data.Entities;
 
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
@@ -14,13 +14,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     internal sealed class UserRepository : IUserRepository
     {
         private readonly IMapper _mapper;
+        private readonly ApplicationDbContext _context;
 
-        public UserRepository( IMapper mapper)
+        public UserRepository(ApplicationDbContext context, IMapper mapper)
         {
             _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<CreateUserResponse> Create(User user, string password)
+        public async Task<CreateUserResponse> Create(DomainEntities.User user, string password)
         {
             //var appUser = _mapper.Map<AppUser>(user);
             //var identityResult = await _userManager.CreateAsync(appUser, password);
@@ -28,21 +30,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             return default(CreateUserResponse);
         }
 
-        public async Task<User> FindByName(string userName)
+        public async Task<DomainEntities.User> FindByName(string userName)
         {
-            //return _mapper.Map<User>(await _userManager.FindByNameAsync(userName));
-            return default(User);
+            //return _mapper.Map<DomainEntities.User>(await _userManager.FindByNameAsync(userName));
+            return default(DomainEntities.User);
         }
 
-        public async Task<bool> CheckPassword(User user, string password)
+        public async Task<bool> CheckPassword(DomainEntities.User user, string password)
         {
-            //return await _userManager.CheckPasswordAsync(_mapper.Map<AppUser>(user), password);
+            //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDomainEntities.User>(user), password);
             return default(bool);
         }
 
-        public async Task<User[]> FindAll()
+        public IPagedCollection<DomainEntities.User> FindAll()
         {
-            return default(User[]);
+            // TODO: Remove magic number
+            return new PagedCollection<DomainEntities.User, DataEntities.Account>(
+                _context.Accounts.Include("User").AsQueryable(),
+                _mapper,
+                10
+            );
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Api.Core;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 
@@ -22,9 +23,15 @@ namespace Web.Api.Controllers
         }
         // GET: api/<UsersController>
         [HttpGet]
-        public async Task<User[]> Get()
+        public async Task<object> Get()
         {
-            return await _userRepository.FindAll();
+            IPagedCollection<User> users = _userRepository.FindAll();
+            return new
+            {
+                Data = await users.GetItemsForPage(1),
+                Page = 1,
+                TotalItems = users.TotalItems()
+            };
         }
 
         // GET api/<UsersController>/5

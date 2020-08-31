@@ -24,17 +24,21 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("HashedPassword");
+                    b.Property<byte[]>("HashedPassword");
 
                     b.Property<Guid?>("RoleId");
 
                     b.Property<string>("Salt");
+
+                    b.Property<Guid?>("UserId");
 
                     b.Property<string>("Username");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Account");
                 });
@@ -44,31 +48,24 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<Guid?>("CreatedBy");
-
-                    b.Property<DateTime>("DeletedAt");
-
-                    b.Property<Guid?>("DeletedBy");
-
-                    b.Property<bool>("IsDeleted");
-
                     b.Property<string>("Name");
-
-                    b.Property<Guid?>("RoleId");
-
-                    b.Property<bool>("Status");
-
-                    b.Property<DateTime>("UpdatedAt");
-
-                    b.Property<Guid?>("UpdatedBy");
 
                     b.HasKey("Id");
 
+                    b.ToTable("Permission");
+                });
+
+            modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.PermissionRole", b =>
+                {
+                    b.Property<Guid>("PermissionId");
+
+                    b.Property<Guid>("RoleId");
+
+                    b.HasKey("PermissionId", "RoleId");
+
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Permission");
+                    b.ToTable("PermissionRole");
                 });
 
             modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.Role", b =>
@@ -76,23 +73,7 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("CreatedAt");
-
-                    b.Property<Guid?>("CreatedBy");
-
-                    b.Property<DateTime>("DeletedAt");
-
-                    b.Property<Guid?>("DeletedBy");
-
-                    b.Property<bool>("IsDeleted");
-
                     b.Property<string>("Name");
-
-                    b.Property<bool>("Status");
-
-                    b.Property<DateTime>("UpdatedAt");
-
-                    b.Property<Guid?>("UpdatedBy");
 
                     b.HasKey("Id");
 
@@ -104,13 +85,11 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("AccountId");
-
                     b.Property<DateTime>("CreatedAt");
 
                     b.Property<Guid?>("CreatedBy");
 
-                    b.Property<DateTime>("DeletedAt");
+                    b.Property<DateTime?>("DeletedAt");
 
                     b.Property<Guid?>("DeletedBy");
 
@@ -124,13 +103,11 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<bool>("Status");
 
-                    b.Property<DateTime>("UpdatedAt");
+                    b.Property<DateTime?>("UpdatedAt");
 
                     b.Property<Guid?>("UpdatedBy");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.ToTable("User");
                 });
@@ -140,20 +117,23 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId");
-                });
 
-            modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.Permission", b =>
-                {
-                    b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.Role")
-                        .WithMany("Permissions")
-                        .HasForeignKey("RoleId");
-                });
-
-            modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.User", b =>
-                {
-                    b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.Account", "Account")
+                    b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("AccountId");
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.PermissionRole", b =>
+                {
+                    b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.Permission", "Permission")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.Role", "Role")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
