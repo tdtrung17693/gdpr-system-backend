@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Models.Request;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,22 +29,23 @@ namespace Web.Api.Controllers
             IPagedCollection<User> users = _userRepository.FindAll();
             return new
             {
-                Data = await users.GetItemsForPage(1),
                 Page = 1,
-                TotalItems = users.TotalItems()
+                TotalPages = users.TotalPages(),
+                TotalItems = users.TotalItems(),
+                Data = await users.GetItemsForPage(1),
             };
         }
 
         // GET api/<UsersController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<User> Get(string id)
         {
-            return "value";
+            return await _userRepository.FindById(id);
         }
 
         // POST api/<UsersController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] RegisterUserRequest request)
         {
         }
 

@@ -23,6 +23,10 @@
     <Compile Remove="Migrations\20200831035559_Initial.Designer.cs" />
     <Compile Remove="Migrations\20200831040432_Initial.cs" />
     <Compile Remove="Migrations\20200831040432_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200831041031_initial.cs" />
+    <Compile Remove="Migrations\20200831041031_initial.Designer.cs" />
+    <Compile Remove="Migrations\20200831085636_AddInversedNavigationToUser.cs" />
+    <Compile Remove="Migrations\20200831085636_AddInversedNavigationToUser.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

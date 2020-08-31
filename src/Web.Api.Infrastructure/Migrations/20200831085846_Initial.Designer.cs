@@ -10,8 +10,8 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200831041031_initial")]
-    partial class initial
+    [Migration("20200831085846_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,7 +32,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<string>("Salt");
 
-                    b.Property<Guid?>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.Property<string>("Username");
 
@@ -40,7 +40,8 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Account");
                 });
@@ -121,8 +122,9 @@ namespace Web.Api.Infrastructure.Migrations
                         .HasForeignKey("RoleId");
 
                     b.HasOne("Web.Api.Infrastructure.Data.EntityFramework.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                        .WithOne("Account")
+                        .HasForeignKey("Web.Api.Infrastructure.Data.EntityFramework.Entities.Account", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Infrastructure.Data.EntityFramework.Entities.PermissionRole", b =>

@@ -15,7 +15,7 @@ namespace Web.Api.Infrastructure.Data.Mapping
                     acc.User.LastName, 
                     acc.User.Email,
                     acc.Username,
-                    acc.Id.ToString(),
+                    acc.User.Id.ToString(),
                     System.Text.Encoding.Default.GetString(acc.HashedPassword));
             });
 

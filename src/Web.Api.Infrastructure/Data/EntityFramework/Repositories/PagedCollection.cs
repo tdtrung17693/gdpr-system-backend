@@ -25,6 +25,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public IPagedCollection<T> FilterBy(string filterString)
         {
+            //return new PagedCollection(_query.Where(...), _mapper, _pageSize);
             throw new NotImplementedException();
         }
 

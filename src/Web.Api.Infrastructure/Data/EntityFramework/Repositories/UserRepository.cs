@@ -7,7 +7,7 @@ using DomainEntities = Web.Api.Core.Domain.Entities;
 using DataEntities = Web.Api.Infrastructure.Data.EntityFramework.Entities;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-
+using System;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -34,6 +34,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             //return _mapper.Map<DomainEntities.User>(await _userManager.FindByNameAsync(userName));
             return default(DomainEntities.User);
+        }
+        public async Task<DomainEntities.User> FindById(string id)
+        {
+            Guid userId = Guid.Parse(id);
+            DataEntities.User user = await _context.Users
+                                            .Where(u => u.Id == userId)
+                                            .Include("Account")
+                                            .FirstAsync();
+            return _mapper.Map<DomainEntities.User>(user.Account);
         }
 
         public async Task<bool> CheckPassword(DomainEntities.User user, string password)
