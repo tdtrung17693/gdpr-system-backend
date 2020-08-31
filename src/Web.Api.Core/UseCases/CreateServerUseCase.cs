@@ -21,10 +21,10 @@ namespace Web.Api.Core.UseCases
             _serverRepository = serverRepository;
         }
 
-        public async Task<bool> Handle(CreateServerRequest message, IOutputPort<CreateNewServerResponse> outputPort)
+        public async Task<bool> Handle(CreateServerRequest message, IOutputPort<CreateNewServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
         {
             var response = await _serverRepository.Create(new Server(message.Id, message.CreatedBy, message.CreatedAt, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt, message.isDeleted, message.Name, message.IpAddress, message.StartDate, message.EndDate));
-            outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
+            //outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }
 

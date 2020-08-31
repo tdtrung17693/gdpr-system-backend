@@ -9,8 +9,7 @@ using Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
-    {
+    public class ApplicationDbContext : DbContext { 
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }

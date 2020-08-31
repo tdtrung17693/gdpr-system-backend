@@ -27,13 +27,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         }
 
         //CREATE 
-        public async Task<CreateNewServerResponse> Create(Core.Domain.Entities.Server server)
+        public async Task<CRUDServerResponse> Create(Core.Domain.Entities.Server server)
         {
-            //var newServer = _mapper.Map<Data.Entities.Server>(server);
-            var identityResult = await _context.Server.CreateAsync(newServer);
-            _context.Server.Add(server);
-            await _context.SaveChangesAsync();
-            return new CreateServerResponse(newServer.Id, identityResult.Succeeded, identityResult.Succeeded ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
+            // var newServer = _mapper.Map<Data.Entities.Server>(server);
+            //var identityResult = await _context.Server.CreateAsync(newServer);
+            await _context.Server.AddAsync(server);
+            var success = await _context.SaveChangesAsync();
+            return new CRUDServerResponse(server.Id, success > 0, null);
         }
 
         //READ

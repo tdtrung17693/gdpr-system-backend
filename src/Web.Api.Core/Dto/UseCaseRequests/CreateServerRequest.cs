@@ -8,29 +8,31 @@ namespace Web.Api.Core.Dto.UseCaseRequests
 {
     public class CreateServerRequest : IUseCaseRequest<CreateNewServerResponse>
     {
-        public Guid Id { get; }
 
-        public Guid CreatedBy { get; }
 
-        public DateTime CreatedAt { get; }
+        public Guid Id { get; set; }
 
-        public Guid? UpdatedBy { get; }
+        public Guid CreatedBy { get; set; }
 
-        public Nullable<DateTime> UpdatedAt { get; }
+        public DateTime CreatedAt { get; set; }
 
-        public Guid? DeletedBy { get; }
+        public Guid? UpdatedBy { get; set; }
 
-        public Nullable<DateTime> DeletedAt { get; }
+        public Nullable<DateTime> UpdatedAt { get; set; }
 
-        public bool isDeleted { get; }
+        public Guid? DeletedBy { get; set; }
 
-        public string Name { get; }
+        public Nullable<DateTime> DeletedAt { get; set; }
 
-        public string IpAddress { get; }
+        public bool isDeleted { get; set; }
 
-        public Nullable<DateTime> StartDate { get; }
+        public string Name { get; set; }
 
-        public Nullable<DateTime> EndDate { get; }
+        public string IpAddress { get; set; }
+
+        public Nullable<DateTime> StartDate { get; set; }
+
+        public Nullable<DateTime> EndDate { get; set; }
 
         public CreateServerRequest(Guid Id, Guid CreatedBy, DateTime CreatedAt, Guid? UpdatedBy, Nullable<DateTime> UpdatedAt, Guid? DeletedBy, Nullable<DateTime> DeletedAt, bool isDeleted, string Name, string IpAddress, Nullable<DateTime> StartDate, Nullable<DateTime> EndDate)
         {

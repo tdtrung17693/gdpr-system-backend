@@ -16,6 +16,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
         }
         //public DbSet<User> User { get; set; }
+        public DbSet<Server> Server { get; set; }
         public override int SaveChanges()
         {
             return base.SaveChanges();
@@ -25,6 +26,5 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         {
             return await base.SaveChangesAsync();
         }
-        public DbSet<Server> Server { get; set; }
     }
 }

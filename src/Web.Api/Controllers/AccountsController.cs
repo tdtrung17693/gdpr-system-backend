@@ -17,6 +17,7 @@ namespace Web.Api.Controllers
         {
             _registerUserUseCase = registerUserUseCase;
             _registerUserPresenter = registerUserPresenter;
+
         }
 
         // POST api/accounts

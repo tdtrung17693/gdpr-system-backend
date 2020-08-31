@@ -20,7 +20,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
+using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
@@ -117,6 +120,9 @@ namespace Web.Api
             {
                 c.SwaggerDoc("v1", new Info { Title = "CleanAspNetCoreWebAPI", Version = "v1" });
             });
+
+            //Add Scoped
+            services.AddScoped<ICreateServerUseCase, CreateServerUseCase>();
 
             // Now register our services with Autofac container.
             var builder = new ContainerBuilder();
