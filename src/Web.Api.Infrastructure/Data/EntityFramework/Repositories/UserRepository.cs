@@ -9,8 +9,7 @@ using Web.Api.Core;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 
-using DomainEntities = Web.Api.Core.Domain.Entities;
-using DataEntities = Web.Api.Infrastructure.Data.EntityFramework.Entities;
+using Web.Api.Core.Domain.Entities;
 using System.Data.SqlClient;
 using System.Data;
 using Web.Api.Core.Dto;
@@ -28,7 +27,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             _context = context;
         }
 
-        public async Task<CreateUserResponse> Create(DomainEntities.User user, string password)
+        public async Task<CreateUserResponse> Create(User user, string password)
         {
 
             //var identityResult = await _userManager.CreateAsync(appUser, password);
@@ -42,7 +41,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             command.Parameters.Add(new SqlParameter("@FirstName", user.FirstName));
             command.Parameters.Add(new SqlParameter("@LastName", user.LastName));
             command.Parameters.Add(new SqlParameter("@Email", user.Email));
-            command.Parameters.Add(new SqlParameter("@Username", user.UserName));
+            command.Parameters.Add(new SqlParameter("@Username", user.Account.Username));
             command.Parameters.Add(new SqlParameter("@HashedPassword", hashPassword));
             command.Parameters.Add(new SqlParameter("@Salt", salt));
 
@@ -64,32 +63,32 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             }
         }
 
-        public async Task<DomainEntities.User> FindByName(string userName)
+        public async Task<User> FindByName(string userName)
         {
-            //return _mapper.Map<DomainEntities.User>(await _userManager.FindByNameAsync(userName));
-            return default(DomainEntities.User);
+            //return _mapper.Map<DataEntities.User>(await _userManager.FindByNameAsync(userName));
+            return default(User);
         }
-        public async Task<DomainEntities.User> FindById(string id)
+        public async Task<User> FindById(string id)
         {
             Guid userId = Guid.Parse(id);
-            DataEntities.User user = await _context.Users
+            User user = await _context.User
                                             .Where(u => u.Id == userId)
                                             .Include("Account")
                                             .FirstAsync();
-            return _mapper.Map<DomainEntities.User>(user.Account);
+            return _mapper.Map<User>(user.Account);
         }
 
-        public async Task<bool> CheckPassword(DomainEntities.User user, string password)
+        public async Task<bool> CheckPassword(User user, string password)
         {
-            //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDomainEntities.User>(user), password);
+            //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDataEntities.User>(user), password);
             return default(bool);
         }
 
-        public IPagedCollection<DomainEntities.User> FindAll()
+        public IPagedCollection<User> FindAll()
         {
             // TODO: Remove magic number
-            return new PagedCollection<DomainEntities.User, DataEntities.Account>(
-                _context.Accounts.Include("User").AsQueryable(),
+            return new PagedCollection<User, Account>(
+                _context.Account.Include("User").AsQueryable(),
                 _mapper,
                 10
             );
