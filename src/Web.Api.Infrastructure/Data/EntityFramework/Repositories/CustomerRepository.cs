@@ -12,7 +12,7 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
-    internal sealed class CustomerRepository: ICustomerRepository
+    internal sealed class CustomerRepository : ICustomerRepository
     {
         public readonly IMapper _mapper;
         private readonly GdprContext _context;
@@ -41,11 +41,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public async Task<CRUDCustomerResponse> Update(Customer customer)
         {
-            var oldCustomer = _mapper.Map<Customer>(await _context.Customer.FindAsync(customer.Id));
-            var updatedCustomer = _mapper.Map<Customer>(customer);
+            var oldCustomer = await _context.Customer.FindAsync(customer.Id);
             _context.Customer.Remove(oldCustomer);
             await _context.SaveChangesAsync();
-            await _context.Customer.AddAsync(updatedCustomer);
+            await _context.Customer.AddAsync(customer);
             var success = await _context.SaveChangesAsync();
             return new CRUDCustomerResponse(customer.Id, success > 0,
                 null);
@@ -53,7 +52,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public async Task<CRUDCustomerResponse> Delete(Customer customer)
         {
-            var deletedCustomer = _mapper.Map<Customer>(await _context.Customer.FindAsync(customer.Id));
+            var deletedCustomer = await _context.Customer.FindAsync(customer.Id);
             _context.Customer.Remove(deletedCustomer);
             var success = await _context.SaveChangesAsync();
             return new CRUDCustomerResponse(customer.Id, success > 0,
