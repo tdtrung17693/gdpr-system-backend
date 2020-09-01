@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using DomainEntities = Web.Api.Core.Domain.Entities;
-using DataEntities = Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.Mapping
 {
@@ -8,15 +7,22 @@ namespace Web.Api.Infrastructure.Data.Mapping
     {
         public DataProfile()
         {
-            CreateMap<DataEntities.Account, DomainEntities.User>().ConstructUsing(acc =>
+            CreateMap<DomainEntities.Account, DomainEntities.User>().ConstructUsing(acc =>
             {
                 return new DomainEntities.User(
+                    acc.User.Id,
+                    acc.User.CreatedBy,
+                    acc.User.CreatedAt,
+                    acc.User.UpdatedBy,
+                    acc.User.UpdatedAt,
+                    acc.User.DeletedBy,
+                    acc.User.DeletedAt,
+                    acc.User.IsDeleted,
                     acc.User.FirstName,
-                    acc.User.LastName, 
+                    acc.User.LastName,
                     acc.User.Email,
-                    acc.Username,
-                    acc.User.Id.ToString(),
-                    System.Text.Encoding.Default.GetString(acc.HashedPassword));
+                    acc.User.RoleId);
+                    //System.Text.Encoding.Default.GetString(acc.HashedPassword));
             });
 
         }
