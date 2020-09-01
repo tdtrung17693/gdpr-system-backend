@@ -47,6 +47,7 @@ namespace Web.Api.Controllers
         [HttpPost]
         public void Post([FromBody] RegisterUserRequest request)
         {
+            
         }
 
         // PUT api/<UsersController>/5
