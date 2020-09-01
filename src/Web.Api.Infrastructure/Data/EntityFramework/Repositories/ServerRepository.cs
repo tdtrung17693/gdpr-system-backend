@@ -19,9 +19,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     {
         //private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly GdprContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public ServerRepository(IMapper mapper, GdprContext context){ 
+        public ServerRepository(IMapper mapper, ApplicationDbContext context){ 
             _mapper = mapper;
             _context = context;
         }
