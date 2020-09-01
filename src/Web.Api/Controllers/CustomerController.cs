@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Domain.Entities;
-using Web.Api.Core.Dto.UseCaseRequests;
+//using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Models.Request;

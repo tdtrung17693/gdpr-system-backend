@@ -45,7 +45,7 @@ namespace Web.Api
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
       // Add framework services.
-      services.AddDbContext<GdprContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
       //services.AddScoped<ICustomerRepository>();
       // jwt wire up
       // Get options from app settings
