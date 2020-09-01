@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Web.Api.Core.Domain.Entities
 {
-    public class Customer
+    public partial class Customer
     {
-        internal Customer(Guid id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, string name,
+        public Customer(Guid id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, string name,
           DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description, bool? status)
         {
             Id = id;
@@ -21,7 +21,7 @@ namespace Web.Api.Core.Domain.Entities
             Description = description;
             Status = status;
         }
-
+        [Key]
         public Guid Id { get; set; }
         public Guid? CreatedBy { get; set; }
         public DateTime? CreatedAt { get; set; }
@@ -33,9 +33,11 @@ namespace Web.Api.Core.Domain.Entities
         public Guid? ContactPoint { get; set; }
         public string Description { get; set; }
         public bool? Status { get; set; }
-
-        //public virtual User CreatedByNavigation { get; set; }
-        //public virtual User UpdatedByNavigation { get; set; }
-        //public virtual ICollection<CustomerServer> CustomerServer { get; set; }
+        public virtual User CreatedByNavigation { get; set; }
+        public virtual User UpdatedByNavigation { get; set; }
+        public virtual ICollection<CustomerServer> CustomerServer { get; set; }
+        /*public virtual User CreatedByNavigation { get; set; }
+        public virtual User UpdatedByNavigation { get; set; }
+        public virtual ICollection<CustomerServer> CustomerServer { get; set; }*/
     }
 }
