@@ -22,7 +22,6 @@ using Web.Api.Core;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
-using Web.Api.Infrastructure.Data.Entities;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
 
@@ -64,7 +63,7 @@ namespace Web.Api
         ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
         ValidateAudience = true,
-        ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+        ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
 
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = _signingKey,
@@ -87,18 +86,18 @@ namespace Web.Api
       });
 
       // add identity
-      var identityBuilder = services.AddIdentityCore<AppUser>(o =>
-            {
-              // configure identity options
-              o.Password.RequireDigit = false;
-              o.Password.RequireLowercase = false;
-              o.Password.RequireUppercase = false;
-              o.Password.RequireNonAlphanumeric = false;
-              o.Password.RequiredLength = 6;
-            });
+      //var identityBuilder = services.AddIdentityCore<AppUser>(o =>
+      //      {
+      //        // configure identity options
+      //        o.Password.RequireDigit = false;
+      //        o.Password.RequireLowercase = false;
+      //        o.Password.RequireUppercase = false;
+      //        o.Password.RequireNonAlphanumeric = false;
+      //        o.Password.RequiredLength = 6;
+      //      });
 
-      identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
-      identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+      //identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
+      //identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
