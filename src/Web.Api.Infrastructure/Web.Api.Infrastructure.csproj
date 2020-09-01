@@ -69,6 +69,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Web.Api.Core\Web.Api.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
  
 
 </Project>

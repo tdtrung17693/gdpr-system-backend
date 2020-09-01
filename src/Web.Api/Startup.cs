@@ -22,7 +22,6 @@ using Web.Api.Core;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
-using Web.Api.Infrastructure.Data.Entities;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
 
