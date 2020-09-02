@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Domain.Entities;
-using Web.Api.Infrastructure.Data.EntityFramework.Entities;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework
 {
@@ -29,26 +27,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserFileInstance> UserFileInstance { get; set; }
         public virtual DbSet<UserLog> UserLog { get; set; }
-        /*protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                // Use the entity name instead of the Context.DbSet<T> name
-                // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
-                modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
-            }
-
-            modelBuilder.Entity<PermissionRole>()
-                .HasKey(bc => new { bc.PermissionId, bc.RoleId });
-            modelBuilder.Entity<PermissionRole>()
-                .HasOne(bc => bc.Permission)
-                .WithMany(b => b.PermissionRoles)
-                .HasForeignKey(bc => bc.PermissionId);
-            modelBuilder.Entity<PermissionRole>()
-                .HasOne(bc => bc.Role)
-                .WithMany(c => c.PermissionRoles)
-                .HasForeignKey(bc => bc.RoleId);
-        }*/
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -78,8 +56,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
                 entity.Property(e => e.Username).HasMaxLength(20);
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.Account)
-                    .HasForeignKey(d => d.UserId)
+                    .WithOne(p => p.Account)
                     .HasConstraintName("fk_Account_userId");
             });
 

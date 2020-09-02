@@ -62,28 +62,6 @@ namespace Web.Api.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Server",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<Guid>(nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    DeletedBy = table.Column<Guid>(nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
-                    Name = table.Column<string>(maxLength: 150, nullable: false),
-                    IpAddress = table.Column<string>(maxLength: 15, nullable: false),
-                    StartDate = table.Column<DateTime>(type: "date", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "date", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Server", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PermissionRole",
                 columns: table => new
                 {
@@ -112,17 +90,18 @@ namespace Web.Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<Guid>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getutcdate())"),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
+                    CreatedBy = table.Column<Guid>(nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    DeletedBy = table.Column<Guid>(nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
                     FirstName = table.Column<string>(maxLength: 50, nullable: true),
                     LastName = table.Column<string>(maxLength: 50, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
-                    RoleId = table.Column<Guid>(nullable: true)
+                    RoleId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,7 +123,7 @@ namespace Web.Api.Infrastructure.Migrations
                         column: x => x.RoleId,
                         principalTable: "Role",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_User_updatedBy",
                         column: x => x.UpdatedBy,
@@ -179,16 +158,20 @@ namespace Web.Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<Guid>(nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    CreatedBy = table.Column<Guid>(nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    DeletedAt = table.Column<DateTime>(nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(nullable: true, defaultValueSql: "((1))"),
+                    IsDeleted = table.Column<bool>(nullable: true),
+                    DeletedByNavigationId = table.Column<Guid>(nullable: true),
                     Name = table.Column<string>(maxLength: 50, nullable: false),
                     ContractBeginDate = table.Column<DateTime>(type: "date", nullable: true),
                     ContractEndDate = table.Column<DateTime>(type: "date", nullable: true),
                     ContactPoint = table.Column<Guid>(nullable: true),
-                    Description = table.Column<string>(maxLength: 200, nullable: true),
-                    Status = table.Column<bool>(nullable: true, defaultValueSql: "((1))")
+                    Description = table.Column<string>(maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -196,6 +179,12 @@ namespace Web.Api.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "fk_Customer_createdBy",
                         column: x => x.CreatedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Customer_User_DeletedByNavigationId",
+                        column: x => x.DeletedByNavigationId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -208,56 +197,44 @@ namespace Web.Api.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Request",
+                name: "Server",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<Guid>(nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    CreatedBy = table.Column<Guid>(nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    DeletedBy = table.Column<Guid>(nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
-                    Status = table.Column<string>(maxLength: 50, nullable: true),
-                    Title = table.Column<string>(maxLength: 50, nullable: true),
-                    Description = table.Column<string>(maxLength: 100, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime", nullable: false),
-                    ServerId = table.Column<Guid>(nullable: true),
-                    Response = table.Column<string>(maxLength: 200, nullable: true),
-                    ApprovedBy = table.Column<Guid>(nullable: true)
+                    CreatedByNavigationId = table.Column<Guid>(nullable: true),
+                    DeletedByNavigationId = table.Column<Guid>(nullable: true),
+                    UpdatedByNavigationId = table.Column<Guid>(nullable: true),
+                    Name = table.Column<string>(maxLength: 150, nullable: false),
+                    IpAddress = table.Column<string>(maxLength: 15, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "date", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Request", x => x.Id);
+                    table.PrimaryKey("PK_Server", x => x.Id);
                     table.ForeignKey(
-                        name: "fk_Request_approvedBy",
-                        column: x => x.ApprovedBy,
+                        name: "FK_Server_User_CreatedByNavigationId",
+                        column: x => x.CreatedByNavigationId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_Request_createdBy",
-                        column: x => x.CreatedBy,
+                        name: "FK_Server_User_DeletedByNavigationId",
+                        column: x => x.DeletedByNavigationId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_Request_deletedBy",
-                        column: x => x.DeletedBy,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_Request_serverId",
-                        column: x => x.ServerId,
-                        principalTable: "Server",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_Request_updatedBy",
-                        column: x => x.UpdatedBy,
+                        name: "FK_Server_User_UpdatedByNavigationId",
+                        column: x => x.UpdatedByNavigationId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -333,18 +310,76 @@ namespace Web.Api.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Request",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
+                    CreatedBy = table.Column<Guid>(nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(maxLength: 50, nullable: true),
+                    IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
+                    RequestStatus = table.Column<string>(nullable: true),
+                    Title = table.Column<string>(maxLength: 50, nullable: true),
+                    Description = table.Column<string>(maxLength: 100, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime", nullable: false),
+                    ServerId = table.Column<Guid>(nullable: true),
+                    Response = table.Column<string>(maxLength: 200, nullable: true),
+                    ApprovedBy = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Request", x => x.Id);
+                    table.ForeignKey(
+                        name: "fk_Request_approvedBy",
+                        column: x => x.ApprovedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_Request_createdBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_Request_deletedBy",
+                        column: x => x.DeletedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_Request_serverId",
+                        column: x => x.ServerId,
+                        principalTable: "Server",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_Request_updatedBy",
+                        column: x => x.UpdatedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Comment",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CreatedBy = table.Column<Guid>(nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    CreatedBy = table.Column<Guid>(nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    DeletedBy = table.Column<Guid>(nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
-                    RequestId = table.Column<Guid>(nullable: true),
+                    RequestId = table.Column<Guid>(nullable: false),
                     ParentId = table.Column<Guid>(nullable: true),
                     Content = table.Column<string>(maxLength: 300, nullable: false)
                 },
@@ -374,7 +409,7 @@ namespace Web.Api.Infrastructure.Migrations
                         column: x => x.RequestId,
                         principalTable: "Request",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_Comment_updatedBy",
                         column: x => x.UpdatedBy,
@@ -410,7 +445,9 @@ namespace Web.Api.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Account_UserId",
                 table: "Account",
-                column: "UserId");
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "UQ__Account__536C85E4D807EB86",
@@ -448,6 +485,11 @@ namespace Web.Api.Infrastructure.Migrations
                 name: "IX_Customer_CreatedBy",
                 table: "Customer",
                 column: "CreatedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customer_DeletedByNavigationId",
+                table: "Customer",
+                column: "DeletedByNavigationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customer_UpdatedBy",
@@ -493,6 +535,21 @@ namespace Web.Api.Infrastructure.Migrations
                 name: "IX_Request_UpdatedBy",
                 table: "Request",
                 column: "UpdatedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Server_CreatedByNavigationId",
+                table: "Server",
+                column: "CreatedByNavigationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Server_DeletedByNavigationId",
+                table: "Server",
+                column: "DeletedByNavigationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Server_UpdatedByNavigationId",
+                table: "Server",
+                column: "UpdatedByNavigationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_CreatedBy",
@@ -571,10 +628,10 @@ namespace Web.Api.Infrastructure.Migrations
                 name: "FileInstance");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Server");
 
             migrationBuilder.DropTable(
-                name: "Server");
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Role");

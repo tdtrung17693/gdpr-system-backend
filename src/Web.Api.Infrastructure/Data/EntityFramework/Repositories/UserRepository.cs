@@ -32,29 +32,35 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<DataEntities.User> FindByName(string userName)
         {
             //return _mapper.Map<DataEntities.User>(await _userManager.FindByNameAsync(userName));
-            return default(DataEntities.User);
+            DataEntities.User user = await _context.User
+                                            .Include(u => u.Account)
+                                            .Include(u => u.Role)
+                                            .Where(u => u.Account.Username == userName)
+                                            .FirstAsync();
+            return user;
         }
         public async Task<DataEntities.User> FindById(string id)
         {
             Guid userId = Guid.Parse(id);
             DataEntities.User user = await _context.User
                                             .Where(u => u.Id == userId)
-                                            .Include("Account")
+                                            .Include(u => u.Account)
+                                            .Include(u => u.Role)
                                             .FirstAsync();
-            return _mapper.Map<DataEntities.User>(user.Account);
+            return user;
         }
 
         public async Task<bool> CheckPassword(DataEntities.User user, string password)
         {
             //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDataEntities.User>(user), password);
-            return default(bool);
+            return BCrypt.Net.BCrypt.Verify(password, System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
         }
 
         public IPagedCollection<DataEntities.User> FindAll()
         {
             // TODO: Remove magic number
             return new PagedCollection<DataEntities.User, DataEntities.Account>(
-                _context.Account.Include("User").AsQueryable(),
+                _context.Account.Include(account => account.User).ThenInclude(user => user.Role).AsQueryable(),
                 _mapper,
                 10
             );
