@@ -9,6 +9,8 @@ using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Models.Request;
 
+using Microsoft.AspNetCore.Authorization;
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Web.Api.Controllers
@@ -23,10 +25,12 @@ namespace Web.Api.Controllers
             _userRepository = userRepository;
         }
         // GET: api/<UsersController>
+        [Authorize]
         [HttpGet]
         public async Task<object> Get()
         {
             IPagedCollection<User> users = _userRepository.FindAll();
+            Console.Out.WriteLine(User.Identity.Name);
             return new
             {
                 Page = 1,
@@ -47,6 +51,7 @@ namespace Web.Api.Controllers
         [HttpPost]
         public void Post([FromBody] RegisterUserRequest request)
         {
+            
         }
 
         // PUT api/<UsersController>/5

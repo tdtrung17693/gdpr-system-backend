@@ -2,19 +2,25 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Web.Api.Infrastructure.Data.EntityFramework.Entities
+namespace Web.Api.Core.Domain.Entities
 {
     public class BaseEntity
     {
-        public BaseEntity()
+        public BaseEntity(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt, Guid? updatedBy, DateTime? deletedAt = null, Guid? deletedBy = null, bool? isDeleted = false, bool? status = true)
         {
-            Status = true;
-            IsDeleted = false;
+            Id = id;
+            IsDeleted = isDeleted;
+            CreatedBy = createdBy;
+            CreatedAt = createdAt;
+            UpdatedBy = updatedBy;
+            UpdatedAt = updatedAt;
+            DeletedBy = deletedBy;
+            DeletedAt = deletedAt;
         }
 
         [Key]
-        public Guid Id { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public Guid? Id { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public Guid? CreatedBy { get; set; }
 
@@ -26,7 +32,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Entities
 
         public Guid? DeletedBy { get; set; }
 
-        public bool Status { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool? Status { get; set; }
+        public bool? IsDeleted { get; set; }
+        public virtual User CreatedByNavigation { get; set; }
+        public virtual User DeletedByNavigation { get; set; }
+        public virtual User UpdatedByNavigation { get; set; }
     }
 }

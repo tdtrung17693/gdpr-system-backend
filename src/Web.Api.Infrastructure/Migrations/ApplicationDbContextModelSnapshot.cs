@@ -38,7 +38,9 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.HasIndex("Username")
                         .IsUnique()
@@ -50,7 +52,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Comment", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -74,7 +76,9 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("ParentId");
 
-                    b.Property<Guid?>("RequestId");
+                    b.Property<Guid>("RequestId");
+
+                    b.Property<bool?>("Status");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -98,7 +102,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Customer", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<Guid?>("ContactPoint");
 
@@ -115,8 +119,16 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy");
 
+                    b.Property<DateTime?>("DeletedAt");
+
+                    b.Property<Guid?>("DeletedBy");
+
+                    b.Property<Guid?>("DeletedByNavigationId");
+
                     b.Property<string>("Description")
                         .HasMaxLength(200);
+
+                    b.Property<bool?>("IsDeleted");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -134,6 +146,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("DeletedByNavigationId");
 
                     b.HasIndex("UpdatedBy");
 
@@ -265,7 +279,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Request", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<Guid?>("ApprovedBy");
 
@@ -291,6 +305,8 @@ namespace Web.Api.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("((0))");
 
+                    b.Property<string>("RequestStatus");
+
                     b.Property<string>("Response")
                         .HasMaxLength(200);
 
@@ -299,7 +315,7 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime");
 
-                    b.Property<string>("Status")
+                    b.Property<bool?>("Status")
                         .HasMaxLength(50);
 
                     b.Property<string>("Title")
@@ -339,7 +355,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -348,10 +364,14 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy");
 
+                    b.Property<Guid?>("CreatedByNavigationId");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("DeletedBy");
+
+                    b.Property<Guid?>("DeletedByNavigationId");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("date");
@@ -371,26 +391,36 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("date");
 
+                    b.Property<bool?>("Status");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("UpdatedBy");
 
+                    b.Property<Guid?>("UpdatedByNavigationId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedByNavigationId");
+
+                    b.HasIndex("DeletedByNavigationId");
+
+                    b.HasIndex("UpdatedByNavigationId");
 
                     b.ToTable("Server");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasDefaultValueSql("(getutcdate())");
 
-                    b.Property<Guid>("CreatedBy");
+                    b.Property<Guid?>("CreatedBy");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime");
@@ -410,7 +440,9 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .HasMaxLength(50);
 
-                    b.Property<Guid?>("RoleId");
+                    b.Property<Guid>("RoleId");
+
+                    b.Property<bool?>("Status");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -474,8 +506,8 @@ namespace Web.Api.Infrastructure.Migrations
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Account", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "User")
-                        .WithMany("Account")
-                        .HasForeignKey("UserId")
+                        .WithOne("Account")
+                        .HasForeignKey("Web.Api.Core.Domain.Entities.Account", "UserId")
                         .HasConstraintName("fk_Account_userId");
                 });
 
@@ -499,7 +531,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.Request", "Request")
                         .WithMany("Comment")
                         .HasForeignKey("RequestId")
-                        .HasConstraintName("fk_Comment_requestId");
+                        .HasConstraintName("fk_Comment_requestId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
                         .WithMany("CommentUpdatedByNavigation")
@@ -513,6 +546,10 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("CustomerCreatedByNavigation")
                         .HasForeignKey("CreatedBy")
                         .HasConstraintName("fk_Customer_createdBy");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
+                        .WithMany()
+                        .HasForeignKey("DeletedByNavigationId");
 
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
                         .WithMany("CustomerUpdatedByNavigation")
@@ -582,6 +619,21 @@ namespace Web.Api.Infrastructure.Migrations
                         .HasConstraintName("fk_Request_updatedBy");
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
+                {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
+                        .WithMany()
+                        .HasForeignKey("CreatedByNavigationId");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
+                        .WithMany()
+                        .HasForeignKey("DeletedByNavigationId");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
+                        .WithMany()
+                        .HasForeignKey("UpdatedByNavigationId");
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
@@ -597,7 +649,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.Role", "Role")
                         .WithMany("User")
                         .HasForeignKey("RoleId")
-                        .HasConstraintName("fk_User_roleId");
+                        .HasConstraintName("fk_User_roleId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
                         .WithMany("InverseUpdatedByNavigation")
