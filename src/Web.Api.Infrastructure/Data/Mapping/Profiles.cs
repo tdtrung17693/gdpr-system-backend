@@ -22,14 +22,6 @@ namespace Web.Api.Infrastructure.Data.Mapping
             CreateMap<DomainEntities.Account, DomainEntities.User>().ConstructUsing(acc =>
             {
                 return new DomainEntities.User(
-                    acc.User.Id,
-                    acc.User.CreatedBy,
-                    acc.User.CreatedAt,
-                    acc.User.UpdatedBy,
-                    acc.User.UpdatedAt,
-                    acc.User.DeletedBy,
-                    acc.User.DeletedAt,
-                    acc.User.IsDeleted,
                     acc.User.FirstName,
                     acc.User.LastName,
                     acc.User.Email,
