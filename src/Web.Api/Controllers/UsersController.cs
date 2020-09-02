@@ -10,6 +10,8 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Models.Request;
 
 using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using Web.Api.Infrastructure.Helpers;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,7 +32,7 @@ namespace Web.Api.Controllers
         public async Task<object> Get()
         {
             IPagedCollection<User> users = _userRepository.FindAll();
-            Console.Out.WriteLine(User.Identity.Name);
+            User.Claims.FirstOrDefault(claim => claim.Type == Constants.Strings.JwtClaimIdentifiers.Username);
             return new
             {
                 Page = 1,

@@ -78,15 +78,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.CommentCreatedByNavigation)
-                    .HasForeignKey(d => d.CreatedBy)
-                    .HasConstraintName("fk_Comment_createdBy");
+                // entity.HasOne(d => d.CreatedByNavigation)
+                //     .WithMany(p => p.CommentCreatedByNavigation)
+                //     .HasForeignKey(d => d.CreatedBy)
+                //     .HasConstraintName("fk_Comment_createdBy");
 
-                entity.HasOne(d => d.DeletedByNavigation)
-                    .WithMany(p => p.CommentDeletedByNavigation)
-                    .HasForeignKey(d => d.DeletedBy)
-                    .HasConstraintName("fk_Comment_deletedBy");
+                // entity.HasOne(d => d.DeletedByNavigation)
+                //     .WithMany(p => p.CommentDeletedByNavigation)
+                //     .HasForeignKey(d => d.DeletedBy)
+                //     .HasConstraintName("fk_Comment_deletedBy");
 
                 entity.HasOne(d => d.Parent)
                     .WithMany(p => p.InverseParent)
@@ -98,10 +98,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
                     .HasForeignKey(d => d.RequestId)
                     .HasConstraintName("fk_Comment_requestId");
 
-                entity.HasOne(d => d.UpdatedByNavigation)
-                    .WithMany(p => p.CommentUpdatedByNavigation)
-                    .HasForeignKey(d => d.UpdatedBy)
-                    .HasConstraintName("fk_Comment_updatedBy");
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.CommentUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_Comment_updatedBy");
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -126,15 +126,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.CustomerCreatedByNavigation)
-                    .HasForeignKey(d => d.CreatedBy)
-                    .HasConstraintName("fk_Customer_createdBy");
+                // entity.HasOne(d => d.CreatedByNavigation)
+                //     .WithMany(p => p.CustomerCreatedByNavigation)
+                //     .HasForeignKey(d => d.CreatedBy)
+                //     .HasConstraintName("fk_Customer_createdBy");
 
-                entity.HasOne(d => d.UpdatedByNavigation)
-                    .WithMany(p => p.CustomerUpdatedByNavigation)
-                    .HasForeignKey(d => d.UpdatedBy)
-                    .HasConstraintName("fk_Customer_updatedBy");
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.CustomerUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_Customer_updatedBy");
             });
 
             modelBuilder.Entity<CustomerServer>(entity =>
@@ -271,30 +271,30 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.ApprovedByNavigation)
-                    .WithMany(p => p.RequestApprovedByNavigation)
-                    .HasForeignKey(d => d.ApprovedBy)
-                    .HasConstraintName("fk_Request_approvedBy");
+                // entity.HasOne(d => d.ApprovedByNavigation)
+                //     .WithMany(p => p.RequestApprovedByNavigation)
+                //     .HasForeignKey(d => d.ApprovedBy)
+                //     .HasConstraintName("fk_Request_approvedBy");
 
-                entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.RequestCreatedByNavigation)
-                    .HasForeignKey(d => d.CreatedBy)
-                    .HasConstraintName("fk_Request_createdBy");
+                // entity.HasOne(d => d.CreatedByNavigation)
+                //     .WithMany(p => p.RequestCreatedByNavigation)
+                //     .HasForeignKey(d => d.CreatedBy)
+                //     .HasConstraintName("fk_Request_createdBy");
 
-                entity.HasOne(d => d.DeletedByNavigation)
-                    .WithMany(p => p.RequestDeletedByNavigation)
-                    .HasForeignKey(d => d.DeletedBy)
-                    .HasConstraintName("fk_Request_deletedBy");
+                // entity.HasOne(d => d.DeletedByNavigation)
+                //     .WithMany(p => p.RequestDeletedByNavigation)
+                //     .HasForeignKey(d => d.DeletedBy)
+                //     .HasConstraintName("fk_Request_deletedBy");
 
                 entity.HasOne(d => d.Server)
                     .WithMany(p => p.Request)
                     .HasForeignKey(d => d.ServerId)
                     .HasConstraintName("fk_Request_serverId");
 
-                entity.HasOne(d => d.UpdatedByNavigation)
-                    .WithMany(p => p.RequestUpdatedByNavigation)
-                    .HasForeignKey(d => d.UpdatedBy)
-                    .HasConstraintName("fk_Request_updatedBy");
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.RequestUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_Request_updatedBy");
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -355,26 +355,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                entity.HasOne(d => d.CreatedByNavigation)
-                    .WithMany(p => p.InverseCreatedByNavigation)
-                    .HasForeignKey(d => d.CreatedBy)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_User_createdBy");
+                // entity.HasOne(d => d.CreatedByNavigation)
+                //     .WithMany(p => p.InverseCreatedByNavigation)
+                //     .HasForeignKey(d => d.CreatedBy)
+                //     .OnDelete(DeleteBehavior.ClientSetNull)
+                //     .HasConstraintName("fk_User_createdBy");
 
-                entity.HasOne(d => d.DeletedByNavigation)
-                    .WithMany(p => p.InverseDeletedByNavigation)
-                    .HasForeignKey(d => d.DeletedBy)
-                    .HasConstraintName("fk_User_deletedBy");
+                // entity.HasOne(d => d.DeletedByNavigation)
+                //     .WithMany(p => p.InverseDeletedByNavigation)
+                //     .HasForeignKey(d => d.DeletedBy)
+                //     .HasConstraintName("fk_User_deletedBy");
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.RoleId)
                     .HasConstraintName("fk_User_roleId");
 
-                entity.HasOne(d => d.UpdatedByNavigation)
-                    .WithMany(p => p.InverseUpdatedByNavigation)
-                    .HasForeignKey(d => d.UpdatedBy)
-                    .HasConstraintName("fk_User_updatedBy");
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.InverseUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_User_updatedBy");
             });
 
             modelBuilder.Entity<UserFileInstance>(entity =>
