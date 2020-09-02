@@ -363,53 +363,52 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy");
 
-                    b.Property<Guid?>("CreatedByNavigationId");
+                    b.Property<DateTime?>("UpdatedAt")
+                       .HasColumnType("datetime");
+
+                    b.Property<Guid?>("UpdatedBy");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime");
+                       .HasColumnType("datetime");
 
                     b.Property<Guid?>("DeletedBy");
 
-                    b.Property<Guid?>("DeletedByNavigationId");
+                    b.Property<bool?>("IsDeleted")
+                       .ValueGeneratedOnAdd()
+                       .HasDefaultValueSql("((0))");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<bool?>("Status");
+
+
+                    b.Property<string>("Name")
+                       .IsRequired()
+                       .HasMaxLength(150);
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasMaxLength(15);
 
-                    b.Property<bool?>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("((0))");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150);
-
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("date");
 
-                    b.Property<bool?>("Status");
+                    b.Property<DateTime?>("EndDate")
+                       .HasColumnType("date");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime");
 
-                    b.Property<Guid?>("UpdatedBy");
-
-                    b.Property<Guid?>("UpdatedByNavigationId");
 
                     b.HasKey("Id");
 
+
+                    b.ToTable("Server");
+                });
+            /* b.Property<Guid?>("CreatedByNavigationId");
+                    b.Property<Guid?>("UpdatedByNavigationId");
+                    b.Property<Guid?>("DeletedByNavigationId");
                     b.HasIndex("CreatedByNavigationId");
 
                     b.HasIndex("DeletedByNavigationId");
 
-                    b.HasIndex("UpdatedByNavigationId");
-
-                    b.ToTable("Server");
-                });
-
+                    b.HasIndex("UpdatedByNavigationId");*/
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>
                 {
                     b.Property<Guid?>("Id");
