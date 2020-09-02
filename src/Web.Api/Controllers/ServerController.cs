@@ -21,20 +21,20 @@ namespace Web.Api.Controllers
     {   
         private readonly IMapper _mapper;
         private readonly IServerRepository _repository;
-       /* private readonly ICreateServerUseCase _createServerUseCase;
+        private readonly ICreateServerUseCase _createServerUseCase;
         private readonly CreateServerPresenter _createServerPresenter;
-        private readonly JsonSerializer _jsonSerializer;*/
+        //private readonly JsonSerializer _jsonSerializer;
 
-        public ServerController(IMapper mapper, IServerRepository repository)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
+        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {   
             _mapper = mapper;
             _repository = repository;
-           /* _createServerUseCase = createServerUseCase;
-            _createServerPresenter = createServerPresenter;*/
+            _createServerUseCase = createServerUseCase;
+            _createServerPresenter = createServerPresenter;
         }
 
         //CREATE
-       /* [HttpPost("create")]
+        [HttpPost("create")]
         public async Task<ActionResult> CreateNewServer([FromBody] ServerRequest server)
         {
 
@@ -44,10 +44,14 @@ namespace Web.Api.Controllers
             }
             //var serverItem = _repository.Create(server);
             //return Ok(commandItems);
-            await _createServerUseCase.Handle(new CreateServerRequest(server.Id, server.CreatedBy, server.CreatedAt, server.UpdatedBy, server.UpdatedAt, server.DeletedBy, server.DeletedAt, server.isDeleted, server.Name, server.IpAddress, server.StartDate, server.EndDate), _createServerPresenter);
+            Guid newId = new Guid();
+            Console.WriteLine(newId);
+            await _createServerUseCase.Handle(new CreateServerRequest(newId, server.CreatedBy, server.CreatedAt, server.UpdatedBy, server.UpdatedAt, server.DeletedBy, server.DeletedAt, server.IsDeleted, server.Name, server.IpAddress, server.StartDate, server.EndDate), _createServerPresenter);
             return Ok();
+           
+           
         }
-*/
+
         //READ
         [HttpGet]
         public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()

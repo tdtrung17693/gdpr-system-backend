@@ -12,7 +12,7 @@ namespace Web.Api.Models.Request
         public Nullable<DateTime> UpdatedAt { get; set; }
         public Guid? DeletedBy { get; set; }
         public Nullable<DateTime> DeletedAt { get; set; }
-        public bool isDeleted { get; set; }
+        public bool IsDeleted { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
         public Nullable<DateTime> StartDate { get; set; }

@@ -19,6 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
@@ -45,6 +47,8 @@ namespace Web.Api
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
 
+      //long add
+      services.AddScoped<ICreateServerUseCase,CreateServerUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
