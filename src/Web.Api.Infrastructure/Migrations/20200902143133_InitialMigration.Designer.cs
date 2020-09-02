@@ -10,8 +10,8 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200901232909_initial")]
-    partial class initial
+    [Migration("20200902143133_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,7 +33,7 @@ namespace Web.Api.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20);
 
-                    b.Property<Guid?>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.Property<string>("Username")
                         .HasMaxLength(20);
@@ -41,8 +41,7 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("Username")
                         .IsUnique()
@@ -510,7 +509,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "User")
                         .WithOne("Account")
                         .HasForeignKey("Web.Api.Core.Domain.Entities.Account", "UserId")
-                        .HasConstraintName("fk_Account_userId");
+                        .HasConstraintName("fk_Account_userId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Comment", b =>

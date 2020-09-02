@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
-using Web.Api.Infrastructure.Data.Entities;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
-using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 //using Web.Api.Infrastructure.Data.Entities;
 

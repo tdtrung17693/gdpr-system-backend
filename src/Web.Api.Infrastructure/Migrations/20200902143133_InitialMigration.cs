@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Web.Api.Infrastructure.Migrations
 {
-    public partial class initial : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -140,7 +140,7 @@ namespace Web.Api.Infrastructure.Migrations
                     Username = table.Column<string>(maxLength: 20, nullable: true),
                     HashedPassword = table.Column<byte[]>(maxLength: 256, nullable: false),
                     Salt = table.Column<string>(maxLength: 20, nullable: false),
-                    UserId = table.Column<Guid>(nullable: true)
+                    UserId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,7 +150,7 @@ namespace Web.Api.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -209,9 +209,9 @@ namespace Web.Api.Infrastructure.Migrations
                     DeletedBy = table.Column<Guid>(nullable: true),
                     Status = table.Column<bool>(nullable: true),
                     IsDeleted = table.Column<bool>(nullable: true, defaultValueSql: "((0))"),
-                    CreatedByNavigationId = table.Column<Guid>(nullable: true),
-                    DeletedByNavigationId = table.Column<Guid>(nullable: true),
-                    UpdatedByNavigationId = table.Column<Guid>(nullable: true),
+                    //CreatedByNavigationId = table.Column<Guid>(nullable: true),
+                    //DeletedByNavigationId = table.Column<Guid>(nullable: true),
+                    //UpdatedByNavigationId = table.Column<Guid>(nullable: true),
                     Name = table.Column<string>(maxLength: 150, nullable: false),
                     IpAddress = table.Column<string>(maxLength: 15, nullable: false),
                     StartDate = table.Column<DateTime>(type: "date", nullable: true),
@@ -446,8 +446,7 @@ namespace Web.Api.Infrastructure.Migrations
                 name: "IX_Account_UserId",
                 table: "Account",
                 column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "UQ__Account__536C85E4D807EB86",
