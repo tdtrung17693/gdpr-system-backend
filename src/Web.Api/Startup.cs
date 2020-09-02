@@ -24,7 +24,8 @@ using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
-
+using Microsoft.EntityFrameworkCore;
+using Web.Api.Models.Request;
 namespace Web.Api
 {
   public class Startup
@@ -42,12 +43,11 @@ namespace Web.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
-      // Add framework services.
-      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
-
-      // jwt wire up
-      // Get options from app settings
-      var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+            // Add framework services.
+            services.AddDbContext<GdprContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+            // jwt wire up
+            // Get options from app settings
+            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
       // Configure JwtIssuerOptions
       services.Configure<JwtIssuerOptions>(options =>
