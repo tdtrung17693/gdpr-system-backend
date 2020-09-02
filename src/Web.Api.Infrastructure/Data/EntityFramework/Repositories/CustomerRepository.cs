@@ -15,9 +15,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     internal sealed class CustomerRepository : ICustomerRepository
     {
         public readonly IMapper _mapper;
-        private readonly GdprContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CustomerRepository(IMapper mapper, GdprContext context)
+        public CustomerRepository(IMapper mapper, ApplicationDbContext context)
         {
             _mapper = mapper;
             _context = context;
