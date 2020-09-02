@@ -35,7 +35,7 @@ namespace Web.Api.Controllers
 
         //CREATE
         [HttpPost("create")]
-        public async Task<ActionResult> CreateNewServer([FromBody] ServerRequest server)
+        public async Task<ActionResult> CreateNewServer([FromBody] ServerRequest server)   
         {
 
             if (!ModelState.IsValid)
