@@ -1,5 +1,6 @@
 ﻿
 using System;
+using Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Models.Request
 {
@@ -17,5 +18,6 @@ namespace Web.Api.Models.Request
         public string IpAddress { get; set; }
         public Nullable<DateTime> StartDate { get; set; }
         public Nullable<DateTime> EndDate { get; set; }
+        public bool? Status { get; set; }
     }
 }

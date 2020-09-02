@@ -10,6 +10,7 @@ namespace Web.Api.Core.Domain.Entities
         {
             Id = id;
             IsDeleted = isDeleted;
+            Status = status;
             CreatedBy = createdBy;
             CreatedAt = createdAt;
             UpdatedBy = updatedBy;

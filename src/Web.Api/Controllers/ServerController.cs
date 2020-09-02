@@ -44,9 +44,8 @@ namespace Web.Api.Controllers
             }
             //var serverItem = _repository.Create(server);
             //return Ok(commandItems);
-            Guid newId = new Guid();
-            Console.WriteLine(newId);
-            await _createServerUseCase.Handle(new CreateServerRequest(newId, server.CreatedBy, server.CreatedAt, server.UpdatedBy, server.UpdatedAt, server.DeletedBy, server.DeletedAt, server.IsDeleted, server.Name, server.IpAddress, server.StartDate, server.EndDate), _createServerPresenter);
+            await _createServerUseCase.Handle(new CreateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.UpdatedAt, server.UpdatedBy, server.DeletedAt, server.DeletedBy,  server.IsDeleted, server.Status, server.Name,
+            server.IpAddress, server.StartDate, server.EndDate), _createServerPresenter);
             return Ok();
            
            

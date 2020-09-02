@@ -6,9 +6,9 @@ namespace Web.Api.Core.Domain.Entities
 {
     public partial class Server : BaseEntity
     {
-        public Server(Guid? id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, bool? isDeleted, string name, 
+        public Server(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt, Guid? updatedBy, DateTime? deletedAt, Guid? deletedBy,  bool? isDeleted, bool? status, string name, 
             string ipAddress, DateTime? startDate, DateTime? endDate)
-            : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy)
+            : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {
             Name = name;
             IpAddress = ipAddress;

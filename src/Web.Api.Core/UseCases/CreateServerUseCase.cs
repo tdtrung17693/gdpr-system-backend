@@ -23,16 +23,9 @@ namespace Web.Api.Core.UseCases
 
         public async Task<bool> Handle(CreateServerRequest message, IOutputPort<CreateNewServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
         {
-            var response = await _serverRepository.Create(new Server(message.Id, message.CreatedBy, message.CreatedAt, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt, message.isDeleted, message.Name, message.IpAddress, message.StartDate, message.EndDate));
+            var response = await _serverRepository.Create(new Server(message.Id, message.CreatedAt, message.CreatedBy, message.UpdatedAt, message.UpdatedBy, message.DeletedAt, message.DeletedBy, message.IsDeleted, message.Status, message.Name, message.IpAddress, message.StartDate, message.EndDate));
             //outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }
-
-        //public async Task<bool> Handle(RegisterUserRequest message, IOutputPort<RegisterUserResponse> outputPort)
-        //{
-        //    var response = await _userRepository.Create(new User(message.FirstName, message.LastName, message.Email, message.UserName), message.Password);
-        //    outputPort.Handle(response.Success ? new RegisterUserResponse(response.Id, true) : new RegisterUserResponse(response.Errors.Select(e => e.Description)));
-        //    return response.Success;
-        //}
     }
 }
