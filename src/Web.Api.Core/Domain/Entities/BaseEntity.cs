@@ -34,8 +34,8 @@ namespace Web.Api.Core.Domain.Entities
 
         public bool? Status { get; set; }
         public bool? IsDeleted { get; set; }
-        public virtual User CreatedByNavigation { get; set; }
-        public virtual User DeletedByNavigation { get; set; }
-        public virtual User UpdatedByNavigation { get; set; }
+        // public virtual User CreatedByNavigation { get; set; }
+        // public virtual User DeletedByNavigation { get; set; }
+        // public virtual User UpdatedByNavigation { get; set; }
     }
 }
