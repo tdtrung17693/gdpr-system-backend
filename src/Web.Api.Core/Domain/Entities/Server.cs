@@ -1,21 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Api.Core.Domain.Entities
 {
-    public partial class Server : BaseEntity
+    public class Server : BaseEntity
     {
-        public Server(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt, Guid? updatedBy, DateTime? deletedAt, Guid? deletedBy,  bool? isDeleted, bool? status, string name, 
-            string ipAddress, DateTime? startDate, DateTime? endDate)
+        public Server(Guid id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
+            , DateTime? endDate, string ipAddress, bool? isDeleted, string name, DateTime? startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {
+            Id = id;
             Name = name;
             IpAddress = ipAddress;
             StartDate = startDate;
             EndDate = endDate;
         }
-
+        [NotMapped]
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
         public DateTime? StartDate { get; set; }

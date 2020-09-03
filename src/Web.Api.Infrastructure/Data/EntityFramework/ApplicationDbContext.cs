@@ -306,7 +306,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
             modelBuilder.Entity<Server>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever();
+            
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")

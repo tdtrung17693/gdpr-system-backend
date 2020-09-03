@@ -5,25 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest;
 using Web.Api.Core.Dto.UseCaseResponses;
+using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 
 namespace Web.Api.Core.UseCases
 {
-    public sealed class CreateServerUseCase : ICreateServerUseCase
+    public sealed class UpdateServerUseCase : IUpdateServerUseCase
     {
         private readonly IServerRepository _serverRepository;
 
-        public CreateServerUseCase(IServerRepository serverRepository)
+        public UpdateServerUseCase(IServerRepository serverRepository)
         {
             _serverRepository = serverRepository;
         }
 
-        public async Task<bool> Handle(CreateServerRequest message, IOutputPort<CreateNewServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
+        public async Task<bool> Handle(UpdateServerRequest message, IOutputPort<UpdateServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
         {
-            var response = await _serverRepository.Create(new Server(message.Id, message.CreatedAt, message.CreatedBy, message.UpdatedAt, message.UpdatedBy, message.DeletedAt, message.DeletedBy, message.IsDeleted, message.Status, message.Name, message.IpAddress, message.StartDate, message.EndDate));
+            var response = await _serverRepository.UpdateServer();
             //outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }

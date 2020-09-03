@@ -17,7 +17,9 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
        Task<CRUDServerResponse> Create(Server server);
 
         //Todo: Update a server
+        Task<CRUDServerResponse> UpdateServer();
 
         //Todo: Delete a server
+        Task<CRUDServerResponse> DeleteServer(Server server);
     }
 } 

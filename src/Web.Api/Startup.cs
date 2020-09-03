@@ -26,6 +26,7 @@ using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
+using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 
 namespace Web.Api
 {
@@ -44,11 +45,26 @@ namespace Web.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+
+        //Config CORS
+        services.AddCors(options =>
+        {
+            options.AddPolicy("server", build =>
+            {
+                build.WithOrigins("http://localhost:5000",
+                                    "http://localhost:5000/api").AllowAnyHeader()
+                                                  .AllowAnyMethod();
+            });
+        });
+
+
+
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
 
       //long add
       services.AddScoped<ICreateServerUseCase,CreateServerUseCase>();
+      services.AddScoped<IUpdateServerUseCase, UpdateServerUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -112,7 +128,7 @@ namespace Web.Api
       {
         c.SwaggerDoc("v1", new Info { Title = "CleanAspNetCoreWebAPI", Version = "v1" });
       });
-
+        
       // Now register our services with Autofac container.
       var builder = new ContainerBuilder();
 
