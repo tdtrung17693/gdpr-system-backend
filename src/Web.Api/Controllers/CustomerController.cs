@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Domain.Entities;
-//using Web.Api.Core.Dto.UseCaseRequests;
+using UseCaseRequest = Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
-using Web.Api.Models.Request;
+using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
 
 namespace Web.Api.Controllers
@@ -18,19 +18,23 @@ namespace Web.Api.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ICustomerRepository _repository;
+        private readonly ICRUDCustomerUseCase _getCustomerUseCase;
+        private readonly CustomerPresenter _customerPresenter;
 
-        public CustomerController(IMapper mapper, ICustomerRepository repository)
+        public CustomerController(IMapper mapper, ICustomerRepository repository, ICRUDCustomerUseCase getCustomerUseCase, CustomerPresenter customerPresenter)
         {
             _mapper = mapper;
             _repository = repository;
+            _getCustomerUseCase = getCustomerUseCase;
+            _customerPresenter = customerPresenter;
         }
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<CustomerRequest>> GetCustomerList()
+        public ActionResult<IEnumerable<ModelRequest.CustomerRequest>> GetCustomerList()
         {
             var CustomerItems = _repository.GetCustomerList();
-            return Ok(_mapper.Map<IEnumerable<CustomerRequest>>(CustomerItems));
+            return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));
         }
 
         [HttpPost]
@@ -40,8 +44,11 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            var newCustomer = _mapper.Map<Customer>(request);
-            return Ok(await _repository.Create(newCustomer)); 
+            //+var newCustomer = _mapper.Map<Customer>(request);
+            /* Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, Guid.NewGuid());
+             await _repository.Create(newCustomer); */
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description), _customerPresenter);
+            return _customerPresenter.ContentResult;
         }
 
         [HttpPut]
@@ -51,8 +58,11 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            var newCustomer = _mapper.Map<Customer>(request);
-            return Ok(await _repository.Update(newCustomer));
+            /*Customer newCustomer = new Customer(request.Name, req
+             * uest.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description);
+            return Ok(await _repository.Update(newCustomer));*/
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Id), _customerPresenter);
+            return _customerPresenter.ContentResult;
         }
 
         [HttpDelete]
@@ -62,7 +72,7 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            var newCustomer = _mapper.Map<Customer>(request);
+            Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, Guid.NewGuid());
             return Ok(await _repository.Delete(newCustomer));
         }
     }

@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Models.Request
 {
@@ -7,9 +9,7 @@ namespace Web.Api.Models.Request
     {
         public Guid Id { get; set; }
         public Guid? CreatedBy { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public DateTime? UpdatedAt { get; set; }
         public string Name { get; set; }
         public DateTime? ContractBeginDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
