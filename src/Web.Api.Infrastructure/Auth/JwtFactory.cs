@@ -27,6 +27,7 @@ namespace Web.Api.Infrastructure.Auth
             var claims = new[]
             {
                  new Claim(JwtRegisteredClaimNames.Sub, userName),
+                 new Claim(Helpers.Constants.Strings.JwtClaimIdentifiers.Username, userName),
                  new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
                  identity.FindFirst(Helpers.Constants.Strings.JwtClaimIdentifiers.Rol),

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -53,7 +53,7 @@ namespace Web.Api
       services.Configure<JwtIssuerOptions>(options =>
       {
         options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-        options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+        options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
         options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
       });
 
@@ -98,7 +98,7 @@ namespace Web.Api
 
       //identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
       //identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-
+      
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
       services.AddAutoMapper();
@@ -160,6 +160,8 @@ namespace Web.Api
 
       // Enable middleware to serve generated Swagger as a JSON endpoint.
       app.UseSwagger();
+      app.UseAuthentication();
+      // app.UseJwtTokenMiddleware();
 
       app.UseMvc();
     }

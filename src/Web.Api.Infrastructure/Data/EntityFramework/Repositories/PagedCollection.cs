@@ -29,6 +29,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             throw new NotImplementedException();
         }
 
+        /*
+         * Page is base 1
+        */
         public async Task<IEnumerable<T>> GetItemsForPage(int page)
         {
             var items = await _query

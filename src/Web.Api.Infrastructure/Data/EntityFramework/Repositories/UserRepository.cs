@@ -1,10 +1,7 @@
-﻿using System;
-using AutoMapper;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-
 using Web.Api.Core;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
@@ -13,6 +10,8 @@ using Web.Api.Core.Domain.Entities;
 using System.Data.SqlClient;
 using System.Data;
 using Web.Api.Core.Dto;
+using DataEntities = Web.Api.Core.Domain.Entities;
+using System;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -29,7 +28,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public async Task<CreateUserResponse> Create(User user, string password)
         {
-
+            //var appUser = _mapper.Map<AppUser>(user);
             //var identityResult = await _userManager.CreateAsync(appUser, password);
             //return new CreateUserResponse(appUser.Id, identityResult.Succeeded, identityResult.Succeeded ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
             string salt = BCrypt.Net.BCrypt.GenerateSalt();
@@ -66,29 +65,36 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<User> FindByName(string userName)
         {
             //return _mapper.Map<DataEntities.User>(await _userManager.FindByNameAsync(userName));
-            return default(User);
+            DataEntities.User user = await _context.User
+                                            .Include(u => u.Account)
+                                            .Include(u => u.Role)
+                                            .Where(u => u.Account.Username == userName)
+                                            .FirstAsync();
+            return user;
         }
         public async Task<User> FindById(string id)
         {
             Guid userId = Guid.Parse(id);
             User user = await _context.User
                                             .Where(u => u.Id == userId)
-                                            .Include("Account")
+                                            .Include(u => u.Account)
+                                            .Include(u => u.Role)
                                             .FirstAsync();
-            return _mapper.Map<User>(user.Account);
+            return user;
         }
 
         public async Task<bool> CheckPassword(User user, string password)
         {
             //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDataEntities.User>(user), password);
-            return default(bool);
+            Console.Out.WriteLine(System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
+            return BCrypt.Net.BCrypt.Verify(password, System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
         }
 
         public IPagedCollection<User> FindAll()
         {
             // TODO: Remove magic number
-            return new PagedCollection<User, Account>(
-                _context.Account.Include("User").AsQueryable(),
+            return new PagedCollection<DataEntities.User, DataEntities.Account>(
+                _context.Account.Include(account => account.User).ThenInclude(user => user.Role).AsQueryable(),
                 _mapper,
                 10
             );
