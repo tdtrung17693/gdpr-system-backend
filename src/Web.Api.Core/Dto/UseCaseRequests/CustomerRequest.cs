@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Web.Api.Core.Domain.Entities;
+using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 
 namespace Web.Api.Core.Dto.UseCaseRequests
 {
-    public class CustomerRequest
+    public class CustomerRequest: IUseCaseRequest<CustomerResponse>
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid? CreatedBy { get; set; }
-        public DateTime? CreatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public DateTime? UpdatedAt { get; set; }
         public string Name { get; set; }
         public DateTime? ContractBeginDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
@@ -19,20 +19,18 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public string Description { get; set; }
         public bool? Status { get; set; }
 
-        public CustomerRequest(Guid id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, string name,
-          DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description, bool? status)
+        public virtual ICollection<CustomerServer> CustomerServer { get; set; }
+        public CustomerRequest(string name,
+          DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description, bool? status = true,
+          Guid? id = null, Guid? createdBy = null, Guid? updatedBy = null)
         {
-            Id = id;
-            CreatedBy = createdBy;
-            CreatedAt = createdAt;
-            UpdatedBy = updatedBy;
-            UpdatedAt = updatedAt;
             Name = name;
             ContractBeginDate = contractBeginDate;
             ContractEndDate = contractEndDate;
             ContactPoint = contactPoint;
             Description = description;
             Status = status;
+            Id = id;
         }
     }
 }

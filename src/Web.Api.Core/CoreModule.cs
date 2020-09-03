@@ -8,6 +8,7 @@ namespace Web.Api.Core
   {
     protected override void Load(ContainerBuilder builder)
     {
+      builder.RegisterType<CRUDCustomerUseCase>().As<ICRUDCustomerUseCase>().InstancePerLifetimeScope();  
       builder.RegisterType<RegisterUserUseCase>().As<IRegisterUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<LoginUseCase>().As<ILoginUseCase>().InstancePerLifetimeScope();
     }

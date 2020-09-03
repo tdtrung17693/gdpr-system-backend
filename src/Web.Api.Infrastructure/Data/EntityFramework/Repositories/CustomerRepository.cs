@@ -9,6 +9,8 @@ using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Web.Api.Core.Dto.UseCaseRequests;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -23,11 +25,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             _context = context;
         }
 
-        public IEnumerable<Customer> GetCustomerList()
+        public async Task<IEnumerable<CustomerRequest>> GetCustomerList()
         {
-            return _context.Customer.ToList();
+            return _mapper.Map<IEnumerable<CustomerRequest>>(await _context.Customer.Include(c => c.CustomerServer).ThenInclude(c => c.Server).AsNoTracking().ToListAsync());
         }
 
+        public async Task<Customer> FindById(string id)
+        {
+            return await _context.Customer.FindAsync(Guid.Parse(id));
+        }
         public async Task<CRUDCustomerResponse> Create(Customer customer)
         {
             //var newCustomer = _mapper.Map<Customer>(customer);

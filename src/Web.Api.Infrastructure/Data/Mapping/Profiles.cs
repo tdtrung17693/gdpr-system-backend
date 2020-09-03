@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using System;
 using Web.Api.Core.Domain.Entities;
-using Web.Api.Infrastructure.Data.Entities;
 
 using DomainEntities = Web.Api.Core.Domain.Entities;
 
