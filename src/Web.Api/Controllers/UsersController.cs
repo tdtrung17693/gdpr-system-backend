@@ -27,7 +27,7 @@ namespace Web.Api.Controllers
             _userRepository = userRepository;
         }
         // GET: api/<UsersController>
-        [Authorize]
+        [Authorize("CanViewUser")]
         [HttpGet]
         public async Task<object> Get()
         {

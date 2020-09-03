@@ -24,6 +24,20 @@ namespace Web.Api.Core.Domain.Entities
 
         public virtual Role Role { get; set; }
         public virtual Account Account { get; set; }
+
+        public IEnumerable<string> GetPermissions()
+        {
+            List<string> permissions = new List<string>();
+
+            foreach (var pr in this.Role.PermissionRole)
+            {
+                permissions.Add(pr.Permission.PermissionName);
+            }
+            return permissions;
+        }
+
+        public virtual ICollection<Customer> Customers { get; set; }
+
         // public virtual ICollection<Comment> CommentCreatedByNavigation { get; set; }
         // public virtual ICollection<Comment> CommentDeletedByNavigation { get; set; }
         // public virtual ICollection<Comment> CommentUpdatedByNavigation { get; set; }
@@ -38,5 +52,10 @@ namespace Web.Api.Core.Domain.Entities
         // public virtual ICollection<Request> RequestUpdatedByNavigation { get; set; }
         public virtual ICollection<UserFileInstance> UserFileInstance { get; set; }
         public virtual ICollection<UserLog> UserLog { get; set; }
+
+        public bool IsContactPoint()
+        {
+            return Customers.Count > 0;
+        }
     }
 }

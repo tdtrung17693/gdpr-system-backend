@@ -68,18 +68,22 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             DataEntities.User user = await _context.User
                                             .Include(u => u.Account)
                                             .Include(u => u.Role)
+                                            .ThenInclude(role => role.PermissionRole)
+                                            .ThenInclude(pr => pr.Permission)
                                             .Where(u => u.Account.Username == userName)
-                                            .FirstAsync();
+                                            .FirstOrDefaultAsync();
             return user;
         }
         public async Task<User> FindById(string id)
         {
             Guid userId = Guid.Parse(id);
             User user = await _context.User
-                                            .Where(u => u.Id == userId)
                                             .Include(u => u.Account)
                                             .Include(u => u.Role)
-                                            .FirstAsync();
+                                            .ThenInclude(role => role.PermissionRole)
+                                            .ThenInclude(pr => pr.Permission)
+                                            .Where(u => u.Id == userId)
+                                            .FirstOrDefaultAsync();
             return user;
         }
 
