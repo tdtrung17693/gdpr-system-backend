@@ -1,12 +1,13 @@
 ﻿using System;
 using Web.Api.Core.Dto.UseCaseResponses;
+using Web.Api.Core.Dto.UseCaseResponses.User;
 using Web.Api.Core.Interfaces;
 
-namespace Web.Api.Core.Dto.UseCaseRequests
+namespace Web.Api.Core.Dto.UseCaseRequests.User
 {
-    public class RegisterUserRequest : IUseCaseRequest<RegisterUserResponse>
-    {
-        public RegisterUserRequest(string firstName, string lastName, string username, string email, string password, Guid roleId)
+  public class CreateUserRequest : IUseCaseRequest<CreateUserResponse>
+  {
+        public CreateUserRequest(string firstName, string lastName, string email, Guid roleId, string password)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -19,5 +20,5 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public string Email { get; set; }
         public Guid RoleId { get; set; }
         public string Password { get; set; }
-    }
+  }
 }

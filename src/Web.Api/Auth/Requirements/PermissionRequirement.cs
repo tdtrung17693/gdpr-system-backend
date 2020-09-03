@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Web.Api.Auth.Requirements
 {
-    public class PermissionRequirement : IAuthorizationRequirement
+  public class PermissionRequirement : IAuthorizationRequirement
+  {
+    public PermissionRequirement(string permissionName)
     {
-        public PermissionRequirement(string permissionName)
-        {
-            this.Permission = permissionName;
-        }
-
-        public string Permission { get; }
+      this.Permission = permissionName;
     }
+
+    public string Permission { get; }
+  }
 }

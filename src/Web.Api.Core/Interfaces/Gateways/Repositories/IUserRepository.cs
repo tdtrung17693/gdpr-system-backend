@@ -4,12 +4,14 @@ using Web.Api.Core.Dto.GatewayResponses.Repositories;
 
 namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
-    public interface IUserRepository
-    {
-        Task<CreateUserResponse> Create(User user, string password);
-        Task<User> FindByName(string userName);
-        Task<User> FindById(string id);
-        Task<bool> CheckPassword(User user, string password);
-        IPagedCollection<User> FindAll();
-    }
+  public interface IUserRepository
+  {
+    Task<CreateUserResponse> Create(User user, string password);
+    Task<User> FindByName(string userName);
+    Task<User> FindById(string id);
+    Task<bool> CheckPassword(User user, string password);
+    IPagedCollection<User> FindAll();
+    Task<CreateUserResponse> Update(User user);
+    Task<CreateUserResponse> Delete(User user);
+  }
 }

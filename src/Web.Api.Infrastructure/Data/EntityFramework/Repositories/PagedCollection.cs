@@ -25,8 +25,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public IPagedCollection<T> FilterBy(string filterString)
         {
-            //return new PagedCollection(_query.Where(...), _mapper, _pageSize);
-            throw new NotImplementedException();
+      //return new PagedCollection(_query.Where(...), _mapper, _pageSize);
+          return default(IPagedCollection<T>);
         }
 
         /*
@@ -44,7 +44,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public IPagedCollection<T> SortBy(string sortBy, string sortOrder)
         {
-            throw new NotImplementedException();
+          return default(IPagedCollection<T>);
         }
 
         public int TotalItems()

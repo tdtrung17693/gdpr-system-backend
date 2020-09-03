@@ -106,6 +106,7 @@ namespace Web.Api
             services.AddAutoMapper();
             services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+            services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>

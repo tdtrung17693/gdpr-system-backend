@@ -103,5 +103,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 10
             );
         }
+
+    public Task<CreateUserResponse> Update(User user)
+    {
+      throw new NotImplementedException();
     }
+
+    public Task<CreateUserResponse> Delete(User user)
+    {
+      throw new NotImplementedException();
+    }
+  }
 }

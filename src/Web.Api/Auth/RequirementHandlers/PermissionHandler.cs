@@ -11,21 +11,27 @@ using Web.Api.Infrastructure.Helpers;
 
 namespace Web.Api.Auth.RequirementHandlers
 {
-    public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
+  public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
+  {
+    private IUserRepository _userRepository;
+    public PermissionHandler(IUserRepository userRepository)
     {
-        private IUserRepository _userRepository;
-        public PermissionHandler(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
-        {
-            var uid = context.User.Claims.Single(claim => claim.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
-            var user = await _userRepository.FindById(uid);
-
-            var permissions = user.GetPermissions();
-            var requiredPermission = requirement.Permission;
-            if (permissions.Contains(requiredPermission)) context.Succeed(requirement);
-        }
+      _userRepository = userRepository;
     }
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    {
+      var IdClaim = Constants.Strings.JwtClaimIdentifiers.Id;
+      if (!context.User.HasClaim(c => c.Type == IdClaim))
+      {
+        return;
+      }
+
+      var uid = context.User.Claims.Single(claim => claim.Type == IdClaim).Value;
+      var user = await _userRepository.FindById(uid);
+
+      var permissions = user.GetPermissions();
+      var requiredPermission = requirement.Permission;
+      if (permissions.Contains(requiredPermission)) context.Succeed(requirement);
+    }
+  }
 }
