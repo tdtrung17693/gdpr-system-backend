@@ -9,6 +9,7 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
 using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
+using Web.Api.Core.Dto.UseCaseRequests;
 
 namespace Web.Api.Controllers
 {
@@ -31,10 +32,18 @@ namespace Web.Api.Controllers
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<ModelRequest.CustomerRequest>> GetCustomerList()
+        public async Task<IEnumerable<CustomerRequest>> GetCustomerList()
         {
-            var CustomerItems = _repository.GetCustomerList();
-            return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));
+            //var CustomerItems = _repository.GetCustomerList();
+            //return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));
+            return await _repository.GetCustomerList();
+        }
+
+        // GET api/<UsersController>/5
+        [HttpGet("{id}")]
+        public async Task<Customer> Get(string id)
+        {
+            return await _repository.FindById(id);
         }
 
         [HttpPost]
@@ -47,7 +56,7 @@ namespace Web.Api.Controllers
             //+var newCustomer = _mapper.Map<Customer>(request);
             /* Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, Guid.NewGuid());
              await _repository.Create(newCustomer); */
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description), _customerPresenter);
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
 
@@ -61,7 +70,8 @@ namespace Web.Api.Controllers
             /*Customer newCustomer = new Customer(request.Name, req
              * uest.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description);
             return Ok(await _repository.Update(newCustomer));*/
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Id), _customerPresenter);
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status, 
+                request.Id), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
 
@@ -72,7 +82,7 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, Guid.NewGuid());
+            Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status, Guid.NewGuid());
             return Ok(await _repository.Delete(newCustomer));
         }
     }

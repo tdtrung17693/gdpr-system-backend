@@ -16,5 +16,7 @@ namespace Web.Api.Models.Request
         public Guid? ContactPoint { get; set; }
         public string Description { get; set; }
         public bool? Status { get; set; }
+
+        public ICollection<CustomerServer> CustomerServer { get; set;}
     }
 }
