@@ -66,7 +66,7 @@ namespace Web.Api.Controllers
 
         //UPDATE
         [EnableCors("server")]
-        [HttpPut("update")]
+        [HttpPut]
         public async Task<ActionResult> UpdateServer([FromBody] ServerRequest server)
         {
 
@@ -76,10 +76,10 @@ namespace Web.Api.Controllers
             }
             //var serverItem = _repository.Create(server);
             //return Ok(commandItems);
-            await _updateServerUseCase.Handle(new UpdateServerRequest("ggg","ggg") , _updateServerPresenter);
+            await _updateServerUseCase.Handle(new UpdateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
+            server.IpAddress, server.IsDeleted, server.Name,
+             server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
             return Ok("You hav update an row");
-
-
         }
 
 

@@ -25,7 +25,9 @@ namespace Web.Api.Core.UseCases
 
         public async Task<bool> Handle(UpdateServerRequest message, IOutputPort<UpdateServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
         {
-            var response = await _serverRepository.UpdateServer();
+            var response = await _serverRepository.UpdateServer(new Server(message.Id, message.CreatedAt, message.CreatedBy, message.DeletedAt, message.DeletedBy, message.EndDate,
+            message.IpAddress, message.IsDeleted, message.Name,
+             message.StartDate, message.Status, message.UpdatedAt, message.UpdatedBy));
             //outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }

@@ -30,8 +30,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<CRUDServerResponse> Create(Server server)
         {
             
-            var name = new SqlParameter("@Name", "Long netpower.1999");
-            var ipAdress = new SqlParameter("@IpAddress", "1999.1999");
+            var name = new SqlParameter("@Name", server.Name);
+            var ipAdress = new SqlParameter("@IpAddress", server.IpAddress);
             _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateServer @Name, @IpAddress ", name, ipAdress);
             var success = await _context.SaveChangesAsync();
             return new CRUDServerResponse(server.Id, success > 0, null);
@@ -45,20 +45,20 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         }
 
         //UPDATE
-        public async Task<CRUDServerResponse> UpdateServer()
+        public async Task<CRUDServerResponse> UpdateServer(Server server)
         {
             var name = new SqlParameter("@Name", "Long net.1999");
             var ipAddress = new SqlParameter("@IpAddress", "27.07");
-            /*var id = new SqlParameter("@Id",Guid.Parse("D2636F26-E649-4A74-B1A5-F8BABD80036B"));
-            var idupdateBy = new SqlParameter("@IdUpdateBy",Guid.Parse("2E918B64-9E0D-4865-9CBF-23F5BA26EB2E"));
+            var id = new SqlParameter("@Id", Guid.Parse("4F2EEC9C-A3A3-416C-851B-947CD48FEF3E"));
+            var idupdateBy = new SqlParameter("@IdUpdateBy", Guid.Parse("875CE677-0DB1-4482-9B5C-5862E264C967"));
             var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime("2019-12-30"));
-            var startDate = new SqlParameter("@StartDate", Convert.ToDateTime("2019-12-30"));
+            var startDate = new SqlParameter("@StartDate", Convert.ToDateTime("2019-12-30"));   
             var endDate = new SqlParameter("@EndDate", Convert.ToDateTime("2020-7-27"));
-            var status = new SqlParameter("@Status", 1);
-*/
-            _context.Database.ExecuteSqlCommand("EXEC UpdateServer  @Name,@IpAddress", name, ipAddress);
+            var status = new SqlParameter("@Status", true);
+
+            _context.Database.ExecuteSqlCommand("EXEC UpdateServer @Id, @IdUpdateBy, @UpdateAt, @Name, @IpAddress, @StartDate, @EndDate, @Status", id, idupdateBy, updateAt ,name, ipAddress, startDate, endDate, status);
             var success = await _context.SaveChangesAsync();
-            return new CRUDServerResponse(null, success > 0, null);
+            return new CRUDServerResponse(server.Id, success > 0, null);
 
         }
 
