@@ -32,7 +32,7 @@ namespace Web.Api.Controllers
 
 
         [HttpGet]
-        public async Task<IEnumerable<CustomerRequest>> GetCustomerList()
+        public async Task<IEnumerable<Customer>> GetCustomerList()
         {
             //var CustomerItems = _repository.GetCustomerList();
             //return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));

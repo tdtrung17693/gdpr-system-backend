@@ -10,7 +10,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
     public interface ICustomerRepository
     {
-        public Task<IEnumerable<CustomerRequest>> GetCustomerList();
+        public Task<IEnumerable<Customer>> GetCustomerList();
 
         public Task<Customer> FindById(string id);
         public Task<CRUDCustomerResponse> Create(Customer customer);

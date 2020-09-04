@@ -25,14 +25,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<CustomerRequest>> GetCustomerList()
+        public async Task<IEnumerable<Customer>> GetCustomerList()
         {
-            return _mapper.Map<IEnumerable<CustomerRequest>>(await _context.Customer.Include(c => c.CustomerServer).ThenInclude(c => c.Server).AsNoTracking().ToListAsync());
+            return await _context.Customer.AsNoTracking().Include(c => c.CustomerServer).ThenInclude(cs => cs.Server).ToListAsync();
         }
 
         public async Task<Customer> FindById(string id)
         {
-            return await _context.Customer.FindAsync(Guid.Parse(id));
+            return await _context.Customer.AsNoTracking().Include(c => c.CustomerServer).ThenInclude(cs => cs.Server).FirstOrDefaultAsync(i => i.Id == Guid.Parse(id));
         }
         public async Task<CRUDCustomerResponse> Create(Customer customer)
         {
