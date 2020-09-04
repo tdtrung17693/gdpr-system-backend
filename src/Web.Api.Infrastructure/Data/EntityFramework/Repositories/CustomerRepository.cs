@@ -34,7 +34,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             return await _context.Customer.AsNoTracking().Include(c => c.CustomerServer).ThenInclude(cs => cs.Server).FirstOrDefaultAsync(i => i.Id == Guid.Parse(id));
         }
-        public async Task<CRUDCustomerResponse> Create(Customer customer)
+        public async Task<CRUDCustomerResponse> Create(Customer /*CustomerRequest*/ customer)
         {
             //var newCustomer = _mapper.Map<Customer>(customer);
             await _context.Customer.AddAsync(customer);
@@ -45,18 +45,29 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 null);
         }
 
-        public async Task<CRUDCustomerResponse> Update(Customer customer)
+        public async Task<CRUDCustomerResponse> Update(Customer /*CustomerRequest*/ customer)
         {
-            var oldCustomer = await _context.Customer.FindAsync(customer.Id);
-            _context.Customer.Remove(oldCustomer);
+            //var updatedCustomer = _context.Entry(await _context.Customer.FirstOrDefaultAsync(i => i.Id == customer.Id));
+            var updatedCustomer = await _context.Customer.FirstOrDefaultAsync(i => i.Id == customer.Id);
+            if (updatedCustomer != null)
+            {
+                _context.Attach(updatedCustomer);
+                updatedCustomer.Description = customer.Description;
+                updatedCustomer.Name = customer.Name;
+                updatedCustomer.ContractBeginDate = customer.ContractBeginDate;
+                updatedCustomer.ContractEndDate = customer.ContractEndDate;
+                updatedCustomer.Status = customer.Status;
+                updatedCustomer.ContactPoint = customer.ContactPoint;
+            }
+           /* _context.Customer.Remove(oldCustomer);
             await _context.SaveChangesAsync();
-            await _context.Customer.AddAsync(customer);
+            await _context.Customer.AddAsync(customer);*/
             var success = await _context.SaveChangesAsync();
             return new CRUDCustomerResponse(customer.Id, success > 0,
                 null);
         }
 
-        public async Task<CRUDCustomerResponse> Delete(Customer customer)
+        public async Task<CRUDCustomerResponse> Delete(Customer /*CustomerRequest*/ customer)
         {
             var deletedCustomer = await _context.Customer.FindAsync(customer.Id);
             _context.Customer.Remove(deletedCustomer);

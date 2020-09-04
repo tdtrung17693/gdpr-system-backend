@@ -46,6 +46,12 @@ namespace Web.Api.Controllers
             return await _repository.FindById(id);
         }
 
+        /*[HttpGet("List")]
+        public async Task<Request> GetByCustomers(string id)
+        {
+            return await _repository.(id);
+        }*/
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Models.Request.CustomerRequest request)
         {
@@ -53,9 +59,6 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            //+var newCustomer = _mapper.Map<Customer>(request);
-            /* Customer newCustomer = new Customer(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, Guid.NewGuid());
-             await _repository.Create(newCustomer); */
             await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
