@@ -68,8 +68,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             DataEntities.User user = await _context.User
                                             .Include(u => u.Account)
                                             .Include(u => u.Role)
-                                            .ThenInclude(role => role.PermissionRole)
-                                            .ThenInclude(pr => pr.Permission)
                                             .Where(u => u.Account.Username == userName)
                                             .FirstOrDefaultAsync();
             return user;
@@ -80,8 +78,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             User user = await _context.User
                                             .Include(u => u.Account)
                                             .Include(u => u.Role)
-                                            .ThenInclude(role => role.PermissionRole)
-                                            .ThenInclude(pr => pr.Permission)
                                             .Where(u => u.Id == userId)
                                             .FirstOrDefaultAsync();
             return user;

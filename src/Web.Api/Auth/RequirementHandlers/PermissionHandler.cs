@@ -14,24 +14,23 @@ namespace Web.Api.Auth.RequirementHandlers
   public class PermissionHandler : AuthorizationHandler<PermissionRequirement>
   {
     private IUserRepository _userRepository;
-    public PermissionHandler(IUserRepository userRepository)
+    private AuthService _authService;
+
+    public PermissionHandler(IUserRepository userRepository, AuthService authService)
     {
       _userRepository = userRepository;
+      _authService = authService;
     }
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
       var IdClaim = Constants.Strings.JwtClaimIdentifiers.Id;
-      if (!context.User.HasClaim(c => c.Type == IdClaim))
+      if (context.User.HasClaim(c => c.Type == IdClaim))
       {
-        return;
+        var requiredPermission = requirement.Permission;
+        if (_authService.HasPermission(requiredPermission)) context.Succeed(requirement);
       }
 
-      var uid = context.User.Claims.Single(claim => claim.Type == IdClaim).Value;
-      var user = await _userRepository.FindById(uid);
-
-      var permissions = user.GetPermissions();
-      var requiredPermission = requirement.Permission;
-      if (permissions.Contains(requiredPermission)) context.Succeed(requirement);
+      return Task.CompletedTask;
     }
   }
 }

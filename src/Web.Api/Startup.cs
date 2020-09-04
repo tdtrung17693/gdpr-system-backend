@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
@@ -26,6 +28,7 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
 using Web.Api.Auth;
 using Web.Api.Auth.RequirementHandlers;
+using Web.Api.Infrastructure.Helpers;
 
 namespace Web.Api
 {
@@ -85,21 +88,19 @@ namespace Web.Api
                 configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 configureOptions.TokenValidationParameters = tokenValidationParameters;
                 configureOptions.SaveToken = true;
+                configureOptions.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var uid = context
+                            .Principal
+                            .Claims
+                            .Single(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
+                        var authService = context.HttpContext.RequestServices.GetRequiredService<AuthService>();
+                        await authService.LogIn(uid);
+                    }
+                };
             });
-
-            // add identity
-            //var identityBuilder = services.AddIdentityCore<AppUser>(o =>
-            //      {
-            //        // configure identity options
-            //        o.Password.RequireDigit = false;
-            //        o.Password.RequireLowercase = false;
-            //        o.Password.RequireUppercase = false;
-            //        o.Password.RequireNonAlphanumeric = false;
-            //        o.Password.RequiredLength = 6;
-            //      });
-
-            //identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
-            //identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
@@ -107,6 +108,7 @@ namespace Web.Api
             services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
             services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
             services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
+            services.AddScoped<AuthService, AuthService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
