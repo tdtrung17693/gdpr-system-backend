@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
@@ -21,5 +22,11 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 
         //Todo: Delete a server
         Task<CRUDServerResponse> DeleteServer(Server server);
+
+        //Todo: get detail a server
+        Server GetServerDetail(Guid serverId);
+        
+        //Todo: update active and deactive multi server
+        Task<CRUDServerResponse> UpdateMutilServerStatus(DataTable serverIdList, bool status, Guid userId);
     }
 } 

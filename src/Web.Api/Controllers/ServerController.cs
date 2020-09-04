@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Cors;
@@ -23,7 +25,6 @@ namespace Web.Api.Controllers
         private readonly IUpdateServerUseCase _updateServerUseCase;
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
-        //private readonly JsonSerializer _jsonSerializer;
 
         public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {   
@@ -42,11 +43,9 @@ namespace Web.Api.Controllers
         {
 
             if (!ModelState.IsValid)
-            { // re-render the view when validation failed.
+            { 
                 return BadRequest(ModelState);
             }
-            //var serverItem = _repository.Create(server);
-            //return Ok(commandItems);
             await _createServerUseCase.Handle(new CreateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
@@ -60,7 +59,6 @@ namespace Web.Api.Controllers
         public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
             var serverItems = _repository.GetAllCommand();
-            //return Ok(commandItems);
             return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
         }
 
@@ -70,20 +68,49 @@ namespace Web.Api.Controllers
         public async Task<ActionResult> UpdateServer([FromBody] ServerRequest server)
         {
 
-            if (!ModelState.IsValid)
-            { // re-render the view when validation failed.
+            if (!ModelState.IsValid) 
+            { 
                 return BadRequest(ModelState);
             }
-            //var serverItem = _repository.Create(server);
-            //return Ok(commandItems);
             await _updateServerUseCase.Handle(new UpdateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
             return Ok("You hav update an row");
         }
 
+        //Get detail a server
+        [HttpGet("{id}")]
+        public ActionResult<ServerRequest> GetServerDetail(Guid id)
+        {
+            var serverItem = _repository.GetServerDetail(id);
+            return Ok(_mapper.Map<ServerRequest>(serverItem));
+        }
 
-        //DELETE
+
+        //Active/Deactive multi server
+        [HttpPut("bulkStatus")]
+        public async Task<ActionResult> UpdateMultiStatusServer([FromBody] BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        {
+
+            if (!ModelState.IsValid)
+            { 
+                return BadRequest(ModelState);
+            }
+
+            //create table type
+            DataTable idList = new DataTable();
+            idList.Columns.Add("Id", typeof(Guid));
+            foreach(Guid id in bulkServer.serverIdList)
+            {
+                idList.Rows.Add(id);
+            }
+
+            var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
+
+            if (response.Id != null) return Ok("Done");
+            else return Content("Erorr");
+
+        }
 
     }
 }

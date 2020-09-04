@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,14 +48,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         //UPDATE
         public async Task<CRUDServerResponse> UpdateServer(Server server)
         {
-            var name = new SqlParameter("@Name", "Long net.1999");
-            var ipAddress = new SqlParameter("@IpAddress", "27.07");
-            var id = new SqlParameter("@Id", Guid.Parse("4F2EEC9C-A3A3-416C-851B-947CD48FEF3E"));
-            var idupdateBy = new SqlParameter("@IdUpdateBy", Guid.Parse("875CE677-0DB1-4482-9B5C-5862E264C967"));
-            var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime("2019-12-30"));
-            var startDate = new SqlParameter("@StartDate", Convert.ToDateTime("2019-12-30"));   
-            var endDate = new SqlParameter("@EndDate", Convert.ToDateTime("2020-7-27"));
-            var status = new SqlParameter("@Status", true);
+            var name = new SqlParameter("@Name", server.Name);
+            var ipAddress = new SqlParameter("@IpAddress", server.IpAddress);
+            var id = new SqlParameter("@Id", server.Id);
+            var idupdateBy = new SqlParameter("@IdUpdateBy", server.UpdatedBy);
+            var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
+            var startDate = new SqlParameter("@StartDate", server.StartDate);   
+            var endDate = new SqlParameter("@EndDate", server.EndDate);
+            var status = new SqlParameter("@Status", server.Status);
 
             _context.Database.ExecuteSqlCommand("EXEC UpdateServer @Id, @IdUpdateBy, @UpdateAt, @Name, @IpAddress, @StartDate, @EndDate, @Status", id, idupdateBy, updateAt ,name, ipAddress, startDate, endDate, status);
             var success = await _context.SaveChangesAsync();
@@ -72,6 +73,28 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             var success = await _context.SaveChangesAsync();
             return new CRUDServerResponse(server.Id, success > 0, null);
 
+        }
+
+        // GET DETAIL A SERVER
+        public Server GetServerDetail(Guid serverId)
+        {
+            var _serverId = new SqlParameter("@Id", serverId);
+            var server = _context.Server.FirstOrDefault(s => s.Id == serverId);
+            //var success = await _context.SaveChangesAsync();
+            return server;
+        }
+
+        // ACTIVE OR DEACTIVE MULTISERVER
+        public async Task<CRUDServerResponse> UpdateMutilServerStatus( DataTable serverIdList, bool status, Guid userId)
+        {
+            var _serverIdList = new SqlParameter("@ServerIds", serverIdList);
+            _serverIdList.SqlDbType = SqlDbType.Structured;
+            _serverIdList.TypeName = "dbo.IdList";
+            var _status = new SqlParameter("@Status", status);
+            var _userId = new SqlParameter("@Updator", userId);
+            _context.Database.ExecuteSqlCommand("EXEC dbo.UpdateMutilServerStatus @ServerIds, @Status, @Updator", _serverIdList, _status, _userId);
+            var success = await _context.SaveChangesAsync();
+            return new CRUDServerResponse(userId, success > 0, null);
         }
     }
 }
