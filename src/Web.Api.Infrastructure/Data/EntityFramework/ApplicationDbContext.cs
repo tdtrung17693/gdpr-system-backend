@@ -276,10 +276,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
                     .HasForeignKey(d => d.ApprovedBy)
                     .HasConstraintName("fk_Request_approvedBy");
 
-                // entity.HasOne(d => d.CreatedByNavigation)
-                //     .WithMany(p => p.RequestCreatedByNavigation)
-                //     .HasForeignKey(d => d.CreatedBy)
-                //     .HasConstraintName("fk_Request_createdBy");
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.RequestCreatedByNavigation)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .HasConstraintName("fk_Request_createdBy");
 
                 // entity.HasOne(d => d.DeletedByNavigation)
                 //     .WithMany(p => p.RequestDeletedByNavigation)
