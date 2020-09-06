@@ -33,7 +33,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 .Where(s => s.Request.Any(r => r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null))
                 .Include(s => s.Request)
                 .Select(s => new { s.Id, s.Name, s.IpAddress, Request = s.Request
-                .Select(r => new { r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver =r.ApprovedByNavigation.Email }) })
+                .Select(r => new { r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email }) })
                 .ToListAsync();
             return new ExportCSVByCustomerResponse(response, true, null );
         }
