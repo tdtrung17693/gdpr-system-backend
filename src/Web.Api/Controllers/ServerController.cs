@@ -10,8 +10,10 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
+using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
+using BulkServerRequest = Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest.BulkServerRequest;
 
 namespace Web.Api.Controllers
 {
@@ -23,17 +25,23 @@ namespace Web.Api.Controllers
         private readonly IServerRepository _repository;
         private readonly ICreateServerUseCase _createServerUseCase;
         private readonly IUpdateServerUseCase _updateServerUseCase;
+        private readonly IBulkServerUseCase _bulkServerUseCase;
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
+        private readonly BulkServerPresenter _bulkServerPresenter;
 
-        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
+        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
+            CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
+            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {   
             _mapper = mapper;
             _repository = repository;
             _createServerUseCase = createServerUseCase;
             _updateServerUseCase = updateServerUseCase;
+            _bulkServerUseCase = bulkServerUseCase;
             _createServerPresenter = createServerPresenter;
             _updateServerPresenter = updateServerPresenter;
+            _bulkServerPresenter = bulkServerPresenter;
         }
 
         //CREATE
@@ -79,7 +87,7 @@ namespace Web.Api.Controllers
         }
 
         //Get detail a server
-        [HttpGet("{id}")]
+        [HttpGet("/detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
             var serverItem = _repository.GetServerDetail(id);
@@ -89,7 +97,7 @@ namespace Web.Api.Controllers
 
         //Active/Deactive multi server
         [HttpPut("bulkStatus")]
-        public async Task<ActionResult> UpdateMultiStatusServer([FromBody] BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        public async Task<ActionResult> UpdateMultiStatusServer([FromBody] Models.Request.BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
 
             if (!ModelState.IsValid)
@@ -105,9 +113,11 @@ namespace Web.Api.Controllers
                 idList.Rows.Add(id);
             }
 
-            var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
 
-            if (response.Id != null) return Ok("Done");
+
+            //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
+            var response = await _bulkServerUseCase.Handle( new BulkServerRequest(idList, bulkServer.status, bulkServer.updator) , _bulkServerPresenter);
+            if (response) return Ok("Done");
             else return Content("Erorr");
 
         }

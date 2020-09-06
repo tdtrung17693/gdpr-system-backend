@@ -65,6 +65,7 @@ namespace Web.Api
       //long add
       services.AddScoped<ICreateServerUseCase,CreateServerUseCase>();
       services.AddScoped<IUpdateServerUseCase, UpdateServerUseCase>();
+      services.AddScoped<IBulkServerUseCase, BulkServerUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
