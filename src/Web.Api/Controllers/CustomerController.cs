@@ -10,6 +10,7 @@ using Web.Api.Core.Interfaces.UseCases;
 using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseResponses;
 
 namespace Web.Api.Controllers
 {
@@ -20,14 +21,19 @@ namespace Web.Api.Controllers
         private readonly IMapper _mapper;
         private readonly ICustomerRepository _repository;
         private readonly ICRUDCustomerUseCase _getCustomerUseCase;
+        private readonly IExportCustomerUseCase _exportCustomerUseCase;
         private readonly CustomerPresenter _customerPresenter;
+        private readonly ExportCustomerPresenter _exportPresenter;
 
-        public CustomerController(IMapper mapper, ICustomerRepository repository, ICRUDCustomerUseCase getCustomerUseCase, CustomerPresenter customerPresenter)
+        public CustomerController(IMapper mapper, ICustomerRepository repository, ICRUDCustomerUseCase getCustomerUseCase,
+            IExportCustomerUseCase exportCustomerUseCase, CustomerPresenter customerPresenter, ExportCustomerPresenter exportPresenter)
         {
             _mapper = mapper;
             _repository = repository;
             _getCustomerUseCase = getCustomerUseCase;
+            _exportCustomerUseCase = exportCustomerUseCase;
             _customerPresenter = customerPresenter;
+            _exportPresenter = exportPresenter;
         }
 
 
@@ -46,11 +52,17 @@ namespace Web.Api.Controllers
             return await _repository.FindById(id);
         }
 
-        /*[HttpGet("List")]
-        public async Task<Request> GetByCustomers(string id)
+        [HttpPost("export-csv")]
+        public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)
         {
-            return await _repository.(id);
-        }*/
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _exportCustomerUseCase.Handle(new
+                UseCaseRequest.ExportCustomerRequest(request.FromDate, request.ToDate, request.Guids), _exportPresenter);
+            return _exportPresenter.ContentResult;
+        }
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Models.Request.CustomerRequest request)

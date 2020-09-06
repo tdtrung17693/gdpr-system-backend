@@ -11,6 +11,7 @@ using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseResponses;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -23,6 +24,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             _mapper = mapper;
             _context = context;
+        }
+
+        public async Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request)
+        {
+            var response = await _context.Server.AsNoTracking().
+                Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id))).
+                Where(s => s.Request.Any(r => r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null)).
+                Include(s => s.Request).
+                Select(s => new { s.Id, s.Name, s.IpAddress, s.Request }).ToListAsync();
+            return new ExportCSVByCustomerResponse(response, true, null );
         }
 
         public async Task<IEnumerable<Customer>> GetCustomerList()
