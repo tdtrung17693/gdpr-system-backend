@@ -271,10 +271,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                // entity.HasOne(d => d.ApprovedByNavigation)
-                //     .WithMany(p => p.RequestApprovedByNavigation)
-                //     .HasForeignKey(d => d.ApprovedBy)
-                //     .HasConstraintName("fk_Request_approvedBy");
+                entity.HasOne(d => d.ApprovedByNavigation)
+                    .WithMany(p => p.RequestApprovedByNavigation)
+                    .HasForeignKey(d => d.ApprovedBy)
+                    .HasConstraintName("fk_Request_approvedBy");
 
                 // entity.HasOne(d => d.CreatedByNavigation)
                 //     .WithMany(p => p.RequestCreatedByNavigation)

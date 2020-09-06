@@ -29,10 +29,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request)
         {
             var response = await _context.Server.AsNoTracking().
-                Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id))).
+                //Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id))).
                 Where(s => s.Request.Any(r => r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null)).
                 Include(s => s.Request).
-                Select(s => new { s.Id, s.Name, s.IpAddress, s.Request }).ToListAsync();
+                    //ThenInclude(r => r.ApprovedByNavigation).
+                Select(s => new { s.Id, s.Name, s.IpAddress, s.Request , Approver = s.Request.Select(r => r.ApprovedByNavigation.Email) }).ToListAsync();
             return new ExportCSVByCustomerResponse(response, true, null );
         }
 
@@ -47,7 +48,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         }
         public async Task<CRUDCustomerResponse> Create(Customer /*CustomerRequest*/ customer)
         {
-            //var newCustomer = _mapper.Map<Customer>(customer);
             await _context.Customer.AddAsync(customer);
             var success = await _context.SaveChangesAsync();
             /*return new CreateCustomerResponse(newCustomer.Id, success > 0, 

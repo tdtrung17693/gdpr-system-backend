@@ -226,15 +226,14 @@ namespace Web.Api.Infrastructure.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime", nullable: false),
                     ServerId = table.Column<Guid>(nullable: true),
                     Response = table.Column<string>(maxLength: 200, nullable: true),
-                    ApprovedBy = table.Column<Guid>(nullable: true),
-                    ApprovedByNavigationId = table.Column<Guid>(nullable: true)
+                    ApprovedBy = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Request", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Request_User_ApprovedByNavigationId",
-                        column: x => x.ApprovedByNavigationId,
+                        name: "fk_Request_approvedBy",
+                        column: x => x.ApprovedBy,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -388,9 +387,9 @@ namespace Web.Api.Infrastructure.Migrations
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Request_ApprovedByNavigationId",
+                name: "IX_Request_ApprovedBy",
                 table: "Request",
-                column: "ApprovedByNavigationId");
+                column: "ApprovedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Request_ServerId",

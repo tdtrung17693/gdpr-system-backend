@@ -32,7 +32,7 @@ namespace Web.Api.Core.Domain.Entities
         // public virtual ICollection<User> InverseCreatedByNavigation { get; set; }
         // public virtual ICollection<User> InverseDeletedByNavigation { get; set; }
         // public virtual ICollection<User> InverseUpdatedByNavigation { get; set; }
-        // public virtual ICollection<Request> RequestApprovedByNavigation { get; set; }
+        public virtual ICollection<Request> RequestApprovedByNavigation { get; set; }
         // public virtual ICollection<Request> RequestCreatedByNavigation { get; set; }
         // public virtual ICollection<Request> RequestDeletedByNavigation { get; set; }
         // public virtual ICollection<Request> RequestUpdatedByNavigation { get; set; }

@@ -10,7 +10,7 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200906024926_initial")]
+    [Migration("20200906122914_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -270,8 +270,6 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("ApprovedBy");
 
-                    b.Property<Guid?>("ApprovedByNavigationId");
-
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
@@ -317,7 +315,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovedByNavigationId");
+                    b.HasIndex("ApprovedBy");
 
                     b.HasIndex("ServerId");
 
@@ -528,8 +526,9 @@ namespace Web.Api.Infrastructure.Migrations
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Request", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "ApprovedByNavigation")
-                        .WithMany()
-                        .HasForeignKey("ApprovedByNavigationId");
+                        .WithMany("RequestApprovedByNavigation")
+                        .HasForeignKey("ApprovedBy")
+                        .HasConstraintName("fk_Request_approvedBy");
 
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")

@@ -14,6 +14,7 @@ namespace Web.Api.Core.Domain.Entities
             IpAddress = ipAddress;
             StartDate = startDate;
             EndDate = endDate;
+            Request = new HashSet<Request>();
         }
 
         public string Name { get; set; }
