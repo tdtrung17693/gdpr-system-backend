@@ -1,6 +1,10 @@
 ﻿using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseResponses.User;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Presenters;
 
@@ -11,10 +15,14 @@ namespace Web.Api.Controllers
   public class AccountsController : ControllerBase
   {
     private readonly RegisterUserPresenter _registerUserPresenter;
+    private readonly IAuthService _authService;
+    private readonly IMapper _mapper;
 
-    public AccountsController(RegisterUserPresenter registerUserPresenter)
+    public AccountsController(RegisterUserPresenter registerUserPresenter, IAuthService authService, IMapper mapper)
     {
       _registerUserPresenter = registerUserPresenter;
+      _authService = authService;
+      _mapper = mapper;
     }
 
     // POST api/accounts
@@ -29,10 +37,22 @@ namespace Web.Api.Controllers
       return _registerUserPresenter.ContentResult;
     }
 
-    [HttpGet]
-    public string Get()
+    [HttpGet("me")]
+    [Authorize()]
+    public ActionResult<object> CurrentUser()
     {
-      return "Hey there";
+      var user = _authService.GetCurrentUser();
+
+      return new
+      {
+        Id = user.Id,
+        FirstName = user.FirstName,
+        LastName = user.LastName,
+        Username = user.Account.Username,
+        Role = user.Role.Name,
+        RoleId = user.RoleId,
+        Permissions = _authService.GetAllPermissions()
+      };
     }
-  }
+  } 
 }

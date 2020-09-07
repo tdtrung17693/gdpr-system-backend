@@ -6,9 +6,10 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
   public interface IUserRepository
   {
-    Task<CreateUserResponse> Create(User user, string password);
-    Task<User> FindByName(string userName);
+    Task<CreateUserResponse> Create(User userInfo, string userName, string password);
     Task<User> FindById(string id);
+    Task<User> FindByName(string userName);
+    Task<User> FindByEmail(string email);
     Task<bool> CheckPassword(User user, string password);
     IPagedCollection<User> FindAll();
     Task<CreateUserResponse> Update(User user);

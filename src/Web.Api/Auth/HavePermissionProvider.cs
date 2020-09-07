@@ -15,7 +15,7 @@ namespace Web.Api.Auth
 
     public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
     {
-      return Task.FromResult<AuthorizationPolicy>(null);
+          return Task.FromResult(new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme).RequireAuthenticatedUser().Build());
     }
 
     // Policies are looked up by string name, so expect 'parameters' (like age)

@@ -8,6 +8,7 @@ namespace Web.Api.Serialization
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
             ContractResolver = new JsonContractResolver(),
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore
         };
 

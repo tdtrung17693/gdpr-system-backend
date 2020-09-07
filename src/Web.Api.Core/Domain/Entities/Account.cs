@@ -10,6 +10,7 @@ namespace Web.Api.Core.Domain.Entities
         public Guid Id { get; set; }
         public string Username { get; set; }
         public byte[] HashedPassword { get; set; }
+
         public string Salt { get; set; }
         public Guid UserId { get; set; }
 

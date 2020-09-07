@@ -39,9 +39,15 @@ namespace Web.Api.Core.UseCases.User
       else
       {
         IPagedCollection<DomainEntities.User> users = _userRepository.FindAll();
-        users.FilterBy(message.FilterString);
-        users.SortBy(message.SortedBy, message.SortOrder);
-        var items = await users.GetItemsForPage(message.Page);
+        var filterStr = message.FilterString;
+        users.FilterBy(u => u.FirstName.Contains(filterStr) || u.LastName.Contains(filterStr) || u.Email.Contains(filterStr) || u.Account.Username.Contains(filterStr));
+        if (message.SortedBy == "Username")
+        {
+          users.SortBy(u => u.Account.Username);
+        } else {
+          users.SortBy(message.SortedBy, message.SortOrder);
+        }
+        var items = await users.GetItemsForPage(message.Page, message.PageSize);
         var pagination = new Pagination<DomainEntities.User>
         {
           Items = items,

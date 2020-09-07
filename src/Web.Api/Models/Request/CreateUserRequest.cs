@@ -3,7 +3,7 @@ using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Dto.UseCaseResponses.User;
 using Web.Api.Core.Interfaces;
 
-namespace Web.Api.Core.Dto.UseCaseRequests.User
+namespace Web.Api.Models.Request 
 {
   public class CreateUserRequest
   {

@@ -13,6 +13,8 @@ using Web.Api.Presenters;
 using Web.Api.Core.Dto.UseCaseResponses.User;
 using Web.Api.Serialization;
 using Web.Api.Models.Request;
+using AutoMapper;
+using Web.Api.Core.Dto;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -26,14 +28,17 @@ namespace Web.Api.Controllers
     private ManageUserUseCase _userUseCase;
     private ResourcePresenter<ReadUserResponse> _readUserPresenter;
     private ResourcePresenter<CreateUserResponse> _createUserPresenter;
+    private IMapper _mapper;
     public UsersController(
       ManageUserUseCase userUseCase,
       ResourcePresenter<ReadUserResponse> readUserPresenter,
-      ResourcePresenter<CreateUserResponse> createUserPresenter)
+      ResourcePresenter<CreateUserResponse> createUserPresenter,
+      IMapper mapper)
     {
       _userUseCase = userUseCase;
       _readUserPresenter = readUserPresenter;
       _createUserPresenter = createUserPresenter;
+      _mapper = mapper;
     }
     // GET: api/<UsersController>
     [Authorize("CanViewUser")]
@@ -42,10 +47,14 @@ namespace Web.Api.Controllers
     {
       _readUserPresenter.HandleResource = r =>
       {
-        return r.Success ? JsonSerializer.SerializeObject(r.Users) : JsonSerializer.SerializeObject(r.Errors);
+        var users = _mapper.Map<Pagination<User>, Pagination<UserDTO>>(r.Users);
+
+        return r.Success ? JsonSerializer.SerializeObject(users) : JsonSerializer.SerializeObject(r.Errors);
       };
+
+      var filterString = request.FilterBy == null ? "" : request.FilterBy;
       await _userUseCase.Read(
-        new ReadUserRequest(request.Page, request.FilterBy, request.SortedBy, request.SortOrder),
+        new ReadUserRequest(request.Page, request.PageSize, filterString, request.SortedBy, request.SortOrder),
         _readUserPresenter);
       return _readUserPresenter.ContentResult;
     }
@@ -57,7 +66,8 @@ namespace Web.Api.Controllers
     {
       _readUserPresenter.HandleResource = r =>
       {
-        return r.Success ? JsonSerializer.SerializeObject(r.User) : JsonSerializer.SerializeObject(r.Errors);
+        var user = _mapper.Map<User, UserDTO>(r.User);
+        return r.Success ? JsonSerializer.SerializeObject(user) : JsonSerializer.SerializeObject(r.Errors);
       };
 
       await _userUseCase.Read(new ReadUserRequest(id), _readUserPresenter);
@@ -67,13 +77,19 @@ namespace Web.Api.Controllers
     // POST api/<UsersController>
     [HttpPost]
     [Authorize("CanCreateUser")]
-    public async Task<ActionResult> Post(CreateUserRequest request)
+    public async Task<ActionResult> Post(Models.Request.CreateUserRequest request)
     {
       if (!ModelState.IsValid)
       { // re-render the view when validation failed.
-        return BadRequest(ModelState);
+        return BadRequest(new { Errors= ModelState });
       }
-      //await _registerUserUseCase.Handle(new RegisterUserRequest(request.FirstName,request.LastName,request.Email, request.UserName,request.Password), _registerUserPresenter);
+      _createUserPresenter.HandleResource = r =>
+      {
+        return r.Success ? JsonSerializer.SerializeObject(r.Id) : JsonSerializer.SerializeObject(r);
+      };
+
+      var createUserRequest = new Core.Dto.UseCaseRequests.User.CreateUserRequest(request.Username, request.Email, request.FirstName, request.LastName, request.RoleId, request.Password);
+      await _userUseCase.Create(createUserRequest, _createUserPresenter);
       return _createUserPresenter.ContentResult;
     }
 

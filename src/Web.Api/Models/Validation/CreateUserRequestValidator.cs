@@ -1,17 +1,39 @@
 ﻿using FluentValidation;
-using Web.Api.Core.Dto.UseCaseRequests.User;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Models.Request;
 
 namespace Web.Api.Models.Validation
 {
-    public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
+  public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
+  {
+    public CreateUserRequestValidator(IUserRepository userRepository, IRoleRepository roleRepository)
     {
-        public CreateUserRequestValidator()
+      RuleFor(x => x.FirstName).NotEmpty().Length(2, 30);
+      RuleFor(x => x.LastName).NotEmpty().Length(2, 30);
+
+      RuleFor(x => x.Username).Cascade(CascadeMode.StopOnFirstFailure)
+        .NotEmpty()
+        .Length(5, 255)
+        .MustAsync(async (userName, cancellation) =>
+      {
+        var user = await userRepository.FindByName(userName);
+        return user == null;
+      }).WithMessage("Username existed");
+
+      RuleFor(x => x.Email).Cascade(CascadeMode.StopOnFirstFailure)
+        .NotEmpty()
+        .EmailAddress()
+        .MustAsync(async (email, cancellation) =>
         {
-            RuleFor(x => x.FirstName).Length(2, 30).NotEmpty();
-            RuleFor(x => x.LastName).Length(2, 30).NotEmpty();
-            RuleFor(x => x.Username).Length(5, 255).NotEmpty();
-            RuleFor(x => x.Password).Length(6, 15).NotEmpty();
-        }
+          var user = await userRepository.FindByEmail(email);
+          return user == null;
+        }).WithMessage("Email existed");
+
+      RuleFor(x => x.RoleId).Cascade(CascadeMode.StopOnFirstFailure)
+        .NotEmpty()
+        .MustAsync(async (id, cancellation) => await roleRepository.IsExisted(id)).WithMessage("Invalid role");
+
+      RuleFor(x => x.Password).NotEmpty().Length(6, 15);
     }
+  }
 }

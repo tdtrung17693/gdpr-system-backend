@@ -23,7 +23,12 @@ namespace Web.Api.Core.UseCases.User
 
     public async Task<bool> Handle(CreateUserRequest message, IOutputPort<CreateUserResponse> outputPort)
     {
-      var response = await _userRepository.Create(new DomainEntities.User(message.FirstName, message.LastName, message.Email, message.RoleId), message.Password);
+      var response = await _userRepository.Create(
+        new DomainEntities.User(message.FirstName, message.LastName, message.Email, message.RoleId),
+        message.Username,
+        message.Password
+      );
+
       outputPort.Handle(response.Success ? new CreateUserResponse(response.Id, true) : new CreateUserResponse(response.Errors.Select(e => e.Description)));
       return response.Success;
     }
