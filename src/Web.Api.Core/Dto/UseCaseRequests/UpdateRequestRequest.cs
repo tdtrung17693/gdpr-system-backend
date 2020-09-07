@@ -6,7 +6,7 @@ using Web.Api.Core.Interfaces;
 
 namespace Web.Api.Core.Dto.UseCaseRequests
 {
-    class UpdateRequestRequest : IUseCaseRequest<UpdateRequestResponse>
+    public class UpdateRequestRequest : IUseCaseRequest<UpdateRequestResponse>
     {
         public Guid Id { get; set; }
         public Guid? CreatedBy { get; set; }
@@ -24,7 +24,7 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public string Response { get; set; }
         public Guid? ApprovedBy { get; set; }
 
-        public UpdateRequestRequest(Guid id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, string title, string description, DateTime startDate, DateTime endDate, Guid? serverId, string requestStatus, string response, Guid? approvedBy, bool? status)
+        public UpdateRequestRequest(Guid id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, string title, string description, DateTime startDate, DateTime endDate, Guid? serverId, string requestStatus, string response, Guid? approvedBy)
         {
             Id = id;
             CreatedBy = createdBy;

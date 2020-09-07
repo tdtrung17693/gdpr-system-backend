@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace Web.Api.Core.Domain.Entities
 {
     public partial class Request : BaseEntity
     {
-        public Request(string title, string description, DateTime startDate, DateTime endDate, Guid? serverId, string requestStatus, string response, Guid? approvedBy, Guid? id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, bool? isDeleted, 
-            bool? status)
+        public Request(string title, DateTime startDate, DateTime endDate, Guid? serverId, [Optional] string description, string requestStatus, [Optional] string response, [Optional] Guid? approvedBy, Guid? id, Guid? createdBy, DateTime? createdAt, [Optional] Guid? updatedBy, [Optional] DateTime? updatedAt, [Optional] Guid? deletedBy, [Optional] DateTime? deletedAt)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy)
         {
             Title = title;

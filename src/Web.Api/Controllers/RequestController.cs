@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
@@ -21,7 +22,7 @@ namespace Web.Api.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IRequestRepository _repository;
-        private readonly ICreateRequestUsecase _createRequestUseCase;
+        private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IBulkRequestUseCase _bulkRequestUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
@@ -51,7 +52,8 @@ namespace Web.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            await _createRequestUseCase.Handle(new CreateRequestRequest(/**/), _createRequestPresenter);
+            await _createRequestUseCase.Handle(new CreateRequestRequest(request.Id, request.CreatedBy, request.CreatedAt, request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,
+                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus, request.Response, request.ApprovedBy), _createRequestPresenter);
             return Ok();
 
 
@@ -61,7 +63,7 @@ namespace Web.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<RequestRequest>> GetAllCommands()
         {
-            var requestItems = _repository.GetAllCommand();
+            var requestItems = _repository.GetRequestList();
             return Ok(_mapper.Map<IEnumerable<RequestRequest>>(requestItems));
         }
 
@@ -74,22 +76,14 @@ namespace Web.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            await _updateRequestUseCase.Handle(/**/), _updateRequestPresenter);
-            return Ok("You hav update an row");
+            await _updateRequestUseCase.Handle(new UpdateRequestRequest(request.Id, request.CreatedBy, request.CreatedAt, request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,
+                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus, request.Response, request.ApprovedBy), _updateRequestPresenter);
+            return Ok();
         }
-
-        //Get detail a request
-        [HttpGet("/detail/{id}")]
-        public ActionResult<RequestRequest> GetRequestDetail(Guid id)
-        {
-            var requestItem = _repository.GetRequestDetail(id);
-            return Ok(_mapper.Map<RequestRequest>(requestItem));
-        }
-
 
         //Active/Deactive multi request
         [HttpPut("bulkStatus")]
-        public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestRequest bulkRequest)
+        public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestsRequest bulkRequest)
             //IEnumerable<Guid> requestIdList,bool status, Guid updator
         {
 
@@ -109,7 +103,7 @@ namespace Web.Api.Controllers
 
 
             //var response = await _repository.UpdateMutilRequestStatus(idList, bulkRequest.status, bulkRequest.updator);
-            var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.status, bulkRequest.updator), _bulkRequestPresenter);
+            var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.requestStatus, bulkRequest.updator), _bulkRequestPresenter);
             if (response) return Ok("Done");
             else return Content("Error");
 
