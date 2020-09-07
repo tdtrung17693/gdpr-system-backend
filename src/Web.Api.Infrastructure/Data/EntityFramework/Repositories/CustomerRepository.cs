@@ -30,17 +30,20 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             var response = await _context.Server.AsNoTracking()
                 //.Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id)))
-                .Where(s => s.Request.Any(r => r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null))
-                .Include(s => s.Request)
+                .Where(s => s.Request.Any(r => (r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null)))
                 .Select(s => new { s.Id, s.Name, s.IpAddress, Request = s.Request
+                .Where(r => r.ApprovedBy != null)
                 .Select(r => new { r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email }) })
                 .ToListAsync();
             return new ExportCSVByCustomerResponse(response, true, null );
         }
 
-        public async Task<IEnumerable<Customer>> GetCustomerList()
+        public async Task<IEnumerable<Object>> GetCustomerList()
         {
-            return await _context.Customer.AsNoTracking().Include(c => c.CustomerServer).ThenInclude(cs => cs.Server).ToListAsync();
+            return await _context.Customer.AsNoTracking()
+                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPoint = c.ContactPointNavigation.Email,
+                serverOwned = c.CustomerServer.Select(cs => new { cs.Server.Id, cs.Server.Name, cs.Server.IpAddress }).Count()
+                }).ToListAsync();
         }
 
         public async Task<Customer> FindById(string id)

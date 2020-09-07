@@ -136,6 +136,8 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContactPoint");
+
                     b.ToTable("Customer");
                 });
 
@@ -315,6 +317,8 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasIndex("ApprovedBy");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("ServerId");
 
                     b.ToTable("Request");
@@ -487,6 +491,14 @@ namespace Web.Api.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Customer", b =>
+                {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ContactPointNavigation")
+                        .WithMany("CustomerContactPointNavigation")
+                        .HasForeignKey("ContactPoint")
+                        .HasConstraintName("fk_Customer_contactPoint");
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.CustomerServer", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.Customer", "Customer")
@@ -527,6 +539,11 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("RequestApprovedByNavigation")
                         .HasForeignKey("ApprovedBy")
                         .HasConstraintName("fk_Request_approvedBy");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
+                        .WithMany("RequestCreatedByNavigation")
+                        .HasForeignKey("CreatedBy")
+                        .HasConstraintName("fk_Request_createdBy");
 
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")

@@ -8,30 +8,6 @@ namespace Web.Api.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Customer",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
-                    CreatedBy = table.Column<Guid>(nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    UpdatedBy = table.Column<Guid>(nullable: true),
-                    DeletedAt = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<Guid>(nullable: true),
-                    Status = table.Column<bool>(nullable: true, defaultValueSql: "((1))"),
-                    IsDeleted = table.Column<bool>(nullable: true),
-                    Name = table.Column<string>(maxLength: 50, nullable: false),
-                    ContractBeginDate = table.Column<DateTime>(type: "date", nullable: true),
-                    ContractEndDate = table.Column<DateTime>(type: "date", nullable: true),
-                    ContactPoint = table.Column<Guid>(nullable: true),
-                    Description = table.Column<string>(maxLength: 200, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customer", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "EmailLog",
                 columns: table => new
                 {
@@ -162,30 +138,6 @@ namespace Web.Api.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CustomerServer",
-                columns: table => new
-                {
-                    CustomerId = table.Column<Guid>(nullable: false),
-                    ServerId = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Customer__D8F8C856E0763940", x => new { x.CustomerId, x.ServerId });
-                    table.ForeignKey(
-                        name: "fk_CustomerServer_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_CustomerServer_ServerId",
-                        column: x => x.ServerId,
-                        principalTable: "Server",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Account",
                 columns: table => new
                 {
@@ -204,6 +156,36 @@ namespace Web.Api.Infrastructure.Migrations
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customer",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getutcdate())"),
+                    CreatedBy = table.Column<Guid>(nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    UpdatedBy = table.Column<Guid>(nullable: true),
+                    DeletedAt = table.Column<DateTime>(nullable: true),
+                    DeletedBy = table.Column<Guid>(nullable: true),
+                    Status = table.Column<bool>(nullable: true, defaultValueSql: "((1))"),
+                    IsDeleted = table.Column<bool>(nullable: true),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    ContractBeginDate = table.Column<DateTime>(type: "date", nullable: true),
+                    ContractEndDate = table.Column<DateTime>(type: "date", nullable: true),
+                    ContactPoint = table.Column<Guid>(nullable: true),
+                    Description = table.Column<string>(maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customer", x => x.Id);
+                    table.ForeignKey(
+                        name: "fk_Customer_contactPoint",
+                        column: x => x.ContactPoint,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -234,6 +216,12 @@ namespace Web.Api.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "fk_Request_approvedBy",
                         column: x => x.ApprovedBy,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_Request_createdBy",
+                        column: x => x.CreatedBy,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -286,6 +274,30 @@ namespace Web.Api.Infrastructure.Migrations
                         name: "fk_UserLog_userId",
                         column: x => x.UserId,
                         principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CustomerServer",
+                columns: table => new
+                {
+                    CustomerId = table.Column<Guid>(nullable: false),
+                    ServerId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Customer__D8F8C856E0763940", x => new { x.CustomerId, x.ServerId });
+                    table.ForeignKey(
+                        name: "fk_CustomerServer_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_CustomerServer_ServerId",
+                        column: x => x.ServerId,
+                        principalTable: "Server",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -372,6 +384,11 @@ namespace Web.Api.Infrastructure.Migrations
                 column: "RequestId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Customer_ContactPoint",
+                table: "Customer",
+                column: "ContactPoint");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerServer_ServerId",
                 table: "CustomerServer",
                 column: "ServerId");
@@ -390,6 +407,11 @@ namespace Web.Api.Infrastructure.Migrations
                 name: "IX_Request_ApprovedBy",
                 table: "Request",
                 column: "ApprovedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Request_CreatedBy",
+                table: "Request",
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Request_ServerId",

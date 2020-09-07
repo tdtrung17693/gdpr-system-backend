@@ -11,11 +11,13 @@ using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
+using System.Web.Http.Cors;
 
 namespace Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableCors(origins: "http://localhost:3000", headers: "Access-Control-Allow-Origin", methods: "*")]
     public class CustomerController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -36,9 +38,10 @@ namespace Web.Api.Controllers
             _exportPresenter = exportPresenter;
         }
 
-
+        
         [HttpGet]
-        public async Task<IEnumerable<Customer>> GetCustomerList()
+        
+        public async Task<IEnumerable<Object>> GetCustomerList()
         {
             //var CustomerItems = _repository.GetCustomerList();
             //return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));

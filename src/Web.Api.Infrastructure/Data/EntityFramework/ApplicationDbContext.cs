@@ -131,6 +131,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
                 //     .HasForeignKey(d => d.CreatedBy)
                 //     .HasConstraintName("fk_Customer_createdBy");
 
+                entity.HasOne(d => d.ContactPointNavigation)
+                     .WithMany(p => p.CustomerContactPointNavigation)
+                     .HasForeignKey(d => d.ContactPoint)
+                     .HasConstraintName("fk_Customer_contactPoint");
+
                 // entity.HasOne(d => d.UpdatedByNavigation)
                 //     .WithMany(p => p.CustomerUpdatedByNavigation)
                 //     .HasForeignKey(d => d.UpdatedBy)

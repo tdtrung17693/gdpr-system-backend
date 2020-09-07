@@ -25,7 +25,7 @@ namespace Web.Api.Core.Domain.Entities
         public Guid? ContactPoint { get; set; }
         public string Description { get; set; }
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
-
+        public virtual User ContactPointNavigation { get; set; }
         //Unmapped Properties
         //public override bool IsDeleted { get; set; }
     }

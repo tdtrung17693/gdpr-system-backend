@@ -29,6 +29,7 @@ namespace Web.Api.Core.Domain.Entities
         // public virtual ICollection<Comment> CommentUpdatedByNavigation { get; set; }
         // public virtual ICollection<Customer> CustomerCreatedByNavigation { get; set; }
         // public virtual ICollection<Customer> CustomerUpdatedByNavigation { get; set; }
+        public virtual ICollection<Customer> CustomerContactPointNavigation { get; set; }
         // public virtual ICollection<User> InverseCreatedByNavigation { get; set; }
         // public virtual ICollection<User> InverseDeletedByNavigation { get; set; }
         // public virtual ICollection<User> InverseUpdatedByNavigation { get; set; }

@@ -10,7 +10,7 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200906122914_initial")]
+    [Migration("20200907072706_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -137,6 +137,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid?>("UpdatedBy");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContactPoint");
 
                     b.ToTable("Customer");
                 });
@@ -317,6 +319,8 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasIndex("ApprovedBy");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("ServerId");
 
                     b.ToTable("Request");
@@ -489,6 +493,14 @@ namespace Web.Api.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Customer", b =>
+                {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ContactPointNavigation")
+                        .WithMany("CustomerContactPointNavigation")
+                        .HasForeignKey("ContactPoint")
+                        .HasConstraintName("fk_Customer_contactPoint");
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.CustomerServer", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.Customer", "Customer")
@@ -529,6 +541,11 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("RequestApprovedByNavigation")
                         .HasForeignKey("ApprovedBy")
                         .HasConstraintName("fk_Request_approvedBy");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
+                        .WithMany("RequestCreatedByNavigation")
+                        .HasForeignKey("CreatedBy")
+                        .HasConstraintName("fk_Request_createdBy");
 
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")

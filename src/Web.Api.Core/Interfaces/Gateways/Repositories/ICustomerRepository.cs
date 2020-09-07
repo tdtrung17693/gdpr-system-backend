@@ -11,7 +11,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
     public interface ICustomerRepository
     {
-        public Task<IEnumerable<Customer>> GetCustomerList();
+        public Task<IEnumerable<Object>> GetCustomerList();
         public Task<Customer> FindById(string id);
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
         public Task<CRUDCustomerResponse> Create(Customer customer);
