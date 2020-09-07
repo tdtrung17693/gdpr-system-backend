@@ -31,7 +31,7 @@ namespace Web.Api.Controllers
 
         public RequestController(IMapper mapper, IRequestRepository repository, ICreateRequestUseCase createRequestUseCase,
             CreateRequestPresenter createRequestPresenter, UpdateRequestPresenter updateRequestPresenter, IUpdateRequestUseCase updateRequestUseCase,
-            IBulkRequestUseCase bulkRequestUseCase, BulkRequestPresenter bulkRequestPresenter)//, ICreateRequestUseCase createRequestUseCase, CreateRequestPresenter createRequestPresenter   
+            IBulkRequestUseCase bulkRequestUseCase, BulkRequestPresenter bulkRequestPresenter)
         {
             _mapper = mapper;
             _repository = repository;
@@ -61,7 +61,7 @@ namespace Web.Api.Controllers
 
         //READ
         [HttpGet]
-        public ActionResult<IEnumerable<RequestRequest>> GetAllCommands()
+        public ActionResult<IEnumerable<RequestRequest>> GetRequestList()
         {
             var requestItems = _repository.GetRequestList();
             return Ok(_mapper.Map<IEnumerable<RequestRequest>>(requestItems));

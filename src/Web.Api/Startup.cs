@@ -26,6 +26,9 @@ using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
+using Web.Api.Core.Interfaces.UseCases.RequestInterface;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
 
 namespace Web.Api
 {
@@ -47,6 +50,9 @@ namespace Web.Api
             
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+            services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
+            services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
+            services.AddScoped<IBulkRequestUseCase, BulkRequestUseCase>();
             //services.AddScoped<ICustomerRepository>();
             // jwt wire up
             // Get options from app settings
