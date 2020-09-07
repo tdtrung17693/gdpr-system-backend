@@ -62,7 +62,7 @@ namespace Web.Api.Controllers
             { 
                 return BadRequest(ModelState);
             }
-            await _createServerUseCase.Handle(new CreateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
+            await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
             return Ok("You hav add an row");
@@ -89,7 +89,7 @@ namespace Web.Api.Controllers
             { 
                 return BadRequest(ModelState);
             }
-            await _updateServerUseCase.Handle(new UpdateServerRequest(server.Id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
+            await _updateServerUseCase.Handle(new UpdateServerRequest(Guid.NewGuid(), server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
             return Ok("You hav update an row");
@@ -131,8 +131,8 @@ namespace Web.Api.Controllers
 
         //Import Server
         [EnableCors("server")]
-        [HttpPost("import")]
-        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        [HttpPost("{id}/import")]
+        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id,IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
 
 
@@ -163,11 +163,15 @@ namespace Web.Api.Controllers
                         {
                             Name = worksheet.Cells[row, 1].Value.ToString().Trim(),
                             IpAddress = worksheet.Cells[row, 2].Value.ToString().Trim(),
-                            
-                            StartDate = DateTime.FromOADate(worksheet.Cells[row, 3].Value),
-                            EndDate = DateTime.FromOADate(worksheet.Cells[row, 4].Value),
-                            CreatedBy = worksheet.Cells[row, 4].Value.ToString().Trim()
-                        }) ; 
+                            StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
+                            EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),
+                            CreatedBy = id
+
+                        }) ;
+
+                        await _createServerUseCase.Handle(new CreateServerRequest(Guid.NewGuid(), null, list[list.Count - 1].CreatedBy, null, null, list[list.Count - 1].EndDate,
+                         list[list.Count - 1].IpAddress, false, list[list.Count - 1].Name,
+                            list[list.Count - 1].StartDate, true, null, null), _createServerPresenter);
                     }
                 }
             }

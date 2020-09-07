@@ -33,7 +33,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             
             var name = new SqlParameter("@Name", server.Name);
             var ipAdress = new SqlParameter("@IpAddress", server.IpAddress);
-            _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateServer @Name, @IpAddress ", name, ipAdress);
+            var createdBy = new SqlParameter("@CreatedBy", server.CreatedBy);
+            var startDate = new SqlParameter("@StartDate", server.StartDate);
+            var endDate = new SqlParameter("@EndDate", server.EndDate);
+            _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateServer @Name, @IpAddress, @CreatedBy, @StartDate, @EndDate ", name, ipAdress, createdBy, startDate, endDate );
             var success = await _context.SaveChangesAsync();
             return new CRUDServerResponse(server.Id, success > 0, null);
 
