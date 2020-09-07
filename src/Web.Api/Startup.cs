@@ -51,13 +51,11 @@ namespace Web.Api
         {
             options.AddPolicy("server", build =>
             {
-                build.WithOrigins("http://localhost:5000",
-                                    "http://localhost:5000/api").AllowAnyHeader()
+                build.WithOrigins("http://localhost:3000",
+                                    "http://localhost:3000/servers").AllowAnyOrigin().AllowAnyHeader()
                                                   .AllowAnyMethod();
             });
         });
-
-
 
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
@@ -172,6 +170,8 @@ namespace Web.Api
                   });
           });
 
+      //add file link swagger
+      app.UseStaticFiles();
       // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
       // specifying the Swagger JSON endpoint.
       app.UseSwaggerUI(c =>
@@ -179,12 +179,22 @@ namespace Web.Api
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanAspNetCoreWebAPI V1");
       });
 
+
       // Enable middleware to serve generated Swagger as a JSON endpoint.
       app.UseSwagger();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
+      
 
       app.UseMvc();
+
+      //CORS
+      app.UseCors(builder =>
+       builder.WithOrigins("http://localhost:3000")
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
+        );
     }
   }
 }

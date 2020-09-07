@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest;
@@ -14,6 +16,10 @@ using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
 using BulkServerRequest = Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest.BulkServerRequest;
+using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
+using System.IO;
+using OfficeOpenXml;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Web.Api.Controllers
 {
@@ -29,11 +35,13 @@ namespace Web.Api.Controllers
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
         private readonly BulkServerPresenter _bulkServerPresenter;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
+        public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
             IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
-        {   
+        {
+            _hostingEnvironment = hostingEnvironment;
             _mapper = mapper;
             _repository = repository;
             _createServerUseCase = createServerUseCase;
@@ -63,6 +71,7 @@ namespace Web.Api.Controllers
         }
 
         //READ
+        [EnableCors("server")]
         [HttpGet]
         public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
@@ -87,6 +96,7 @@ namespace Web.Api.Controllers
         }
 
         //Get detail a server
+        [EnableCors("server")]
         [HttpGet("/detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
@@ -96,6 +106,7 @@ namespace Web.Api.Controllers
 
 
         //Active/Deactive multi server
+        [EnableCors("server")]
         [HttpPut("bulkStatus")]
         public async Task<ActionResult> UpdateMultiStatusServer([FromBody] Models.Request.BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
@@ -104,7 +115,6 @@ namespace Web.Api.Controllers
             { 
                 return BadRequest(ModelState);
             }
-
             //create table type
             DataTable idList = new DataTable();
             idList.Columns.Add("Id", typeof(Guid));
@@ -112,14 +122,56 @@ namespace Web.Api.Controllers
             {
                 idList.Rows.Add(id);
             }
-
-
-
             //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
             var response = await _bulkServerUseCase.Handle( new BulkServerRequest(idList, bulkServer.status, bulkServer.updator) , _bulkServerPresenter);
             if (response) return Ok("Done");
             else return Content("Erorr");
 
+        }
+
+        //Import Server
+        [EnableCors("server")]
+        [HttpPost("import")]
+        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        {
+
+
+            if (formFile == null || formFile.Length <= 0)
+            {
+                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "formfile is empty");
+            }
+
+            if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "Not Support file extension");
+            }
+
+            var list = new List<ServerImportRequest>();
+
+            using (var stream = new MemoryStream())
+            {
+                await formFile.CopyToAsync(stream, cancellationToken);
+
+                using (var package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    var rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        list.Add(new ServerImportRequest
+                        {
+                            Name = worksheet.Cells[row, 1].Value.ToString().Trim(),
+                            IpAddress = worksheet.Cells[row, 2].Value.ToString().Trim(),
+                            
+                            StartDate = DateTime.FromOADate(worksheet.Cells[row, 3].Value),
+                            EndDate = DateTime.FromOADate(worksheet.Cells[row, 4].Value),
+                            CreatedBy = worksheet.Cells[row, 4].Value.ToString().Trim()
+                        }) ; 
+                    }
+                }
+            }
+            return ServerImportResponse<List<ServerImportRequest>>.GetResult(0, "OK", list);
         }
 
     }
