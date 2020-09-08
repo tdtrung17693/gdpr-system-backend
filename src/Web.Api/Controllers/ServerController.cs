@@ -82,14 +82,14 @@ namespace Web.Api.Controllers
         //UPDATE
         [EnableCors("server")]
         [HttpPut]
-        public async Task<ActionResult> UpdateServer([FromBody] ServerRequest server)
+        public async Task<ActionResult> UpdateServer([FromBody] ServerUpdateRequest server)
         {
 
             if (!ModelState.IsValid) 
             { 
                 return BadRequest(ModelState);
             }
-            await _updateServerUseCase.Handle(new UpdateServerRequest(Guid.NewGuid(), server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
+            await _updateServerUseCase.Handle(new UpdateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
             return Ok("You hav update an row");
@@ -175,7 +175,7 @@ namespace Web.Api.Controllers
                     }
                 }
             }
-            return ServerImportResponse<List<ServerImportRequest>>.GetResult(0, "OK", list);
+            return ServerImportResponse<List<ServerImportRequest>>.GetResult(200, "OK", list);
         }
 
     }

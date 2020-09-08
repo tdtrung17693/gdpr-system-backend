@@ -55,12 +55,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             var ipAddress = new SqlParameter("@IpAddress", server.IpAddress);
             var id = new SqlParameter("@Id", server.Id);
             var idupdateBy = new SqlParameter("@IdUpdateBy", server.UpdatedBy);
-            var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
             var startDate = new SqlParameter("@StartDate", server.StartDate);   
             var endDate = new SqlParameter("@EndDate", server.EndDate);
             var status = new SqlParameter("@Status", server.Status);
 
-            _context.Database.ExecuteSqlCommand("EXEC UpdateServer @Id, @IdUpdateBy, @UpdateAt, @Name, @IpAddress, @StartDate, @EndDate, @Status", id, idupdateBy, updateAt ,name, ipAddress, startDate, endDate, status);
+            _context.Database.ExecuteSqlCommand("EXEC UpdateServer @Id, @IdUpdateBy, @Name, @IpAddress, @StartDate, @EndDate, @Status", id, idupdateBy, name, ipAddress, startDate, endDate, status);
             var success = await _context.SaveChangesAsync();
             return new CRUDServerResponse(server.Id, success > 0, null);
 
