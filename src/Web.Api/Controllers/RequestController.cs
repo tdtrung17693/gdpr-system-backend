@@ -4,6 +4,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
@@ -13,6 +15,10 @@ using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
 using BulkRequestRequest = Web.Api.Core.Dto.UseCaseRequests.BulkRequestRequest;
+using System.IO;
+using System.Threading;
+using Microsoft.AspNetCore.Hosting;
+using OfficeOpenXml;
 
 namespace Web.Api.Controllers
 {
@@ -44,6 +50,7 @@ namespace Web.Api.Controllers
         }
 
         //CREATE
+        [EnableCors("request")]
         [HttpPost("create")]
         public async Task<ActionResult> CreateNewRequest([FromBody] RequestRequest request)
         {
@@ -60,6 +67,7 @@ namespace Web.Api.Controllers
         }
 
         //READ
+        [EnableCors("request")]
         [HttpGet]
         public ActionResult<IEnumerable<RequestRequest>> GetRequestList()
         {
@@ -67,7 +75,11 @@ namespace Web.Api.Controllers
             return Ok(_mapper.Map<IEnumerable<RequestRequest>>(requestItems));
         }
 
+
+
         //UPDATE
+
+        [EnableCors("request")]
         [HttpPut]
         public async Task<ActionResult> UpdateRequest([FromBody] RequestRequest request)
         {
@@ -82,6 +94,8 @@ namespace Web.Api.Controllers
         }
 
         //Active/Deactive multi request
+
+        [EnableCors("request")]
         [HttpPut("bulkStatus")]
         public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestsRequest bulkRequest)
             //IEnumerable<Guid> requestIdList,bool status, Guid updator

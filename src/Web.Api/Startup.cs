@@ -47,7 +47,16 @@ namespace Web.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            
+            //Config CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("request", build =>
+                {
+                    build.WithOrigins("http://localhost:3000",
+                                        "http://localhost:3000/requests").AllowAnyOrigin().AllowAnyHeader()
+                                                      .AllowAnyMethod();
+                });
+            });
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
             services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
