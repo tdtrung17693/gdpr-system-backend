@@ -34,6 +34,7 @@ namespace Web.Api.Models.Validation
         .MustAsync(async (id, cancellation) => await roleRepository.IsExisted(id)).WithMessage("Invalid role");
 
       RuleFor(x => x.Password).NotEmpty().Length(6, 15);
+      RuleFor(x => new { x.ConfirmPassword, x.Password }).Must(x => x.Password == x.ConfirmPassword).WithMessage("Password mismatch");
     }
   }
 }

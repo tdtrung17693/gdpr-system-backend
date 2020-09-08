@@ -15,6 +15,7 @@ using Web.Api.Serialization;
 using Web.Api.Models.Request;
 using AutoMapper;
 using Web.Api.Core.Dto;
+using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,16 +29,22 @@ namespace Web.Api.Controllers
     private ManageUserUseCase _userUseCase;
     private ResourcePresenter<ReadUserResponse> _readUserPresenter;
     private ResourcePresenter<CreateUserResponse> _createUserPresenter;
+    private ResourcePresenter<ChangeUsersStatusResponse> _changeUsersStatusPresenter;
+    private ResourcePresenter<UpdateUserResponse> _updateUserPresenter;
     private IMapper _mapper;
     public UsersController(
       ManageUserUseCase userUseCase,
       ResourcePresenter<ReadUserResponse> readUserPresenter,
       ResourcePresenter<CreateUserResponse> createUserPresenter,
+      ResourcePresenter<UpdateUserResponse> updateUserPresenter,
+      ResourcePresenter<ChangeUsersStatusResponse> changeUsersStatusPresenter,
       IMapper mapper)
     {
       _userUseCase = userUseCase;
       _readUserPresenter = readUserPresenter;
       _createUserPresenter = createUserPresenter;
+      _changeUsersStatusPresenter = changeUsersStatusPresenter;
+      _updateUserPresenter = updateUserPresenter;
       _mapper = mapper;
     }
     // GET: api/<UsersController>
@@ -62,7 +69,7 @@ namespace Web.Api.Controllers
     // GET api/<UsersController>/5
     [HttpGet("{id}")]
     [Authorize("CanViewUser")]
-    public async Task<ActionResult> Get(string id)
+    public async Task<ActionResult> Get(Guid id)
     {
       _readUserPresenter.HandleResource = r =>
       {
@@ -85,7 +92,7 @@ namespace Web.Api.Controllers
       }
       _createUserPresenter.HandleResource = r =>
       {
-        return r.Success ? JsonSerializer.SerializeObject(r.Id) : JsonSerializer.SerializeObject(r);
+        return r.Success ? JsonSerializer.SerializeObject(r.Id) : JsonSerializer.SerializeObject(r.Errors.First());
       };
 
       var createUserRequest = new Core.Dto.UseCaseRequests.User.CreateUserRequest(request.Username, request.Email, request.FirstName, request.LastName, request.RoleId, request.Password);
@@ -96,8 +103,40 @@ namespace Web.Api.Controllers
     // PUT api/<UsersController>/5
     [HttpPut("{id}")]
     [Authorize("CanEditUser")]
-    public void Put(int id, [FromBody] string value)
+    public async Task<IActionResult> Put(Guid id, [FromBody] Models.Request.UpdateUserRequest request)
     {
+      _updateUserPresenter.HandleResource = r =>
+      {
+        return r.Success ? "" : JsonSerializer.SerializeObject(r.Errors);
+      };
+
+      var updateUserRequest = new Core.Dto.UseCaseRequests.User.UpdateUserRequest(id, request.RoleId, request.Status);
+      await _userUseCase.Update(updateUserRequest, _updateUserPresenter);
+      //return _updateUserPresenter.ContentResult.ToString() == "" ? (IActionResult) NoContent() : BadRequest(_updateUserPresenter.ContentResult.ToString());
+      return _updateUserPresenter.ContentResult;
+    }
+
+    [HttpPost("activate")]
+    public async Task<ActionResult> ActivateBulk([FromBody] Guid[] ids)
+    {
+      _changeUsersStatusPresenter.HandleResource = r =>
+      {
+        return r.Success ? JsonSerializer.SerializeObject(new { }) : JsonSerializer.SerializeObject(r.Errors);
+      };
+      await _userUseCase.ChangeUserStatus(new ChangeUsersStatusRequest(ids, true), _changeUsersStatusPresenter);
+      return _changeUsersStatusPresenter.ContentResult;
+    }
+
+    [HttpPost("deactivate")]
+    [Authorize("CanEditUser")]
+    public async Task<ActionResult> DeactivateBulk([FromBody] Guid[] ids)
+    {
+      _changeUsersStatusPresenter.HandleResource = r =>
+      {
+        return r.Success ? JsonSerializer.SerializeObject(new { }) : JsonSerializer.SerializeObject(r.Errors);
+      };
+      await _userUseCase.ChangeUserStatus(new ChangeUsersStatusRequest(ids, false), _changeUsersStatusPresenter);
+      return _changeUsersStatusPresenter.ContentResult;
     }
 
     // DELETE api/<UsersController>/5

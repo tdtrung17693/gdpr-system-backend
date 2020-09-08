@@ -23,8 +23,8 @@ namespace Web.Api.Core.UseCases.User
 
     public async Task<bool> Handle(UpdateUserRequest message, IOutputPort<UpdateUserResponse> outputPort)
     {
-      var response = await _userRepository.Update(new DomainEntities.User(message.FirstName, message.LastName, message.Email, message.RoleId));
-      outputPort.Handle(response.Success ? new UpdateUserResponse(response.Id, true) : new UpdateUserResponse(response.Errors.Select(e => e.Description)));
+      var response = await _userRepository.Update(message.Id, message.RoleId, message.Status);
+      outputPort.Handle(response.Success ? new UpdateUserResponse(true) : new UpdateUserResponse(response.Errors.Select(e => e.Description)));
       return response.Success;
     }
   }

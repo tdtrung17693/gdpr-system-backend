@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Web.Api.Infrastructure
       _permissions = new List<string>();
     }
 
-    public async Task<bool> LogIn(string userId)
+    public async Task<bool> LogIn(Guid userId)
     {
       _user = await _userRepository.FindById(userId);
       var permissions = await _permissionRepository.GetPermissionsOfRole(_user.RoleId.ToString());

@@ -6,18 +6,14 @@ namespace Web.Api.Core.Dto.UseCaseRequests.User
 {
   public class UpdateUserRequest : IUseCaseRequest<UpdateUserResponse>
   {
-        public UpdateUserRequest(string firstName, string lastName, string email, Guid roleId, string password)
-        {
-            FirstName = firstName;
-            LastName = lastName;
-            Email = email;
-            RoleId = roleId;
-            Password = password;
-        }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
-        public Guid RoleId { get; set; }
-        public string Password { get; set; }
+    public UpdateUserRequest(Guid id, Guid roleId, bool status)
+    {
+      Id = id;
+      RoleId = roleId;
+      Status = status;
+    }
+    public Guid Id { get; set; }
+    public Guid RoleId { get; set; }
+    public bool Status { get; set; }
   }
 }

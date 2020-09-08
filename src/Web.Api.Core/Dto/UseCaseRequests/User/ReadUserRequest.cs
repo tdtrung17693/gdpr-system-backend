@@ -6,7 +6,7 @@ namespace Web.Api.Core.Dto.UseCaseRequests.User
 {
   public class ReadUserRequest : IUseCaseRequest<ReadUserResponse>
   {
-    public ReadUserRequest(string uid)
+    public ReadUserRequest(Guid uid)
     {
       UserId = uid;
       Page = -1;
@@ -17,14 +17,14 @@ namespace Web.Api.Core.Dto.UseCaseRequests.User
 
     public ReadUserRequest(int page, int perPage, string filterString = "", string sortedBy = "Username", string sortOrder = "asc")
     {
-      UserId = "";
+      UserId = Guid.Empty;
       Page = page;
       PageSize = perPage;
       FilterString = filterString;
       SortedBy = sortedBy;
       SortOrder = sortOrder;
     }
-    public string UserId { get; set; }
+    public Guid UserId { get; set; }
     public int Page { get; set; }
     public int PageSize { get; set; }
     public string SortedBy { get; set; }

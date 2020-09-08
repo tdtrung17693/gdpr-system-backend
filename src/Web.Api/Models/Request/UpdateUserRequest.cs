@@ -7,10 +7,12 @@ namespace Web.Api.Models.Request
 {
   public class UpdateUserRequest
   {
-    public UpdateUserRequest(Guid roleId)
+    public UpdateUserRequest(Guid roleId, bool status)
     {
       RoleId = roleId;
+      Status = status;
     }
-    public Guid RoleId {get;set;}
+    public Guid RoleId { get; set; }
+    public bool Status { get; set; }
   }
 }

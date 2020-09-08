@@ -26,7 +26,7 @@ namespace Web.Api.Core.UseCases
             {
                 // confirm we have a user with the given name
                 var user = await _userRepository.FindByName(message.UserName);
-                if (user != null)
+                if (user != null && user.Status == true)
                 {
                     // validate password
                     if (await _userRepository.CheckPassword(user, message.Password))

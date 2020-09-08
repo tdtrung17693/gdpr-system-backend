@@ -15,17 +15,20 @@ namespace Web.Api.Core.UseCases.User
     private ICreateUserUseCase _createUserUseCase;
     private IReadUserUseCase _readUserUseCase;
     private IUpdateUserUseCase _updateUserUseCase;
+    private IChangeUsersStatusUseCase _changeUsersStatusUseCase;
     private IDeleteUserUseCase _deleteUserUseCase;
     public ManageUserUseCase(
       ICreateUserUseCase createUserUseCase,
       IReadUserUseCase readUserUseCase,
       IUpdateUserUseCase updateUserUseCase,
+      IChangeUsersStatusUseCase changeUsersStatusUseCase,
       IDeleteUserUseCase deleteUserUseCase
       )
     {
       _createUserUseCase = createUserUseCase;
       _readUserUseCase = readUserUseCase;
       _updateUserUseCase = updateUserUseCase;
+      _changeUsersStatusUseCase = changeUsersStatusUseCase;
       _deleteUserUseCase = deleteUserUseCase;
     }
 
@@ -46,8 +49,12 @@ namespace Web.Api.Core.UseCases.User
 
     public async Task<bool> Read(ReadUserRequest message, IOutputPort<ReadUserResponse> outputPort)
     {
-      await _readUserUseCase.Handle(message, outputPort);
-      return true;
+      return await _readUserUseCase.Handle(message, outputPort);
+    }
+
+    public async Task<bool> ChangeUserStatus(ChangeUsersStatusRequest message, IOutputPort<ChangeUsersStatusResponse> outputPort)
+    {
+      return await _changeUsersStatusUseCase.Handle(message, outputPort);
     }
   }
 }

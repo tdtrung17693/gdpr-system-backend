@@ -12,6 +12,8 @@ using System.Data;
 using Web.Api.Core.Dto;
 using DataEntities = Web.Api.Core.Domain.Entities;
 using System;
+using System.Collections.Generic;
+using Web.Api.Infrastructure.Helpers;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -26,7 +28,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       _context = context;
     }
 
-    public async Task<CreateUserResponse> Create(User userInfo, string userName, string password)
+    public async Task<CreateUserResponse> Create(User userInfo, string userName, string password, Guid creator)
     {
       //var appUser = _mapper.Map<AppUser>(user);
       //var identityResult = await _userManager.CreateAsync(appUser, password);
@@ -44,24 +46,27 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       command.Parameters.Add(new SqlParameter("@HashedPassword", hashPassword));
       command.Parameters.Add(new SqlParameter("@Salt", salt));
       command.Parameters.Add(new SqlParameter("@RoleId", userInfo.RoleId));
+      command.Parameters.Add(new SqlParameter("@Creator", creator));
 
       if (command.Connection.State == ConnectionState.Closed)
         command.Connection.Open();
       try
       {
         var result = (Guid)await command.ExecuteScalarAsync();
-        Console.Out.WriteLine(result);
         return new CreateUserResponse(result.ToString(), true, null);
       }
-      catch (Exception e)
+      catch (SqlException e)
       {
-
-        return new CreateUserResponse("-1", false, new[] { new Error(null, e.Message), });
+        // Unique constraint violation code number
+        if (e.Number == 2627)
+          return new CreateUserResponse("-1", false, new[] { new Error(Error.Codes.UNIQUE_CONSTRAINT_VIOLATED, Error.Messages.UNIQUE_CONSTRAINT_VIOLATED) });
       }
       finally
       {
         command.Connection.Close();
       }
+
+      return new CreateUserResponse("-1", false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN), });
     }
 
     public async Task<User> FindByName(string userName)
@@ -75,13 +80,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       return user;
     }
 
-    public async Task<User> FindById(string id)
+    public async Task<User> FindById(Guid id)
     {
-      Guid userId = Guid.Parse(id);
       User user = await _context.User
                                       .Include(u => u.Account)
                                       .Include(u => u.Role)
-                                      .Where(u => u.Id == userId)
+                                      .Where(u => u.Id == id)
                                       .FirstOrDefaultAsync();
       return user;
     }
@@ -114,14 +118,42 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       );
     }
 
-    public Task<CreateUserResponse> Update(User user)
+    public Task<UpdateUserResponse> Update(User user)
     {
       throw new NotImplementedException();
+    }
+    public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
+    {
+      var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+      if (user == null)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
+      }
+
+      user.RoleId = roleId;
+      user.Status = status;
+      _context.SaveChanges();
+      return new UpdateUserResponse(true);
     }
 
     public Task<CreateUserResponse> Delete(User user)
     {
       throw new NotImplementedException();
+    }
+
+    public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
+    {
+      List<User> userList = await _context.User.Where(u => ids.Contains((Guid)u.Id)).ToListAsync();
+      userList.ForEach(u => u.Status = status);
+      try
+      {
+        await _context.SaveChangesAsync();
+      } catch (Exception e)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
+
+      return new UpdateUserResponse(true);
     }
   }
 }

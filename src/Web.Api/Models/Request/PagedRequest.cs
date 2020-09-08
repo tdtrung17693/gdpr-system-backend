@@ -12,7 +12,7 @@ namespace Web.Api.Models.Request
       Page = 1;
       PageSize = 10;
       FilterBy = "";
-      SortedBy = "CreatedAt";
+      SortedBy = "Username";
       SortOrder = "";
     }
     public int Page { get; set; }

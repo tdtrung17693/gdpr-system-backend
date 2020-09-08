@@ -8,7 +8,7 @@ namespace Web.Api.Core.Interfaces.Services
 {
   public interface IAuthService
   {
-    Task<bool> LogIn(string userId);
+    Task<bool> LogIn(Guid userId);
     bool HasPermission(string requiredPermission);
     User GetCurrentUser();
     IEnumerable<string> GetAllPermissions();

@@ -9,9 +9,9 @@ namespace Web.Api.Core.Dto.UseCaseResponses.User
   {
     public Pagination<DomainEntities.User> Users { get; }
     public DomainEntities.User User { get; }
-    public IEnumerable<string> Errors { get; }
+    public IEnumerable<Error> Errors { get; }
 
-    public ReadUserResponse(IEnumerable<string> errors, bool success = false, string message = null) : base(success, message)
+    public ReadUserResponse(IEnumerable<Error> errors, bool success = false, string message = null) : base(success, message)
     {
       Errors = errors;
     }

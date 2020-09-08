@@ -109,7 +109,7 @@ namespace Web.Api
                           .Claims
                           .Single(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
                 var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
-                await authService.LogIn(uid);
+                await authService.LogIn(Guid.Parse(uid));
               }
         };
       });

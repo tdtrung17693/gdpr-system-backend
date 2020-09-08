@@ -15,9 +15,8 @@ namespace Web.Api.Core.Dto.UseCaseResponses.User
       Errors = errors;
     }
 
-    public UpdateUserResponse(string id, bool success = false, string message = null) : base(success, message)
+    public UpdateUserResponse(bool success, string message = null) : base(success, message)
     {
-      Id = id;
     }
   }
 }

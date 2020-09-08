@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.UseCaseRequests.User;
@@ -21,15 +21,12 @@ namespace Web.Api.Core.UseCases.User
 
     public async Task<bool> Handle(ReadUserRequest message, IOutputPort<ReadUserResponse> outputPort)
     {
-      if (message.UserId != "")
+      if (message.UserId.ToString() != Guid.Empty.ToString())
       {
         DomainEntities.User user = await _userRepository.FindById(message.UserId);
         if (user == null)
         {
-          var error = new List<string>();
-          error.Add("User not found");
-
-          outputPort.Handle(new ReadUserResponse(error));
+          outputPort.Handle(new ReadUserResponse(new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND) } ));
         }
         else
         {
