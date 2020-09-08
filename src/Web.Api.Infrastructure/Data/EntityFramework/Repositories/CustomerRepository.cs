@@ -26,18 +26,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             _context = context;
         }
 
-        public async Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request)
-        {
-            var response = await _context.Server.AsNoTracking()
-                //.Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id)))
-                .Where(s => s.Request.Any(r => (r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null)))
-                .Select(s => new { s.Id, s.Name, s.IpAddress, Request = s.Request
-                .Where(r => r.ApprovedBy != null)
-                .Select(r => new { r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email }) })
-                .ToListAsync();
-            return new ExportCSVByCustomerResponse(response, true, null );
-        }
-
         public async Task<IEnumerable<Object>> GetCustomerList()
         {
             return await _context.Customer.AsNoTracking()
@@ -50,6 +38,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             return await _context.Customer.AsNoTracking().Include(c => c.CustomerServer).ThenInclude(cs => cs.Server).FirstOrDefaultAsync(i => i.Id == Guid.Parse(id));
         }
+
+        public async Task<IEnumerable<Object>> Filter(string keyword)
+        {
+            return await _context.Customer.AsNoTracking()
+                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPoint = c.ContactPointNavigation.Email,
+                serverOwned = c.CustomerServer.Select(cs => new { cs.Server.Id, cs.Server.Name, cs.Server.IpAddress }).Count()
+                })
+                .Where(c => c.Name.Contains(keyword) || c.Description.Contains(keyword)).ToListAsync();
+        }
+
         public async Task<CRUDCustomerResponse> Create(Customer /*CustomerRequest*/ customer)
         {
             await _context.Customer.AddAsync(customer);
@@ -58,6 +56,20 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 success > 0 ? null : new IdentityError(){Description = $"Could not add user {customer.Id}."});*/
             return new CRUDCustomerResponse(customer.Id, success > 0,
                 null);
+        }
+
+        public async Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request)
+        {
+            var response = await _context.Server.AsNoTracking()
+                .Where(s => s.CustomerServer.Any(cs => request.Guids.Contains(cs.Customer.Id)))
+                .Where(s => s.Request.Any(r => (r.EndDate <= request.ToDate && r.StartDate >= request.FromDate && r.ApprovedBy != null)))
+                .Select(s => new {
+                    Request = s.Request
+                .Where(r => r.ApprovedBy != null)
+                .Select(r => new { s.Id, s.Name, s.IpAddress, r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email })
+                })
+                .ToListAsync();
+            return new ExportCSVByCustomerResponse(response, true, null);
         }
 
         public async Task<CRUDCustomerResponse> Update(Customer /*CustomerRequest*/ customer)

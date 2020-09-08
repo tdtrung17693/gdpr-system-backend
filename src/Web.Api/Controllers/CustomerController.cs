@@ -49,10 +49,16 @@ namespace Web.Api.Controllers
         }
 
         // GET api/<UsersController>/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public async Task<Customer> Get(string id)
         {
             return await _repository.FindById(id);
+        }*/
+
+        [HttpGet("{keyword}")]
+        public async Task<IEnumerable<Object>> Filter(string keyword)
+        {
+            return await _repository.Filter(keyword);
         }
 
         [HttpPost("export-csv")]
@@ -68,13 +74,14 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Models.Request.CustomerRequest request)
+        public async Task<ActionResult> Post([FromBody] UseCaseRequest.CustomerRequest request)
         {
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status), _customerPresenter);
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, 
+                request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
 

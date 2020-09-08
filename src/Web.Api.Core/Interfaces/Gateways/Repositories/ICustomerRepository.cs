@@ -13,6 +13,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     {
         public Task<IEnumerable<Object>> GetCustomerList();
         public Task<Customer> FindById(string id);
+        public Task<IEnumerable<Object>> Filter(string keyword);
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
         public Task<CRUDCustomerResponse> Create(Customer customer);
         public Task<CRUDCustomerResponse> Update(Customer customer);

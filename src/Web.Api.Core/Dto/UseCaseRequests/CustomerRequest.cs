@@ -20,11 +20,11 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public bool? Status { get; set; }
 
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
-        public CustomerRequest(string name,
+        public CustomerRequest(string customerName,
           DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description, bool? status = true,
           Guid? id = null, Guid? createdBy = null, Guid? updatedBy = null)
         {
-            Name = name;
+            Name = customerName;
             ContractBeginDate = contractBeginDate;
             ContractEndDate = contractEndDate;
             ContactPoint = contactPoint;
