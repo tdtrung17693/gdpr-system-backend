@@ -48,6 +48,74 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 .Where(c => c.Name.Contains(keyword) || c.Description.Contains(keyword)).ToListAsync();
         }
 
+        public async Task<IEnumerable<Object>> GetAllServer()
+        {
+            return await _context.Server.AsNoTracking()
+                .Select(c => new
+                {
+                    id = c.Id,
+                    c.Name,
+                    c.IpAddress,
+                    ownedBy = c.CustomerServer.Select(cs => cs.Customer.Name),
+                    customerid = c.CustomerServer.Select(cs => cs.Customer.Id),
+                }).Take(50).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Object>> FilterServer(string keyword)
+        {
+            return await _context.Server.AsNoTracking()
+                .Select(c => new {
+                    c.Id,
+                    c.Name,
+                    c.IpAddress,
+                    ownedBy = c.CustomerServer.Select(cs => cs.Customer.Name),
+                    customerid = c.CustomerServer.Select(cs => cs.Customer.Id),
+                })
+                .Where(c => c.Name.Contains(keyword) || c.IpAddress.Contains(keyword)).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Object>> GetOwnedServer(string id)
+        {
+            return await _context.Server.AsNoTracking()
+                .Where(s => s.CustomerServer.Any(cs => cs.Customer.Id == Guid.Parse(id)))
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Name,
+                    s.IpAddress,
+                    ownedBy = s.CustomerServer.Select(cs => cs.Customer.Name),
+                    customerid = s.CustomerServer.Select(cs => cs.Customer.Id),
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Object>> GetAvailableServer()
+        {
+            return await _context.Server.AsNoTracking()
+                .Where(s => s.CustomerServer.Count() == 0)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Name,
+                    s.IpAddress,
+                    ownedBy = s.CustomerServer.Select(cs => cs.Customer.Name),
+                    customerid = s.CustomerServer.Select(cs => cs.Customer.Id),
+                })
+                .Take(156)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Object>> GetAllContactPoint()
+        {
+            return await _context.User.AsNoTracking()
+                .Where(c => c.Role.Name == "Contact Point" || c.Role.Name == "Administrator")
+                .Select(c => new
+                {
+                    id = c.Id,
+                    c.Email,
+                }).ToListAsync();
+        }
+
         public async Task<CRUDCustomerResponse> Create(Customer /*CustomerRequest*/ customer)
         {
             await _context.Customer.AddAsync(customer);

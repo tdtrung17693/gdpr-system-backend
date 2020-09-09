@@ -14,6 +14,11 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         public Task<IEnumerable<Object>> GetCustomerList();
         public Task<Customer> FindById(string id);
         public Task<IEnumerable<Object>> Filter(string keyword);
+        public Task<IEnumerable<Object>> GetAllServer();
+        public Task<IEnumerable<Object>> FilterServer(string keyword);
+        public Task<IEnumerable<Object>> GetOwnedServer(string id);
+        public Task<IEnumerable<Object>> GetAvailableServer();
+        public Task<IEnumerable<Object>> GetAllContactPoint();
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
         public Task<CRUDCustomerResponse> Create(Customer customer);
         public Task<CRUDCustomerResponse> Update(Customer customer);

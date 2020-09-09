@@ -61,6 +61,36 @@ namespace Web.Api.Controllers
             return await _repository.Filter(keyword);
         }
 
+        [HttpGet("server")]
+        public async Task<IEnumerable<Object>> GetAllServer()
+        {
+            return await _repository.GetAllServer();
+        }
+
+        [HttpGet("server/{keyword}")]
+        public async Task<IEnumerable<Object>> FilterServer(string keyword)
+        {
+            return await _repository.FilterServer(keyword);
+        }
+
+        [HttpGet("server/id={id}")]
+        public async Task<IEnumerable<Object>> GetOwnedServer(string id)
+        {
+            return await _repository.GetOwnedServer(id);
+        }
+
+        [HttpGet("server/available")]
+        public async Task<IEnumerable<Object>> GetAvailableServer()
+        {
+            return await _repository.GetAvailableServer();
+        }
+
+        [HttpGet("contact-point")]
+        public async Task<IEnumerable<Object>> GetAllContactPoint()
+        {
+            return await _repository.GetAllContactPoint();
+        }
+
         [HttpPost("export-csv")]
         public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)
         {
