@@ -25,8 +25,8 @@ namespace Web.Api.Core.UseCases
         public async Task<bool> Handle(CreateRequestRequest message, IOutputPort<CreateRequestResponse> outputPort)
         {
             var response = await _requestRepository.Create(new Request(message.Title, message.StartDate, message.EndDate,
-                message.ServerId, message.Description, message.RequestStatus, message.Response, message.ApprovedBy,
-                message.Id, message.CreatedBy, message.CreatedAt, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt));
+                message.ServerId, message.Description, message.RequestStatus, /*message.Response, message.ApprovedBy,*/
+                message.Id, message.CreatedBy, message.CreatedAt/*, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt*/));
             return response.Success;
         }
     }
