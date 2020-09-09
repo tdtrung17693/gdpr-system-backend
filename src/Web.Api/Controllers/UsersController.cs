@@ -16,6 +16,8 @@ using Web.Api.Models.Request;
 using AutoMapper;
 using Web.Api.Core.Dto;
 using System;
+using Web.Api.Core.Interfaces.Services.Event;
+using Web.Api.Core.Domain.Event;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -144,6 +146,13 @@ namespace Web.Api.Controllers
     [Authorize("CanDeleteUser")]
     public void Delete(int id)
     {
+    }
+
+    [HttpPost("testevent")]
+    public async Task TestEvent([FromServices] IDomainEventBus eventBus, [FromServices] IUserRepository repo)
+    {
+      var user = await repo.FindById(Guid.Parse("61662330-eb32-47d7-a680-5f2c47a5ca60"));
+      await eventBus.Trigger(new UserCreated(user.FirstName, user.LastName, "ABC", user.Email, user.Account.Username));
     }
   }
 }

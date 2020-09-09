@@ -40,7 +40,7 @@ namespace Web.Api.Core.UseCases.User
         users.FilterBy(u => u.FirstName.Contains(filterStr) || u.LastName.Contains(filterStr) || u.Email.Contains(filterStr) || u.Account.Username.Contains(filterStr));
         if (message.SortedBy == "Username")
         {
-          users.SortBy(u => u.Account.Username);
+          users.SortBy(u => u.Account.Username, message.SortOrder);
         } else {
           users.SortBy(message.SortedBy, message.SortOrder);
         }

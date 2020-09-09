@@ -22,7 +22,6 @@ namespace Web.Api.Infrastructure.Data.Mapping
                 RoleId = user.RoleId.ToString(),
                 Status = (bool)user.Status ? true : false
               };
-
                     //System.Text.Encoding.Default.GetString(acc.HashedPassword));
             });
 

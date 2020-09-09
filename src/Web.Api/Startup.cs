@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
@@ -74,6 +73,8 @@ namespace Web.Api
         options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
       });
 
+
+      
       var tokenValidationParameters = new TokenValidationParameters
       {
         ValidateIssuer = true,
@@ -113,6 +114,7 @@ namespace Web.Api
               }
         };
       });
+
 
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 

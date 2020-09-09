@@ -12,7 +12,7 @@ namespace Web.Api.Core
     Task<IEnumerable<T>> GetItemsForPage(int page, int pageSize);
     void FilterBy(Expression<Func<T, bool>> exp);
     void SortBy(string sortBy, string sortOrder);
-    void SortBy<TKey>(Expression<Func<T, TKey>> exp);
+    void SortBy<TKey>(Expression<Func<T, TKey>> exp, string sortOrder);
 
     int TotalItems();
     int TotalPages();

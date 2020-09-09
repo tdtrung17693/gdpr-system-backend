@@ -74,9 +74,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       else _query = Queryable.OrderByDescending(_query, lambda);
     }
 
-    public void SortBy<TKey>(Expression<Func<T, TKey>> exp)
+    public void SortBy<TKey>(Expression<Func<T, TKey>> exp, string sortOrder = "asc")
     {
-      _query = _query.OrderBy(exp);
+      _query = sortOrder == "asc" ? _query.OrderBy(exp) : _query.OrderByDescending(exp);
     }
 
     public int TotalItems()

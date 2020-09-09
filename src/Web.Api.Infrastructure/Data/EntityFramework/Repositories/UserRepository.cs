@@ -14,6 +14,11 @@ using DataEntities = Web.Api.Core.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using Web.Api.Infrastructure.Helpers;
+using PasswordGenerator;
+using Web.Api.Core.Interfaces.Services.Event;
+using Web.Api.Core.Domain.Event;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -21,11 +26,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
   {
     private readonly IMapper _mapper;
     private readonly ApplicationDbContext _context;
+    private readonly IDomainEventBus _eventBus;
 
-    public UserRepository(ApplicationDbContext context, IMapper mapper)
+    public UserRepository(ApplicationDbContext context, IMapper mapper, IDomainEventBus eventBus)
     {
       _mapper = mapper;
       _context = context;
+      _eventBus = eventBus;
     }
 
     public async Task<CreateUserResponse> Create(User userInfo, string userName, string password, Guid creator)
@@ -33,8 +40,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       //var appUser = _mapper.Map<AppUser>(user);
       //var identityResult = await _userManager.CreateAsync(appUser, password);
       //return new CreateUserResponse(appUser.Id, identityResult.Succeeded, identityResult.Succeeded ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
-      string salt = BCrypt.Net.BCrypt.GenerateSalt();
-      string hashPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
+      var salt = GenerateSalt(10);
+      string rawPassword = new Password().IncludeLowercase().IncludeNumeric().IncludeUppercase().IncludeSpecial().Next();
+      string hashPassword = CalculateHash(rawPassword, salt);
 
       var command = _context.Database.GetDbConnection().CreateCommand();
       command.CommandText = "CreateUser";
@@ -44,15 +52,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       command.Parameters.Add(new SqlParameter("@Email", userInfo.Email));
       command.Parameters.Add(new SqlParameter("@Username", userName));
       command.Parameters.Add(new SqlParameter("@HashedPassword", hashPassword));
-      command.Parameters.Add(new SqlParameter("@Salt", salt));
+      command.Parameters.Add(new SqlParameter("@Salt", System.Text.Encoding.Default.GetString(salt)));
       command.Parameters.Add(new SqlParameter("@RoleId", userInfo.RoleId));
       command.Parameters.Add(new SqlParameter("@Creator", creator));
+      command.Parameters.Add(new SqlParameter("@Status", 1));
 
       if (command.Connection.State == ConnectionState.Closed)
         command.Connection.Open();
       try
       {
         var result = (Guid)await command.ExecuteScalarAsync();
+        await _eventBus.Trigger(new UserCreated(userInfo.FirstName, userInfo.LastName, rawPassword, userInfo.Email, userName));
         return new CreateUserResponse(result.ToString(), true, null);
       }
       catch (SqlException e)
@@ -104,7 +114,37 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     {
       //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDataEntities.User>(user), password);
       Console.Out.WriteLine(System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
-      return BCrypt.Net.BCrypt.Verify(password, System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
+      var hashedPassword = System.Text.Encoding.Default.GetString(user.Account.HashedPassword);
+      var salt = System.Text.Encoding.Default.GetBytes(user.Account.Salt);
+      try
+      {
+        var bytes = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 10000, 16);
+        var inputPassword = System.Text.Encoding.Default.GetString(bytes);
+        return hashedPassword.Equals(inputPassword);
+      }
+      catch
+      {
+        return false;
+      }
+    }
+
+    public string CalculateHash(string input, byte[] salt)
+    {
+      var bytes = KeyDerivation.Pbkdf2(input, salt, KeyDerivationPrf.HMACSHA512, 10000, 16);
+
+      return System.Text.Encoding.Default.GetString(bytes);
+    }
+
+    private static byte[] GenerateSalt(int length)
+    {
+      var salt = new byte[length];
+
+      using (var random = RandomNumberGenerator.Create())
+      {
+        random.GetBytes(salt);
+      }
+
+      return salt;
     }
 
     public IPagedCollection<User> FindAll()
