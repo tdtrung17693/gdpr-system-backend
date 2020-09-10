@@ -137,7 +137,6 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContactPoint");
-
                     b.ToTable("Customer");
                 });
 
@@ -338,7 +337,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid?>("Id");
+                    b.Property<Guid>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()

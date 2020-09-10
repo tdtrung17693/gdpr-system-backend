@@ -20,6 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
@@ -32,6 +34,7 @@ using Web.Api.Core.Interfaces.Services;
 using System.Collections.Generic;
 using Web.Api.Core.Dto;
 using Web.Api.Serialization;
+using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 
 namespace Web.Api
 {
@@ -52,19 +55,29 @@ namespace Web.Api
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
       CheckRequiredConfiguration();
-      // Add framework services.
-      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+
+      //Config CORS
       services.AddCors(options =>
       {
-        options.AddPolicy(name: MyAllowSpecificOrigins,
-                          b =>
-                          {
-                            b.WithOrigins("http://localhost:3000")
-                              .AllowAnyHeader()
-                              .AllowAnyMethod();
-                          });
+        options.AddPolicy(name: MyAllowSpecificOrigins, build =>
+          {
+            build.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:3000/servers"
+              )
+              .AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+          });
       });
 
+      // Add framework services.
+      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+
+      //long add
+      services.AddScoped<ICreateServerUseCase, CreateServerUseCase>();
+      services.AddScoped<IUpdateServerUseCase, UpdateServerUseCase>();
+      services.AddScoped<IBulkServerUseCase, BulkServerUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -175,6 +188,8 @@ namespace Web.Api
                       });
           });
 
+      //add file link swagger
+      app.UseStaticFiles();
       // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
       // specifying the Swagger JSON endpoint.
       app.UseSwaggerUI(c =>
@@ -182,13 +197,23 @@ namespace Web.Api
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "GDPR System API V1");
       });
 
+
       // Enable middleware to serve generated Swagger as a JSON endpoint.
       app.UseSwagger();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
 
+
       app.UseCors(MyAllowSpecificOrigins);
       app.UseMvc();
+
+      //CORS
+      app.UseCors(builder =>
+       builder.WithOrigins("http://localhost:3000")
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
+        );
     }
 
     protected void CheckRequiredConfiguration()

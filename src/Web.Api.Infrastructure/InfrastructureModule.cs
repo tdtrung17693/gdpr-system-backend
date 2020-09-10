@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using System;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Infrastructure.Auth;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
@@ -14,7 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Domain.Event;
 using Web.Api.Infrastructure.Services;
-using System.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace Web.Api.Infrastructure
