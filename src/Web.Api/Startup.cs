@@ -67,7 +67,8 @@ namespace Web.Api
               )
               .AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
           });
       });
 
@@ -207,13 +208,6 @@ namespace Web.Api
       app.UseCors(MyAllowSpecificOrigins);
       app.UseMvc();
 
-      //CORS
-      app.UseCors(builder =>
-       builder.WithOrigins("http://localhost:3000")
-         .AllowAnyHeader()
-         .AllowAnyMethod()
-         .AllowCredentials()
-        );
     }
 
     protected void CheckRequiredConfiguration()

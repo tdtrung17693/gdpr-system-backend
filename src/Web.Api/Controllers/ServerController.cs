@@ -53,7 +53,6 @@ namespace Web.Api.Controllers
         }
 
         //CREATE
-        [EnableCors("server")]
         [HttpPost("create")]
         public async Task<ActionResult> CreateNewServer([FromBody] ServerRequest server)   
         {
@@ -71,7 +70,6 @@ namespace Web.Api.Controllers
         }
 
         //READ
-        [EnableCors("server")]
         [HttpGet]
         public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
@@ -80,7 +78,6 @@ namespace Web.Api.Controllers
         }
 
         //UPDATE
-        [EnableCors("server")]
         [HttpPut]
         public async Task<ActionResult> UpdateServer([FromBody] ServerUpdateRequest server)
         {
@@ -96,7 +93,6 @@ namespace Web.Api.Controllers
         }
 
         //Get detail a server
-        [EnableCors("server")]
         [HttpGet("/detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
@@ -106,7 +102,6 @@ namespace Web.Api.Controllers
 
 
         //Active/Deactive multi server
-        [EnableCors("server")]
         [HttpPut("bulkStatus")]
         public async Task<ActionResult> UpdateMultiStatusServer([FromBody] Models.Request.BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
@@ -130,7 +125,6 @@ namespace Web.Api.Controllers
         }
 
         //Import Server
-        [EnableCors("server")]
         [HttpPost("{id}/import")]
         public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id,IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {

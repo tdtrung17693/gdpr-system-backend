@@ -29,6 +29,7 @@ namespace Web.Api.Infrastructure
       builder.RegisterType<UserRepository>().As<IUserRepository>().InstancePerLifetimeScope();
       builder.RegisterType<PermissionRepository>().As<IPermissionRepository>().InstancePerLifetimeScope();
       builder.RegisterType<RoleRepository>().As<IRoleRepository>().InstancePerLifetimeScope();
+      builder.RegisterType<ServerRepository>().As<IServerRepository>().InstancePerLifetimeScope();
 
       // Services
       builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();
