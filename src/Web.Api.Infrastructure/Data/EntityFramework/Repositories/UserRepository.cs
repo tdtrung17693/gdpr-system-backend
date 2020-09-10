@@ -41,8 +41,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       //var identityResult = await _userManager.CreateAsync(appUser, password);
       //return new CreateUserResponse(appUser.Id, identityResult.Succeeded, identityResult.Succeeded ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
       var salt = GenerateSalt(10);
-      string rawPassword = new Password().IncludeLowercase().IncludeNumeric().IncludeUppercase().IncludeSpecial().Next();
-      string hashPassword = CalculateHash(rawPassword, salt);
+      var rawPassword = new Password().IncludeLowercase().IncludeNumeric().IncludeUppercase().IncludeSpecial().Next();
+      var hashPassword = CalculateHash(rawPassword, salt);
 
       var command = _context.Database.GetDbConnection().CreateCommand();
       command.CommandText = "CreateUser";
@@ -52,7 +52,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       command.Parameters.Add(new SqlParameter("@Email", userInfo.Email));
       command.Parameters.Add(new SqlParameter("@Username", userName));
       command.Parameters.Add(new SqlParameter("@HashedPassword", hashPassword));
-      command.Parameters.Add(new SqlParameter("@Salt", System.Text.Encoding.Default.GetString(salt)));
+      command.Parameters.Add(new SqlParameter("@Salt", Convert.ToBase64String(salt)));
       command.Parameters.Add(new SqlParameter("@RoleId", userInfo.RoleId));
       command.Parameters.Add(new SqlParameter("@Creator", creator));
       command.Parameters.Add(new SqlParameter("@Status", 1));
@@ -113,13 +113,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     public async Task<bool> CheckPassword(User user, string password)
     {
       //return await _userManager.CheckPasswordAsync(_mapper.Map<AppDataEntities.User>(user), password);
-      Console.Out.WriteLine(System.Text.Encoding.Default.GetString(user.Account.HashedPassword));
-      var hashedPassword = System.Text.Encoding.Default.GetString(user.Account.HashedPassword);
-      var salt = System.Text.Encoding.Default.GetBytes(user.Account.Salt);
+      var hashedPassword = Convert.ToBase64String(user.Account.HashedPassword);
+      Console.Out.WriteLine(hashedPassword);
+      var salt = Convert.FromBase64String(user.Account.Salt);
       try
       {
-        var bytes = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 10000, 16);
-        var inputPassword = System.Text.Encoding.Default.GetString(bytes);
+        var bytes = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA512, 10000, 32);
+        var inputPassword = Convert.ToBase64String(bytes);
         return hashedPassword.Equals(inputPassword);
       }
       catch
@@ -128,11 +128,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       }
     }
 
-    public string CalculateHash(string input, byte[] salt)
+    public byte[] CalculateHash(string input, byte[] salt)
     {
-      var bytes = KeyDerivation.Pbkdf2(input, salt, KeyDerivationPrf.HMACSHA512, 10000, 16);
+      var bytes = KeyDerivation.Pbkdf2(input, salt, KeyDerivationPrf.HMACSHA512, 10000, 32);
 
-      return System.Text.Encoding.Default.GetString(bytes);
+      return bytes;
     }
 
     private static byte[] GenerateSalt(int length)

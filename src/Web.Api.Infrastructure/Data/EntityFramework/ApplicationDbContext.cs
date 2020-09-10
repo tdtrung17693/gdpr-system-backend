@@ -11,6 +11,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
   public class ApplicationDbContext : DbContext
   {
     private IHttpContextAccessor _httpContext;
+    public ApplicationDbContext() { }
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
     {
       _httpContext = httpContextAccessor;

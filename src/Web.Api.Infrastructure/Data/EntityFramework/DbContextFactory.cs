@@ -7,6 +7,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
     public class DbContextFactory : DesignTimeDbContextFactoryBase<ApplicationDbContext>
     {
         private IHttpContextAccessor _httpContext ;
+    public DbContextFactory() { }
         public DbContextFactory(IHttpContextAccessor httpContext)
         {
             _httpContext = httpContext;

@@ -7,14 +7,13 @@ namespace Web.Api.Core.Dto.UseCaseRequests.User
 {
   public class CreateUserRequest : IUseCaseRequest<CreateUserResponse>
   {
-    public CreateUserRequest(string userName, string email, string firstName, string lastName, Guid roleId, string password)
+    public CreateUserRequest(string userName, string email, string firstName, string lastName, Guid roleId)
     {
       FirstName = firstName;
       LastName = lastName;
       Username = userName;
       Email = email;
       RoleId = roleId;
-      Password = password;
     }
     public string Username { get; set; }
     public string Email { get; set; }
