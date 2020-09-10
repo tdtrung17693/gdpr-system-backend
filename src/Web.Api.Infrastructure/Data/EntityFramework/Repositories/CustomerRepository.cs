@@ -12,6 +12,8 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -125,6 +127,32 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             return new CRUDCustomerResponse(customer.Id, success > 0,
                 null);
         }
+
+        public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
+        {
+            var customerId = new SqlParameter("@CustomerId", request.CustomerId);
+            var serverIds = new SqlParameter("@ServerIds", request.ServerIds);
+            serverIds.SqlDbType = SqlDbType.Structured;
+            serverIds.TypeName = "dbo.IdList";
+            //Console.WriteLine(request.ServerIds);
+            /*_context.Database.ExecuteSqlCommand("DECLARE @si IdList INSERT @si VALUES('390EA8C0-1714-415F-B4AD-00447E8A7F2D')" +
+               "EXEC[gdpr_system].[dbo].[AssignCustomerToServers] @CustomerId, @ServerIds = @si", customerId);*/
+            _context.Database.ExecuteSqlCommand("EXEC dbo.AssignCustomerToServers @CustomerId, @ServerIds", customerId, serverIds);
+
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
+                null);
+        }
+        /*public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
+        {
+            Console.WriteLine(request.ServerIds.Count());
+            await _context.CustomerServer.AddAsync(new CustomerServer(request.CustomerId, request.ServerIds.A));
+            
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
+                null);
+        }*/
+        //Cai duoi nay chay duoc
 
         public async Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request)
         {
