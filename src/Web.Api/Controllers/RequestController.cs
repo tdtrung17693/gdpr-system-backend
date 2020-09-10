@@ -59,8 +59,8 @@ namespace Web.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            await _createRequestUseCase.Handle(new CreateRequestRequest(request.Id, request.CreatedBy, request.CreatedAt, /*request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,*/
-                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus/*, request.Response, request.ApprovedBy*/), _createRequestPresenter);
+            await _createRequestUseCase.Handle(new CreateRequestRequest(request.Id, request.CreatedBy, request.CreatedAt, request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,
+                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus, request.Response, request.ApprovedBy), _createRequestPresenter);
             return Ok();
 
 
