@@ -22,6 +22,8 @@ using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.UseCases;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
@@ -74,11 +76,6 @@ namespace Web.Api
 
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
-
-      //long add
-      services.AddScoped<ICreateServerUseCase, CreateServerUseCase>();
-      services.AddScoped<IUpdateServerUseCase, UpdateServerUseCase>();
-      services.AddScoped<IBulkServerUseCase, BulkServerUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -132,7 +129,10 @@ namespace Web.Api
       });
 
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
-
+      services.AddMvc()
+        .AddJsonOptions(
+            options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+        );
       services.AddAutoMapper();
       services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
       services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));

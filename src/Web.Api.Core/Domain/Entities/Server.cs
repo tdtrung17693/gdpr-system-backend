@@ -16,6 +16,7 @@ namespace Web.Api.Core.Domain.Entities
             IpAddress = ipAddress;
             StartDate = startDate;
             EndDate = endDate;
+            Request = new HashSet<Request>();
         }
         [NotMapped]
         public Guid Id { get; set; }

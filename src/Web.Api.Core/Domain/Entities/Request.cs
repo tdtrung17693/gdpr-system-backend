@@ -29,6 +29,7 @@ namespace Web.Api.Core.Domain.Entities
         public string Response { get; set; }
         public Guid? ApprovedBy { get; set; }
         public virtual User ApprovedByNavigation { get; set; }
+        public virtual User CreatedByNavigation { get; set; }
         public virtual Server Server { get; set; }
         public virtual ICollection<Comment> Comment { get; set; }
         public virtual ICollection<HistoryLog> HistoryLog { get; set; }

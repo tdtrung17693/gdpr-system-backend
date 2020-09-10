@@ -1,10 +1,7 @@
 ﻿using Autofac;
-using System;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Infrastructure.Auth;
-using Web.Api.Core.Interfaces.Services;
-using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 using FluentEmail.Core;
 using FluentEmail.Core.Interfaces;
@@ -30,6 +27,7 @@ namespace Web.Api.Infrastructure
       builder.RegisterType<PermissionRepository>().As<IPermissionRepository>().InstancePerLifetimeScope();
       builder.RegisterType<RoleRepository>().As<IRoleRepository>().InstancePerLifetimeScope();
       builder.RegisterType<ServerRepository>().As<IServerRepository>().InstancePerLifetimeScope();
+      builder.RegisterType<CustomerRepository>().As<ICustomerRepository>().InstancePerLifetimeScope();
 
       // Services
       builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();
