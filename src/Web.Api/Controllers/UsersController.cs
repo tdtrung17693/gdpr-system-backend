@@ -97,7 +97,7 @@ namespace Web.Api.Controllers
         return r.Success ? JsonSerializer.SerializeObject(r.Id) : JsonSerializer.SerializeObject(r.Errors.First());
       };
 
-      var createUserRequest = new Core.Dto.UseCaseRequests.User.CreateUserRequest(request.Username, request.Email, request.FirstName, request.LastName, request.RoleId, request.Password);
+      var createUserRequest = new Core.Dto.UseCaseRequests.User.CreateUserRequest(request.Username, request.Email, request.FirstName, request.LastName, Guid.Parse(request.RoleId));
       await _userUseCase.Create(createUserRequest, _createUserPresenter);
       return _createUserPresenter.ContentResult;
     }

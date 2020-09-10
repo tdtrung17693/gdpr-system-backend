@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Models.Request;
 
@@ -31,10 +32,18 @@ namespace Web.Api.Models.Validation
 
       RuleFor(x => x.RoleId).Cascade(CascadeMode.StopOnFirstFailure)
         .NotEmpty()
-        .MustAsync(async (id, cancellation) => await roleRepository.IsExisted(id)).WithMessage("Invalid role");
-
-      RuleFor(x => x.Password).NotEmpty().Length(6, 15);
-      RuleFor(x => new { x.ConfirmPassword, x.Password }).Must(x => x.Password == x.ConfirmPassword).WithMessage("Password mismatch");
+        .MustAsync(async (id, cancellation) =>
+        {
+          try
+          {
+            var guid = Guid.Parse(id);
+            return await roleRepository.IsExisted(guid);
+          }
+          catch (FormatException e)
+          {
+            return false;
+          }
+        }).WithMessage("Invalid role");
     }
   }
 }
