@@ -54,6 +54,7 @@ namespace Web.Api.Core.Domain.Entities
     public virtual ICollection<UserFileInstance> UserFileInstance { get; set; }
     public virtual ICollection<UserLog> UserLog { get; set; }
 
+
     public bool IsContactPoint()
     {
       return Customers.Count > 0;
@@ -69,9 +70,9 @@ namespace Web.Api.Core.Domain.Entities
       return "FirstName";
     }
 
-    public static IEnumerable<string> GetFilterableField()
+    public static IEnumerable<string> GetFilterableFields()
     {
-      return new List<string> { "Username", "FirstName", "LastName", "Email" };
+      return new List<string> { "FirstName", "LastName", "Email", "Status", "RoleId" };
     }
   }
 }

@@ -29,6 +29,9 @@ using Web.Api.Auth;
 using Web.Api.Auth.RequirementHandlers;
 using Web.Api.Infrastructure.Helpers;
 using Web.Api.Core.Interfaces.Services;
+using System.Collections.Generic;
+using Web.Api.Core.Dto;
+using Web.Api.Serialization;
 
 namespace Web.Api
 {
@@ -48,11 +51,12 @@ namespace Web.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+      CheckRequiredConfiguration();
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
       services.AddCors(options =>
       {
-        options.AddPolicy(name: MyAllowSpecificOrigins ,
+        options.AddPolicy(name: MyAllowSpecificOrigins,
                           b =>
                           {
                             b.WithOrigins("http://localhost:3000")
@@ -73,8 +77,6 @@ namespace Web.Api
         options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
       });
 
-
-      
       var tokenValidationParameters = new TokenValidationParameters
       {
         ValidateIssuer = true,
@@ -105,16 +107,15 @@ namespace Web.Api
         {
           OnTokenValidated = async context =>
                 {
-                var uid = context
-                          .Principal
-                          .Claims
-                          .Single(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
-                var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
-                await authService.LogIn(Guid.Parse(uid));
-              }
+                  var uid = context
+                            .Principal
+                            .Claims
+                            .Single(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
+                  var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+                  await authService.LogIn(Guid.Parse(uid));
+                }
         };
       });
-
 
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
@@ -159,16 +160,19 @@ namespace Web.Api
             builder.Run(
                       async context =>
                       {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
-                    var error = context.Features.Get<IExceptionHandlerFeature>();
-                    if (error != null)
-                    {
-                      context.Response.AddApplicationError(error.Error.Message);
-                      await context.Response.WriteAsync(error.Error.Message).ConfigureAwait(false);
-                    }
-                  });
+                        var error = context.Features.Get<IExceptionHandlerFeature>();
+                        if (error != null)
+                        {
+                          context.Response.AddApplicationError(error.Error.Message);
+                          await context.Response.WriteAsync(JsonSerializer.SerializeObject(new
+                          {
+                            Error = new Error(Error.Codes.UNKNOWN, error.Error.Message)
+                          })).ConfigureAwait(false);
+                        }
+                      });
           });
 
       // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
@@ -185,6 +189,16 @@ namespace Web.Api
 
       app.UseCors(MyAllowSpecificOrigins);
       app.UseMvc();
+    }
+
+    protected void CheckRequiredConfiguration()
+    {
+      var configuration = Configuration;
+      var requiredConfiguration = new List<string> {
+        "Mail:StmpServer"
+      };
+
+      //requiredConfiguration.All(c => configuration.Contains(c));
     }
   }
 }

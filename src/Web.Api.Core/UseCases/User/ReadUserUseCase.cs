@@ -37,7 +37,19 @@ namespace Web.Api.Core.UseCases.User
       {
         IPagedCollection<DomainEntities.User> users = _userRepository.FindAll();
         var filterStr = message.FilterString;
-        users.FilterBy(u => u.FirstName.Contains(filterStr) || u.LastName.Contains(filterStr) || u.Email.Contains(filterStr) || u.Account.Username.Contains(filterStr));
+        if (filterStr.Contains(",") && filterStr.Contains(":") || filterStr.Contains(":"))
+        {
+          var filterCriteria = filterStr.Split(",");
+          foreach (var crit in filterCriteria)
+          {
+            var keyVal = crit.Split(":");
+
+            users.FilterBy(keyVal[0], keyVal[1]);
+          }
+        } else
+        {
+          users.FilterBy(u => u.FirstName.Contains(filterStr) || u.LastName.Contains(filterStr) || u.Email.Contains(filterStr) || u.Account.Username.Contains(filterStr));
+        }
         if (message.SortedBy == "Username")
         {
           users.SortBy(u => u.Account.Username, message.SortOrder);
