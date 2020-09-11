@@ -52,7 +52,7 @@ namespace Web.Api.Infrastructure
       builder.Register(c =>
       {
         var config = c.Resolve<IConfiguration>();
-        var adminEmail = config["Mail:AdminEmail"];
+        var adminEmail = config["Mail:From"];
         var adminName = config["Mail:AdminName"];
 
         return new Email(c.Resolve<ITemplateRenderer>(), c.Resolve<ISender>(), adminEmail, adminName);
@@ -61,10 +61,10 @@ namespace Web.Api.Infrastructure
       builder.Register(c =>
       {
         var config = c.Resolve<IConfiguration>();
-        var smtpServer = config["Mail:SmtpServer"];
-        int smtpPort = int.TryParse(config["Mail:SmtpPort"], out smtpPort) ? smtpPort : 587;
-        var smtpUsername = config["Mail:SmtpUsername"];
-        var smtpPassword = config["Mail:SmtpPassword"];
+        var smtpServer = config["Mail:Host"];
+        int smtpPort = int.TryParse(config["Mail:Port"], out smtpPort) ? smtpPort : 587;
+        var smtpUsername = config["Mail:Username"];
+        var smtpPassword = config["Mail:Password"];
 
         return new SmtpSender(() =>
         {
