@@ -6,7 +6,8 @@ namespace Web.Api.Infrastructure.Migrations
   {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-      var sp = @"create or alter proc CreateUser
+      var sp = @"GO
+        create or alter proc CreateUser
         (
           @FirstName NVARCHAR(20),
           @LastName NVARCHAR(20),
@@ -27,7 +28,8 @@ namespace Web.Api.Infrastructure.Migrations
             insert into gdpr_system.dbo.[Account] (Id, Username, HashedPassword, Salt, UserId) VALUES (NEWID(), @Username, @HashedPassword, @Salt, @newId);
             select @newId as Id;
           commit;
-        end";
+        end
+        GO";
 
       migrationBuilder.Sql(sp);
     }
