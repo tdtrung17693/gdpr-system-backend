@@ -23,6 +23,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
         public Task<CRUDCustomerResponse> Create(Customer customer);
         public Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request);
+        public Task<ManageServerCustomerResponse> RemoveServerOwner(ManageServerRequest request);
 
         public Task<CRUDCustomerResponse> Update(Customer customer);
         public Task<CRUDCustomerResponse> Delete(Customer customer);

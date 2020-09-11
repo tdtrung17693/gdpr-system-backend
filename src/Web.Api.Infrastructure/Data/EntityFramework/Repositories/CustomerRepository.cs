@@ -145,10 +145,22 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         }*/
         public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
         {
-            Console.WriteLine(request.ServerIds.Count());
             foreach (var serverId in request.ServerIds)
             {
                 await _context.CustomerServer.AddAsync(new CustomerServer(request.CustomerId, serverId));
+            }
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
+                null);
+        }
+
+        public async Task<ManageServerCustomerResponse> RemoveServerOwner(ManageServerRequest request)
+        {
+            foreach (var serverId in request.ServerIds)
+            {
+                var deletedCustomerServer = await _context.CustomerServer.FindAsync(request.CustomerId, serverId);
+                _context.CustomerServer.Remove(deletedCustomerServer);
+                //await _context.CustomerServer.Remove(new CustomerServer(request.CustomerId, serverId));
             }
             var success = await _context.SaveChangesAsync();
             return new ManageServerCustomerResponse(success > 0,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -19,6 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 using Web.Api.Extensions;
@@ -26,6 +29,14 @@ using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
 using Web.Api.Infrastructure.Data.EntityFramework;
 using Web.Api.Presenters;
+using Web.Api.Auth;
+using Web.Api.Auth.RequirementHandlers;
+using Web.Api.Infrastructure.Helpers;
+using Web.Api.Core.Interfaces.Services;
+using System.Collections.Generic;
+using Web.Api.Core.Dto;
+using Web.Api.Serialization;
+using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 
 namespace Web.Api
 {
@@ -33,6 +44,7 @@ namespace Web.Api
   {
     private const string SecretKey = "iNivDmHLpUA223sqsfhqGbMRdRj1PVkH"; // todo: get this from somewhere secure
     private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+    readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
     public Startup(IConfiguration configuration)
     {
@@ -44,9 +56,26 @@ namespace Web.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
+      CheckRequiredConfiguration();
+
+      //Config CORS
+      services.AddCors(options =>
+      {
+        options.AddPolicy(name: MyAllowSpecificOrigins, build =>
+          {
+            build.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:3000/servers"
+              )
+              .AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+          });
+      });
+
       // Add framework services.
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
-      //services.AddScoped<ICustomerRepository>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -85,33 +114,34 @@ namespace Web.Api
         configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
         configureOptions.TokenValidationParameters = tokenValidationParameters;
         configureOptions.SaveToken = true;
+        configureOptions.Events = new JwtBearerEvents
+        {
+          OnTokenValidated = async context =>
+                {
+                  var uid = context
+                            .Principal
+                            .Claims
+                            .Single(c => c.Type == Constants.Strings.JwtClaimIdentifiers.Id).Value;
+                  var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+                  await authService.LogIn(Guid.Parse(uid));
+                }
+        };
       });
 
-      // add identity
-      //var identityBuilder = services.AddIdentityCore<AppUser>(o =>
-      //      {
-      //        // configure identity options
-      //        o.Password.RequireDigit = false;
-      //        o.Password.RequireLowercase = false;
-      //        o.Password.RequireUppercase = false;
-      //        o.Password.RequireNonAlphanumeric = false;
-      //        o.Password.RequiredLength = 6;
-      //      });
-
-      //identityBuilder = new IdentityBuilder(identityBuilder.UserType, typeof(IdentityRole), identityBuilder.Services);
-      //identityBuilder.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-      
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
       services.AddMvc()
         .AddJsonOptions(
             options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
       services.AddAutoMapper();
+      services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
+      services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
+      services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 
       // Register the Swagger generator, defining 1 or more Swagger documents
       services.AddSwaggerGen(c =>
       {
-        c.SwaggerDoc("v1", new Info { Title = "CleanAspNetCoreWebAPI", Version = "v1" });
+        c.SwaggerDoc("v1", new Info { Title = "GDPR System API", Version = "v1" });
       });
 
       // Now register our services with Autofac container.
@@ -144,31 +174,50 @@ namespace Web.Api
             builder.Run(
                       async context =>
                       {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
-                    var error = context.Features.Get<IExceptionHandlerFeature>();
-                    if (error != null)
-                    {
-                      context.Response.AddApplicationError(error.Error.Message);
-                      await context.Response.WriteAsync(error.Error.Message).ConfigureAwait(false);
-                    }
-                  });
+                        var error = context.Features.Get<IExceptionHandlerFeature>();
+                        if (error != null)
+                        {
+                          context.Response.AddApplicationError(error.Error.Message);
+                          await context.Response.WriteAsync(JsonSerializer.SerializeObject(new
+                          {
+                            Error = new Error(Error.Codes.UNKNOWN, error.Error.Message)
+                          })).ConfigureAwait(false);
+                        }
+                      });
           });
 
+      //add file link swagger
+      app.UseStaticFiles();
       // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
       // specifying the Swagger JSON endpoint.
       app.UseSwaggerUI(c =>
       {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CleanAspNetCoreWebAPI V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "GDPR System API V1");
       });
+
 
       // Enable middleware to serve generated Swagger as a JSON endpoint.
       app.UseSwagger();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
 
+
+      app.UseCors(MyAllowSpecificOrigins);
       app.UseMvc();
+
+    }
+
+    protected void CheckRequiredConfiguration()
+    {
+      var configuration = Configuration;
+      var requiredConfiguration = new List<string> {
+        "Mail:StmpServer"
+      };
+
+      //requiredConfiguration.All(c => configuration.Contains(c));
     }
   }
 }

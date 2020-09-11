@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace Web.Api.Core.Domain.Entities
@@ -22,9 +23,14 @@ namespace Web.Api.Core.Domain.Entities
         public string Name { get; set; }
         public DateTime? ContractBeginDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
+
         public Guid? ContactPoint { get; set; }
+
         public string Description { get; set; }
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
+        public bool HasContactPoint(User user) {
+            return user.Id == ContactPoint;
+        }
         public virtual User ContactPointNavigation { get; set; }
         //Unmapped Properties
         //public override bool IsDeleted { get; set; }

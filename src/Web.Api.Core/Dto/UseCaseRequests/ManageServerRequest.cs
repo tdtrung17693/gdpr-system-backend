@@ -11,10 +11,12 @@ namespace Web.Api.Core.Dto.UseCaseRequests
     {
         public Guid CustomerId { get; set; }
         public ICollection<Guid> ServerIds { get; set; }
-        public ManageServerRequest(Guid customerId, ICollection<Guid> serverIds)
+        public bool Action { get; set; } // 1 for Insert and 0 for Delete
+        public ManageServerRequest(Guid customerId, ICollection<Guid> serverIds, bool action)
         {
             CustomerId = customerId;
             ServerIds = serverIds;
+            Action = action;
         }
     }
 }

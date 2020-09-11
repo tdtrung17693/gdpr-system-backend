@@ -13,12 +13,12 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using System.Web.Http.Cors;
 using Web.Api.Core.UseCases;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors(origins: "http://localhost:3000", headers: "Access-Control-Allow-Origin", methods: "*")]
     public class CustomerController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -102,6 +102,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize("CanCreateCustomer")]
         public async Task<ActionResult> Post([FromBody] UseCaseRequest.CustomerRequest request)
         {
             if (!ModelState.IsValid)
@@ -120,12 +121,23 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds), _serverPresenter);
+            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
+            return _serverPresenter.ContentResult;
+        }
+
+        [HttpDelete("server")]
+        public async Task<ActionResult> Delete([FromBody] ManageServerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
             return _serverPresenter.ContentResult;
         }
 
         [HttpPut]
-        public async Task<ActionResult> Put([FromBody] Models.Request.CustomerRequest request)
+        public async Task<ActionResult> Put([FromBody] UseCaseRequest.CustomerRequest request)
         {
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.

@@ -25,7 +25,12 @@ namespace Web.Api.Core.UseCases
         public async Task<bool> Handle(ManageServerRequest message, IOutputPort<ManageServerResponse> outputPort)
         {
             ManageServerCustomerResponse response;
-            response = await _customerRepository.AddServerOwner(message);
+            if (message.Action) {
+                response = await _customerRepository.AddServerOwner(message);
+            }
+            else { 
+                response = await _customerRepository.RemoveServerOwner(message);
+            }
             outputPort.Handle(response.Success ? new ManageServerResponse(true) : new ManageServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }

@@ -134,9 +134,13 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("UpdatedBy");
 
+                    b.Property<Guid?>("UserId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ContactPoint");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Customer");
                 });
@@ -338,7 +342,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid?>("Id");
+                    b.Property<Guid>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -497,6 +501,10 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("CustomerContactPointNavigation")
                         .HasForeignKey("ContactPoint")
                         .HasConstraintName("fk_Customer_contactPoint");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User")
+                        .WithMany("Customers")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.CustomerServer", b =>
