@@ -10,8 +10,8 @@ namespace Web.Api.Core.Dto.UseCaseRequests
     public class ManageServerRequest : IUseCaseRequest<ManageServerResponse>
     {
         public Guid CustomerId { get; set; }
-        public DataTable ServerIds { get; set; }
-        public ManageServerRequest(Guid customerId, DataTable serverIds)
+        public ICollection<Guid> ServerIds { get; set; }
+        public ManageServerRequest(Guid customerId, ICollection<Guid> serverIds)
         {
             CustomerId = customerId;
             ServerIds = serverIds;
