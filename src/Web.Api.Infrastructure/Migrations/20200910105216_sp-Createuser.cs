@@ -23,8 +23,8 @@ namespace Web.Api.Infrastructure.Migrations
             SET NOCOUNT ON;
           begin transaction;
             declare @newId UNIQUEIDENTIFIER = NEWID();
-            insert into gdpr_system.dbo.[User] (Id, FirstName, LastName, Email, CreatedBy, RoleId, [Status]) VALUES (@newId, @FirstName, @LastName, @Email, @Creator, @RoleId, @Status);
-            insert into gdpr_system.dbo.[Account] (Id, Username, HashedPassword, Salt, UserId) VALUES (NEWID(), @Username, @HashedPassword, @Salt, @newId);
+            insert into dbo.[User] (Id, FirstName, LastName, Email, CreatedBy, RoleId, [Status]) VALUES (@newId, @FirstName, @LastName, @Email, @Creator, @RoleId, @Status);
+            insert into dbo.[Account] (Id, Username, HashedPassword, Salt, UserId) VALUES (NEWID(), @Username, @HashedPassword, @Salt, @newId);
             select @newId as Id;
           commit;
         end";
