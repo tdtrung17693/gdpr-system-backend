@@ -3,10 +3,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseResponses.Account;
 using Web.Api.Core.Dto.UseCaseResponses.User;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.Account;
+using Web.Api.Models.Request;
 using Web.Api.Presenters;
+using Web.Api.Serialization;
 
 namespace Web.Api.Controllers
 {
@@ -14,27 +18,22 @@ namespace Web.Api.Controllers
   [ApiController]
   public class AccountsController : ControllerBase
   {
-    private readonly RegisterUserPresenter _registerUserPresenter;
+    private readonly IUpdateProfileInfoUseCase _updateProfileInfoUseCase;
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;
+    private readonly ResourcePresenter<UpdateProfileInfoResponse> _updateProfileInfoPresenter;
 
-    public AccountsController(RegisterUserPresenter registerUserPresenter, IAuthService authService, IMapper mapper)
+    public AccountsController(
+      IUpdateProfileInfoUseCase updateProfileInfoUseCase,
+      IAuthService authService,
+      IMapper mapper,
+      ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter
+    )
     {
-      _registerUserPresenter = registerUserPresenter;
       _authService = authService;
       _mapper = mapper;
-    }
-
-    // POST api/accounts
-    [HttpPost]
-    public async Task<ActionResult> Post()
-    {
-      if (!ModelState.IsValid)
-      { // re-render the view when validation failed.
-        return BadRequest(ModelState);
-      }
-      //await _registerUserUseCase.Handle(new RegisterUserRequest(request.FirstName,request.LastName,request.Email, request.UserName,request.Password), _registerUserPresenter);
-      return _registerUserPresenter.ContentResult;
+      _updateProfileInfoUseCase = updateProfileInfoUseCase;
+      _updateProfileInfoPresenter = updateProfileInfoPresenter;
     }
 
     [HttpGet("me")]
@@ -45,14 +44,39 @@ namespace Web.Api.Controllers
 
       return new
       {
-        Id = user.Id,
-        FirstName = user.FirstName,
-        LastName = user.LastName,
-        Username = user.Account.Username,
+        user.Id,
+        user.FirstName,
+        user.LastName,
+        user.Account.Username,
+        user.RoleId,
+        user.Email,
         Role = user.Role.Name,
-        RoleId = user.RoleId,
         Permissions = _authService.GetAllPermissions()
       };
+    }
+
+    [HttpPut("profile/info")]
+    [Authorize()]
+    public async Task<ActionResult> UpdateProfileInfo(UpdateProfileInfoRequest request)
+    {
+      _updateProfileInfoPresenter.HandleResource = r =>
+      {
+        return r.Success ? JsonSerializer.SerializeObject(new { r.UpdatedFields }) : JsonSerializer.SerializeObject(new { r.Errors });
+      };
+      var user = _authService.GetCurrentUser();
+      await _updateProfileInfoUseCase.Handle(
+        new Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest((System.Guid)user.Id, request.FirstName, request.LastName),
+        _updateProfileInfoPresenter);
+
+      return _updateProfileInfoPresenter.ContentResult;
+    }
+
+    [HttpPut("profile/password")]
+    [Authorize()]
+    public async Task<ActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+      var user = _authService.GetCurrentUser();
+      return null;
     }
   } 
 }

@@ -158,22 +158,65 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       );
     }
 
-    public Task<UpdateUserResponse> Update(User user)
+    public async Task<UpdateUserResponse> Update(Guid id, string firstName, string lastName)
     {
-      throw new NotImplementedException();
+      var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+      var updatedFields = new Dictionary<string, string>();
+      if (user.FirstName != firstName) {
+        updatedFields.Add("FirstName", firstName);
+        user.FirstName = firstName;
+      }
+
+      if (user.LastName != lastName) {
+        updatedFields.Add("LastName", lastName);
+        user.LastName = lastName;
+      }
+      if (updatedFields.Count() > 0)
+      {
+        try
+        {
+          await _context.SaveChangesAsync();
+        } catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+        }
+      }
+      return new UpdateUserResponse(updatedFields);
     }
     public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
     {
       var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+      var updatedFields = new Dictionary<string, string>();
+
       if (user == null)
       {
         return new UpdateUserResponse(false, new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
       }
 
-      user.RoleId = roleId;
-      user.Status = status;
-      _context.SaveChanges();
-      return new UpdateUserResponse(true);
+      if (user.RoleId != roleId)
+      {
+        updatedFields.Add("RoleId", roleId.ToString());
+        user.RoleId = roleId;
+      }
+      if (user.Status != status)
+      {
+        updatedFields.Add("Status", status.ToString());
+        user.Status = status;
+      }
+
+      if (updatedFields.Count() > 0)
+      {
+        try
+        {
+          await _context.SaveChangesAsync();
+        }
+        catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+        }
+      }
+
+      return new UpdateUserResponse(updatedFields);
     }
 
     public Task<CreateUserResponse> Delete(User user)
