@@ -14,7 +14,7 @@ using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
-using BulkRequestRequest = Web.Api.Core.Dto.UseCaseRequests.BulkRequestRequest;
+//using Web.Api.Core.Dto.UseCaseRequests;
 using System.IO;
 using System.Threading;
 using Microsoft.AspNetCore.Hosting;
@@ -113,10 +113,6 @@ namespace Web.Api.Controllers
             {
                 idList.Rows.Add(id);
             }
-
-
-
-            //var response = await _repository.UpdateMutilRequestStatus(idList, bulkRequest.status, bulkRequest.updator);
             var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.requestStatus, bulkRequest.updator), _bulkRequestPresenter);
             if (response) return Ok("Done");
             else return Content("Error");

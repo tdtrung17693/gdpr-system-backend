@@ -265,7 +265,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Status).HasMaxLength(50);
+                entity.Property(e => e.RequestStatus).HasMaxLength(50);
 
                 entity.Property(e => e.Title).HasMaxLength(50);
 
