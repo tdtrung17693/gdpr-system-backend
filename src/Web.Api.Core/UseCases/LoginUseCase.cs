@@ -26,13 +26,13 @@ namespace Web.Api.Core.UseCases
             {
                 // confirm we have a user with the given name
                 var user = await _userRepository.FindByName(message.UserName);
-                if (user != null)
+                if (user != null && user.Status == true)
                 {
                     // validate password
                     if (await _userRepository.CheckPassword(user, message.Password))
                     {
                         // generate token
-                        outputPort.Handle(new LoginResponse(await _jwtFactory.GenerateEncodedToken("jhkgu", user.Account.Username),true));
+                        outputPort.Handle(new LoginResponse(await _jwtFactory.GenerateEncodedToken(user.Id.ToString(), user.Account.Username),true));
                         return true;
                     }
                 }
