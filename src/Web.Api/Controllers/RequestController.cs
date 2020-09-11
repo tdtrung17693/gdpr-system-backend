@@ -50,7 +50,6 @@ namespace Web.Api.Controllers
         }
 
         //CREATE
-        [EnableCors("request")]
         [HttpPost("create")]
         public async Task<ActionResult> CreateNewRequest([FromBody] RequestRequest request)
         {
@@ -67,7 +66,6 @@ namespace Web.Api.Controllers
         }
 
         //READ
-        [EnableCors("request")]
         [HttpGet]
         public ActionResult<IEnumerable<RequestRequest>> GetRequestList()
         {
@@ -79,7 +77,6 @@ namespace Web.Api.Controllers
 
         //UPDATE
 
-        [EnableCors("request")]
         [HttpPut]
         public async Task<ActionResult> UpdateRequest([FromBody] RequestRequest request)
         {
@@ -95,7 +92,6 @@ namespace Web.Api.Controllers
 
         //Active/Deactive multi request
 
-        [EnableCors("request")]
         [HttpPut("bulkStatus")]
         public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestsRequest bulkRequest)
             //IEnumerable<Guid> requestIdList,bool status, Guid updator

@@ -12,12 +12,12 @@ using Web.Api.Presenters;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using System.Web.Http.Cors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors(origins: "http://localhost:3000", headers: "Access-Control-Allow-Origin", methods: "*")]
     public class CustomerController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -104,6 +104,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize("CanCreateCustomer")]
         public async Task<ActionResult> Post([FromBody] UseCaseRequest.CustomerRequest request)
         {
             if (!ModelState.IsValid)

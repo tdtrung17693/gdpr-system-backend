@@ -93,7 +93,7 @@ namespace Web.Api.Controllers
         }
 
         //Get detail a server
-        [HttpGet("/detail/{id}")]
+        [HttpGet("detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
             var serverItem = _repository.GetServerDetail(id);
