@@ -25,7 +25,7 @@ namespace Web.Api.Infrastructure.Services
     }
     public async Task<bool> SendInvitedNotification(string emailAddress, string username, string rawPassword, string firstName, string lastName)
     {
-      var senderName = _configuration["Mail:AdminName"];
+      var senderName = _configuration["Mail:Name"];
       var email = _fluentEmail
           .To(emailAddress)
           .Subject("GDPR System - Invite Mail")
