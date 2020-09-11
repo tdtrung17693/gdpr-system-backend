@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Web.Api.Infrastructure.Migrations
 {
-  public partial class spCreateUser : Migration
+  public partial class spCreateuser : Migration
   {
     protected override void Up(MigrationBuilder migrationBuilder)
     {

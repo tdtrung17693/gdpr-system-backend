@@ -22,7 +22,7 @@ namespace Web.Api.Core
       builder.RegisterType<ManageUserUseCase>().As<ManageUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateServerUseCase>().As<ICreateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<UpdateServerUseCase>().As<IUpdateServerUseCase>().InstancePerLifetimeScope();
-      builder.RegisterType<BulkServerUseCase>().As<BulkServerUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<BulkServerUseCase>().As<IBulkServerUseCase>().InstancePerLifetimeScope();
     }
   }
 }

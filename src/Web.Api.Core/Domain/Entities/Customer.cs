@@ -24,9 +24,6 @@ namespace Web.Api.Core.Domain.Entities
         public DateTime? ContractBeginDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
 
-        [ForeignKey("ContactPoint")]
-        public virtual User ContactPointUser { get; set; }
-        [NotMapped]
         public Guid? ContactPoint { get; set; }
 
         public string Description { get; set; }

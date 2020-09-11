@@ -3,22 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Api.Infrastructure.Data.EntityFramework;
 
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200910074508_sp-CreateUser.Designer.cs
-    [Migration("20200910074508_sp-CreateUser")]
-    partial class spCreateUser
-=======
-    [Migration("20200907072706_initial")]
-    partial class initial
->>>>>>> 7fee8d9ed86c18a240484933efc06e5e6b137059:src/Web.Api.Infrastructure/Migrations/20200907072706_initial.Designer.cs
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,9 +134,13 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("UpdatedBy");
 
+                    b.Property<Guid?>("UserId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ContactPoint");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Customer");
                 });
@@ -277,8 +274,6 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("ApprovedBy");
 
-                    b.Property<Guid?>("ApprovedByNavigationId");
-
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
@@ -324,13 +319,9 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200910074508_sp-CreateUser.Designer.cs
-                    b.HasIndex("ApprovedByNavigationId");
-=======
                     b.HasIndex("ApprovedBy");
 
                     b.HasIndex("CreatedBy");
->>>>>>> 7fee8d9ed86c18a240484933efc06e5e6b137059:src/Web.Api.Infrastructure/Migrations/20200907072706_initial.Designer.cs
 
                     b.HasIndex("ServerId");
 
@@ -351,7 +342,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid?>("Id");
+                    b.Property<Guid>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -506,16 +497,14 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Customer", b =>
                 {
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200910074508_sp-CreateUser.Designer.cs
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ContactPointUser")
-                        .WithMany("Customers")
-                        .HasForeignKey("ContactPoint");
-=======
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "ContactPointNavigation")
                         .WithMany("CustomerContactPointNavigation")
                         .HasForeignKey("ContactPoint")
                         .HasConstraintName("fk_Customer_contactPoint");
->>>>>>> 7fee8d9ed86c18a240484933efc06e5e6b137059:src/Web.Api.Infrastructure/Migrations/20200907072706_initial.Designer.cs
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User")
+                        .WithMany("Customers")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.CustomerServer", b =>
@@ -555,10 +544,6 @@ namespace Web.Api.Infrastructure.Migrations
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Request", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "ApprovedByNavigation")
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200910074508_sp-CreateUser.Designer.cs
-                        .WithMany()
-                        .HasForeignKey("ApprovedByNavigationId");
-=======
                         .WithMany("RequestApprovedByNavigation")
                         .HasForeignKey("ApprovedBy")
                         .HasConstraintName("fk_Request_approvedBy");
@@ -567,7 +552,6 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("RequestCreatedByNavigation")
                         .HasForeignKey("CreatedBy")
                         .HasConstraintName("fk_Request_createdBy");
->>>>>>> 7fee8d9ed86c18a240484933efc06e5e6b137059:src/Web.Api.Infrastructure/Migrations/20200907072706_initial.Designer.cs
 
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")
