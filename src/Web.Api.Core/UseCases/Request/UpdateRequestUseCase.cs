@@ -25,7 +25,7 @@ namespace Web.Api.Core.UseCases
 
         public async Task<bool> Handle(UpdateRequestRequest message, IOutputPort<UpdateRequestResponse> outputPort)
         {
-            var response = await _requestRepository.Create(new Request(message.Title, message.StartDate, message.EndDate,
+            var response = await _requestRepository.Update(new Request(message.Title, message.StartDate, message.EndDate,
                  message.ServerId, message.Description, message.RequestStatus, message.Response, message.ApprovedBy,
                  message.Id, message.CreatedBy, message.CreatedAt, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt));
             return response.Success;

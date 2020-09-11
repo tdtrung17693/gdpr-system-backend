@@ -14,6 +14,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         Task<CRUDRequestResponse> Create(Request request);
         Task<CRUDRequestResponse> Update(Request request);
         Task<CRUDRequestResponse> Delete(Request request);
-        Task<CRUDRequestResponse> UpdateBulkRequestStatus(DataTable requestIdList, bool status, Guid userId);
+        Task<CRUDRequestResponse> UpdateBulkRequestStatus(DataTable requestIdList, string status, Guid userId);
     }
 }

@@ -37,12 +37,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<CRUDRequestResponse> Create(Request request)
             {
+                var creator = new Guid("9D2B0228-4D0D-4C23-8B49-01A698857709");
+                var createdBy = new SqlParameter("@CreatedBy", creator);
                 var title = new SqlParameter("@Title", request.Title);
                 var fromDate = new SqlParameter("@FromDate", request.StartDate);
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @Title, @Fromdate, @ToDate, @Server, @Description ", title, fromDate, toDate, server, description);
+                _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", createdBy, title, fromDate, toDate, server, description);
                 var success = await _context.SaveChangesAsync();
                 return new CRUDRequestResponse(request.Id, success > 0, null);
             }
@@ -52,13 +54,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             {
                 var id = new SqlParameter("@Id", request.Id);
                 var title = new SqlParameter("@Title", request.Title);
-                var fromDate = new SqlParameter("@FromDate", request.StartDate);
-                var toDate = new SqlParameter("@ToDate", request.EndDate);
+                var fromDate = new SqlParameter("@StartDate", request.StartDate);
+                var toDate = new SqlParameter("@EndDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                var updateBy = new SqlParameter("@IdUpdateBy", request.UpdatedBy);
+                var requestStatus = new SqlParameter("@RequestStatus", request.RequestStatus);
+                var response = new SqlParameter("@Response", request.Response);
+                var approvedBy = new SqlParameter("@ApprovedBy", request.ApprovedBy);
+                var updateBy = new SqlParameter("@UpdateBy", request.UpdatedBy);
                 var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id,@Title, @Fromdate, @ToDate, @Server, @Description, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, updateBy, updateAt);
+                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
                 var success = await _context.SaveChangesAsync();
                 return new CRUDRequestResponse(request.Id, success > 0, null);
             }
@@ -72,7 +77,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             }
 
             // ACCEPT/DECLINE BULK OF REQUESTS
-            public async Task<CRUDRequestResponse> UpdateBulkRequestStatus(DataTable requestIdList, bool status, Guid userId)
+            public async Task<CRUDRequestResponse> UpdateBulkRequestStatus(DataTable requestIdList, string status, Guid userId)
             {
                 var _requestIdList = new SqlParameter("@RequestIds", requestIdList);
                 _requestIdList.SqlDbType = SqlDbType.Structured;

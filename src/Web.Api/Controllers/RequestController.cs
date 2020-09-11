@@ -93,7 +93,7 @@ namespace Web.Api.Controllers
             return Ok();
         }
 
-        //Active/Deactive multi request
+        //Accept/Decline multi request
 
         [EnableCors("request")]
         [HttpPut("bulkStatus")]
@@ -113,7 +113,7 @@ namespace Web.Api.Controllers
             {
                 idList.Rows.Add(id);
             }
-            var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.requestStatus, bulkRequest.updator), _bulkRequestPresenter);
+            var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.status, bulkRequest.updator), _bulkRequestPresenter);
             if (response) return Ok("Done");
             else return Content("Error");
 
