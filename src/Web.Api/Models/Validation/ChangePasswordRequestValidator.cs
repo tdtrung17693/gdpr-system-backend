@@ -13,6 +13,10 @@ namespace Web.Api.Models.Validation
     {
       RuleFor(r => r.CurrentPassword).NotEmpty();
       RuleFor(r => r.NewPassword).Cascade(CascadeMode.StopOnFirstFailure).NotEmpty().MinimumLength(8);
+      RuleFor(r => new { r.CurrentPassword, r.NewPassword }).Cascade(CascadeMode.StopOnFirstFailure).NotEmpty().Must(r =>
+      {
+        return r.CurrentPassword != r.NewPassword;
+      }).WithMessage("Nothing to change.");
       RuleFor(r => r.ConfirmPassword).NotEmpty();
       RuleFor(r => new { r.NewPassword, r.ConfirmPassword }).Cascade(CascadeMode.StopOnFirstFailure).NotEmpty().Must(r =>
       {

@@ -158,9 +158,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       );
     }
 
-    public async Task<UpdateUserResponse> Update(Guid id, string firstName, string lastName)
+    public async Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName)
     {
-      var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
       var updatedFields = new Dictionary<string, string>();
       if (user.FirstName != firstName) {
         updatedFields.Add("FirstName", firstName);
@@ -171,7 +170,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         updatedFields.Add("LastName", lastName);
         user.LastName = lastName;
       }
-      if (updatedFields.Count() > 0)
+      if (updatedFields.Any())
       {
         try
         {
@@ -222,6 +221,25 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     public Task<CreateUserResponse> Delete(User user)
     {
       throw new NotImplementedException();
+    }
+
+    public async Task<UpdateUserResponse> ChangePassword(User user, string newPassword)
+    {
+      var salt = GenerateSalt(10);
+      var hashPassword = CalculateHash(newPassword, salt);
+      user.Account.HashedPassword = hashPassword;
+      user.Account.Salt = Convert.ToBase64String(salt);
+      
+      try
+      {
+        await _context.SaveChangesAsync();
+      }
+      catch (Exception e)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
+
+      return new UpdateUserResponse(true);
     }
 
     public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)

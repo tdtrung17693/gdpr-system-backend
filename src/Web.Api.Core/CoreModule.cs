@@ -15,6 +15,8 @@ namespace Web.Api.Core
     protected override void Load(ContainerBuilder builder)
     {
       builder.RegisterType<UpdateProfileInfoUseCase>().As<IUpdateProfileInfoUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<ChangePasswordUseCase>().As<IChangePasswordUseCase>().InstancePerLifetimeScope();
+      
       builder.RegisterType<ReadUserUseCase>().As<IReadUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateUserUseCase>().As<ICreateUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<DeleteUserUseCase>().As<IDeleteUserUseCase>().InstancePerLifetimeScope();

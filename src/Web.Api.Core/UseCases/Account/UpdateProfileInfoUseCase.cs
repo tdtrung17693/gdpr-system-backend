@@ -24,11 +24,11 @@ namespace Web.Api.Core.UseCases.Account
     }
     public async Task<bool> Handle(UpdateProfileInfoRequest message, IOutputPort<UpdateProfileInfoResponse> outputPort)
     {
-      var id = message.UserId;
+      var user = message.User;
       var firstName = message.FirstName;
       var lastName = message.LastName;
 
-      var response = await _userRepository.Update(id, firstName, lastName);
+      var response = await _userRepository.UpdateProfileInfo(user, firstName, lastName);
 
       if (!response.Success)
       {

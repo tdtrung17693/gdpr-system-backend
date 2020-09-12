@@ -14,9 +14,10 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     Task<User> FindByEmail(string email);
     Task<bool> CheckPassword(User user, string password);
     IPagedCollection<User> FindAll();
-    Task<UpdateUserResponse> Update(Guid id, string firstName, string lastName);
+    Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName);
     Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status);
     Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status);
     Task<CreateUserResponse> Delete(User user);
+    Task<UpdateUserResponse> ChangePassword(User user, string newPassword);
   }
 }

@@ -19,21 +19,27 @@ namespace Web.Api.Controllers
   public class AccountsController : ControllerBase
   {
     private readonly IUpdateProfileInfoUseCase _updateProfileInfoUseCase;
+    private readonly IChangePasswordUseCase _changePasswordUseCase;
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;
     private readonly ResourcePresenter<UpdateProfileInfoResponse> _updateProfileInfoPresenter;
+    private readonly ResourcePresenter<ChangePasswordResponse> _changePasswordPresenter;
 
     public AccountsController(
       IUpdateProfileInfoUseCase updateProfileInfoUseCase,
+      IChangePasswordUseCase changePasswordUseCase,
       IAuthService authService,
       IMapper mapper,
-      ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter
+      ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter,
+      ResourcePresenter<ChangePasswordResponse> changePasswordPresenter
     )
     {
       _authService = authService;
       _mapper = mapper;
       _updateProfileInfoUseCase = updateProfileInfoUseCase;
       _updateProfileInfoPresenter = updateProfileInfoPresenter;
+      _changePasswordUseCase = changePasswordUseCase;
+      _changePasswordPresenter = changePasswordPresenter;
     }
 
     [HttpGet("me")]
@@ -65,7 +71,7 @@ namespace Web.Api.Controllers
       };
       var user = _authService.GetCurrentUser();
       await _updateProfileInfoUseCase.Handle(
-        new Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest((System.Guid)user.Id, request.FirstName, request.LastName),
+        new Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest(user, request.FirstName, request.LastName),
         _updateProfileInfoPresenter);
 
       return _updateProfileInfoPresenter.ContentResult;
@@ -73,10 +79,19 @@ namespace Web.Api.Controllers
 
     [HttpPut("profile/password")]
     [Authorize()]
-    public async Task<ActionResult> ChangePassword(ChangePasswordRequest request)
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
     {
       var user = _authService.GetCurrentUser();
-      return null;
+      _changePasswordPresenter.HandleResource = r => r.Success ? "" : JsonSerializer.SerializeObject(new {r.Errors});
+
+      var response = await _changePasswordUseCase.Handle(
+        new Core.Dto.UseCaseRequests.Account.ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
+        _changePasswordPresenter
+      );
+      
+      if (!response) return _changePasswordPresenter.ContentResult;
+      
+      return _changePasswordPresenter.ContentResult;
     }
   } 
 }

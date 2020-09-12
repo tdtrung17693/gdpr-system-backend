@@ -8,14 +8,13 @@ namespace Web.Api.Core.Dto.UseCaseRequests.Account
 {
   public class ChangePasswordRequest : IUseCaseRequest<ChangePasswordResponse>
   {
-    public Guid UserId { get; }
+    public Domain.Entities.User User { get; }
     public string CurrentPassword { get; }
     public string NewPassword { get; }
-    public IEnumerable<string> Errors { get; }
 
-    public ChangePasswordRequest(Guid id, string currentPassword, string newPassword)
+    public ChangePasswordRequest(Domain.Entities.User user, string currentPassword, string newPassword)
     {
-      UserId = id;
+      User = user;
       CurrentPassword = currentPassword;
       NewPassword = newPassword;
     }

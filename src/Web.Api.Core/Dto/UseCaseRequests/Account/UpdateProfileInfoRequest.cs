@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Web.Api.Core.Dto.UseCaseResponses.Account;
 using Web.Api.Core.Interfaces;
+using Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Core.Dto.UseCaseRequests.Account
 {
   public class UpdateProfileInfoRequest : IUseCaseRequest<UpdateProfileInfoResponse>
   {
-    public Guid UserId { get; }
+    public Domain.Entities.User User { get; }
     public string FirstName { get; }
     public string LastName { get; }
-    public IEnumerable<string> Errors { get; }
-
-    public UpdateProfileInfoRequest(Guid id, string firstName, string lastName)
+    
+    public UpdateProfileInfoRequest(Domain.Entities.User user, string firstName, string lastName)
     {
-      UserId = id;
+      User = user;
       FirstName = firstName;
       LastName = lastName;
     }
