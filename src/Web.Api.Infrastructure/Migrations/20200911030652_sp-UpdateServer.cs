@@ -12,8 +12,8 @@ namespace Web.Api.Infrastructure.Migrations
                 @IdUpdateBy UNIQUEIDENTIFIER,
                 @Name  NVARCHAR(150),
                 @IpAddress NVARCHAR(150),
-                @StartDate DATETIME,
-                @EndDate DATETIME,
+                @StartDate DATETIME = NULL,
+                @EndDate DATETIME = NULL,
                 @Status BIT
               )
               AS

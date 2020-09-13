@@ -20,6 +20,7 @@ using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using System.IO;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
+using Web.Api.Core.Interfaces.UseCases;
 
 namespace Web.Api.Controllers
 {
@@ -31,11 +32,14 @@ namespace Web.Api.Controllers
         private readonly IServerRepository _repository;
         private readonly ICreateServerUseCase _createServerUseCase;
         private readonly IUpdateServerUseCase _updateServerUseCase;
+        private readonly IExportServerUseCase _exportServerUseCase;
         private readonly IBulkServerUseCase _bulkServerUseCase;
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
         private readonly BulkServerPresenter _bulkServerPresenter;
+        private readonly ExportServerPresenter _exportServerPresenter;
         private readonly IHostingEnvironment _hostingEnvironment;
+        
 
         public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
@@ -64,7 +68,7 @@ namespace Web.Api.Controllers
             await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
-            return Ok("You hav add an row");
+            return Ok("You have add an row");
            
            
         }
@@ -75,6 +79,20 @@ namespace Web.Api.Controllers
         {
             var serverItems = _repository.GetAllCommand();
             return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
+        }
+
+        [HttpGet("listServer")]
+        public ActionResult<DataTable> GetListServer()
+        {
+            var dt = _repository.GetListServer();
+            return dt;
+        }
+
+        [HttpGet("filter/{filterKey}")]
+        public ActionResult<DataTable> GetListServerByFilter(string filterKey)
+        {
+            var dt = _repository.GetListServerByFilter(filterKey);
+            return dt;
         }
 
         //UPDATE
@@ -118,7 +136,7 @@ namespace Web.Api.Controllers
                 idList.Rows.Add(id);
             }
             //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
-            var response = await _bulkServerUseCase.Handle( new BulkServerRequest(idList, bulkServer.status, bulkServer.updator) , _bulkServerPresenter);
+            var response = await _bulkServerUseCase.Handle(new BulkServerRequest(idList, bulkServer.updator) , _bulkServerPresenter);
             if (response) return Ok("Done");
             else return Content("Erorr");
 
@@ -126,7 +144,8 @@ namespace Web.Api.Controllers
 
         //Import Server
         [HttpPost("{id}/import")]
-        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id,IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        [Consumes("multipart/form-data; boundary=----WebKitFormBoundarymx2fSWqWSd0OxQqq")]
+        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id, IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
 
 
@@ -170,6 +189,17 @@ namespace Web.Api.Controllers
                 }
             }
             return ServerImportResponse<List<ServerImportRequest>>.GetResult(200, "OK", list);
+        }
+
+        [HttpPost("export-csv")]
+        public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _exportServerUseCase.Handle(new ExportServerRequest(request.FromDate, request.ToDate, request.Guids), _exportServerPresenter);
+            return _exportServerPresenter.ContentResult;
         }
 
     }

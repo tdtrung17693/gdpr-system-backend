@@ -26,7 +26,7 @@ namespace Web.Api.Core.UseCases
         public async Task<bool> Handle(BulkServerRequest message, IOutputPort<BulkServerResponse> outputPort)//, IOutputPort<CreateNewServerResponse> outputPort
         {
             //UpdateMutilServerStatus( DataTable serverIdList, bool status, Guid userId)
-            var response = await _serverRepository.UpdateMutilServerStatus(message.IdList, message.Status, message.Updator );
+            var response = await _serverRepository.UpdateMutilServerStatus(message.IdList, message.Updator );
             //outputPort.Handle(response.Success ? new CreateNewServerResponse(response.Id, true) : new CreateNewServerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }
