@@ -37,6 +37,7 @@ using System.Collections.Generic;
 using Web.Api.Core.Dto;
 using Web.Api.Serialization;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
+using Web.Api.Hubs;
 
 namespace Web.Api
 {
@@ -133,6 +134,8 @@ namespace Web.Api
         .AddJsonOptions(
             options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
+
+      services.AddSignalR();
       services.AddAutoMapper();
       services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
       services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
@@ -206,6 +209,10 @@ namespace Web.Api
 
 
       app.UseCors(MyAllowSpecificOrigins);
+      app.UseSignalR(e =>
+      {
+        e.MapHub<ConversationHub>("/conversation");
+      });
       app.UseMvc();
 
     }
