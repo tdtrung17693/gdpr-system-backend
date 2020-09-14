@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto.UseCaseRequests;
@@ -20,7 +21,8 @@ namespace Web.Api.Core.UseCases
 
         public async Task<bool> Handle(RegisterUserRequest message, IOutputPort<RegisterUserResponse> outputPort)
         {
-            var response = await _userRepository.Create(new User(message.FirstName, message.LastName, message.Email, message.RoleId), message.Password);
+            var response = await _userRepository.Create(new User(message.FirstName, message.LastName, message.Email, message.RoleId, new Guid("11223344-5566-7788-99AA-BBCCDDEEFF00"), new Guid("11223344-5566-7788-99AA-BBCCDDEEFF00"), DateTime.UtcNow
+                ), message.Password);
             outputPort.Handle(response.Success ? new RegisterUserResponse(response.Id, true) : new RegisterUserResponse(response.Errors.Select(e => e.Description)));
             return response.Success;
         }

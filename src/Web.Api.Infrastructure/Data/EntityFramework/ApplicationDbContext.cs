@@ -27,15 +27,21 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserFileInstance> UserFileInstance { get; set; }
         public virtual DbSet<UserLog> UserLog { get; set; }
+        public DbQuery<SPRequestResultView> SPRequestResultView { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                // Use the entity name instead of the Context.DbSet<T> name
-                // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
-                modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
-            }
+
+            //modelBuilder.Ignore<SPRequestResultView>();
+
+            //foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            //{
+            //    // Use the entity name instead of the Context.DbSet<T> name
+            //    // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
+            //    modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+            //}
+
+            
 
             modelBuilder.Entity<Account>(entity =>
             {

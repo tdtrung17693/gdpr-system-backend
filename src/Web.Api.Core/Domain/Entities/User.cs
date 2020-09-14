@@ -8,7 +8,7 @@ namespace Web.Api.Core.Domain.Entities
     {
         public User(
             string firstName, string lastName, string email, Guid roleId,
-            Guid? id = null, Guid? createdBy= null, DateTime? createdAt = null, Guid? updatedBy = null, DateTime? updatedAt = null, Guid? deletedBy = null, DateTime? deletedAt = null, bool? isDeleted=false, bool? status=true)
+            Guid id , Guid createdBy, DateTime createdAt, Guid? updatedBy = null, DateTime? updatedAt = null, Guid? deletedBy = null, DateTime? deletedAt = null, bool? isDeleted=false, bool? status=true)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {
             FirstName = firstName;

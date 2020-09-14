@@ -8,7 +8,7 @@ namespace Web.Api.Core.Domain.Entities
     {
         public Customer(string name,
           DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description,
-          Guid? id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, bool? status)
+          Guid id, Guid createdBy, DateTime createdAt, Guid? updatedBy, DateTime? updatedAt, bool? status)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, status: status)
         {
             Name = name;
