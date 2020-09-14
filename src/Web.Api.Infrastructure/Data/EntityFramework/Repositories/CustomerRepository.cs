@@ -31,7 +31,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<IEnumerable<Object>> GetCustomerList()
         {
             return await _context.Customer.AsNoTracking()
-                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPoint = c.ContactPointNavigation.Email,
+                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPointID = c.ContactPoint, contactPoint = c.ContactPointNavigation.Email,
                 serverOwned = c.CustomerServer.Select(cs => new { cs.Server.Id, cs.Server.Name, cs.Server.IpAddress }).Count()
                 }).ToListAsync();
         }
@@ -103,7 +103,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     ownedBy = s.CustomerServer.Select(cs => cs.Customer.Name),
                     customerid = s.CustomerServer.Select(cs => cs.Customer.Id),
                 })
-                .Take(156)
+                .Take(50)
                 .ToListAsync();
         }
 
