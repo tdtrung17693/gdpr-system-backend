@@ -30,6 +30,7 @@ namespace Web.Api.Core
       builder.RegisterType<CreateServerUseCase>().As<ICreateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<UpdateServerUseCase>().As<IUpdateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<BulkServerUseCase>().As<IBulkServerUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<ExportServerUseCase>().As<IExportServerUseCase>().InstancePerLifetimeScope();
 
       builder.RegisterType<BulkRequestUseCase>().As<IBulkRequestUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateRequestUseCase>().As<ICreateRequestUseCase>().InstancePerLifetimeScope();

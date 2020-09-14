@@ -17,7 +17,7 @@ namespace Web.Api.EventHandlers
         }
         public async Task HandleAsync(CommentCreated ev)
         {
-            await _hubContext.Clients.Group($"conversation:{ev.RequestId}").SendAsync("commentCreated", new
+            await _hubContext.Clients.Group($"conversation:{ev.RequestId.ToString().ToLower()}").SendAsync("commentCreated", new
             {
                 Author=new
                 {

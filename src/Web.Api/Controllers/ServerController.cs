@@ -43,7 +43,7 @@ namespace Web.Api.Controllers
 
         public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
-            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
+            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter, IExportServerUseCase exportServerUseCase, ExportServerPresenter exportServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {
             _hostingEnvironment = hostingEnvironment;
             _mapper = mapper;
@@ -54,6 +54,8 @@ namespace Web.Api.Controllers
             _createServerPresenter = createServerPresenter;
             _updateServerPresenter = updateServerPresenter;
             _bulkServerPresenter = bulkServerPresenter;
+            _exportServerUseCase = exportServerUseCase;
+            _exportServerPresenter = exportServerPresenter;
         }
 
         //CREATE
@@ -66,17 +68,50 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
             }
             await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
-            server.IpAddress, server.IsDeleted, server.Name,
-             server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
+                                                server.IpAddress, server.IsDeleted, server.Name,
+                                                server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
             return Ok("You have add an row");
            
            
+        }
+
+        //CREATE NEW LIST SERVER
+        [HttpPost("importExcel")]
+        public async Task<ActionResult> ImportServerByXLSX([FromBody] IEnumerable<ServerRequest> serverList)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            foreach (ServerRequest server in serverList)
+            {
+                /* StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
+                            EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),*/
+                if (server.StartDate != null)
+                {
+                    server.StartDate = DateTime.FromOADate(double.Parse(server.StartDate.ToString()));
+                }
+                if(server.EndDate != null)
+                {
+                    server.EndDate = DateTime.FromOADate(double.Parse(server.EndDate.ToString()));
+                }
+                await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.StartDate,
+                                                    server.IpAddress, server.IsDeleted, server.Name,
+                                                    server.EndDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
+            }
+
+            return Ok(serverList);
         }
 
         //READ
         [HttpGet]
         public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var serverItems = _repository.GetAllCommand();
             return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
         }
@@ -84,6 +119,10 @@ namespace Web.Api.Controllers
         [HttpGet("listServer")]
         public ActionResult<DataTable> GetListServer()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var dt = _repository.GetListServer();
             return dt;
         }
@@ -91,6 +130,10 @@ namespace Web.Api.Controllers
         [HttpGet("filter/{filterKey}")]
         public ActionResult<DataTable> GetListServerByFilter(string filterKey)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var dt = _repository.GetListServerByFilter(filterKey);
             return dt;
         }
@@ -114,6 +157,10 @@ namespace Web.Api.Controllers
         [HttpGet("detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var serverItem = _repository.GetServerDetail(id);
             return Ok(_mapper.Map<ServerRequest>(serverItem));
         }
@@ -145,7 +192,7 @@ namespace Web.Api.Controllers
         //Import Server
         [HttpPost("{id}/import")]
         [Consumes("multipart/form-data; boundary=----WebKitFormBoundarymx2fSWqWSd0OxQqq")]
-        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id, IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiServer(Guid id, IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
 
 
