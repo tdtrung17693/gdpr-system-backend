@@ -34,10 +34,14 @@ using Web.Api.Auth.RequirementHandlers;
 using Web.Api.Infrastructure.Helpers;
 using Web.Api.Core.Interfaces.Services;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.SignalR;
+using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
+using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Serialization;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Hubs;
+using Web.Api.Infrastructure.Event;
 
 namespace Web.Api
 {
@@ -147,11 +151,33 @@ namespace Web.Api
         c.SwaggerDoc("v1", new Info { Title = "GDPR System API", Version = "v1" });
       });
 
+      
       // Now register our services with Autofac container.
       var builder = new ContainerBuilder();
+      
+      builder.Register(c =>
+      {
+        var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
+        eventBus.AddEventHandler<UserCreated, EventHandlers.SendInviteMail>();
+        eventBus.AddEventHandler<CommentCreated, EventHandlers.BroadcastCreatedComment>();
+        return eventBus;
+      }).As<IDomainEventBus>().SingleInstance();
+
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.SendInviteMail(c.Resolve<IMailService>());
+        return handler;
+      }).As<EventHandlers.SendInviteMail>().SingleInstance();
+      
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.BroadcastCreatedComment(c.Resolve<IHubContext<ConversationHub>>());
+        return handler;
+      }).As<EventHandlers.BroadcastCreatedComment>().SingleInstance();
 
       builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());
+      
 
       // Presenters
       builder.RegisterType<RegisterUserPresenter>().SingleInstance();

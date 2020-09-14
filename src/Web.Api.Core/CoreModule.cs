@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.Comment;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Core.Interfaces.UseCases.User;
 using Web.Api.Core.UseCases;
+using Web.Api.Core.UseCases.Comment;
 using Web.Api.Core.UseCases.User;
 
 namespace Web.Api.Core
@@ -18,6 +20,7 @@ namespace Web.Api.Core
       builder.RegisterType<UpdateUserUseCase>().As<IUpdateUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ChangeUsersStatusUseCase>().As<IChangeUsersStatusUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ManageUserUseCase>().As<ManageUserUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<CreateCommentUseCase>().As<ICreateCommentUseCase>().InstancePerLifetimeScope();
 
       builder.RegisterType<ExportCustomerUseCase>().As<IExportCustomerUseCase>().InstancePerLifetimeScope();  
       builder.RegisterType<CRUDCustomerUseCase>().As<ICRUDCustomerUseCase>().InstancePerLifetimeScope();  

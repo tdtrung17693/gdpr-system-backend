@@ -4,21 +4,20 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
-using Web.Api.Core.UseCases;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
 using BulkRequestRequest = Web.Api.Core.Dto.UseCaseRequests.BulkRequestRequest;
-using System.IO;
-using System.Threading;
-using Microsoft.AspNetCore.Hosting;
-using OfficeOpenXml;
+using Microsoft.AspNetCore.Authorization;
+using Web.Api.Core.Dto.UseCaseResponses.Comment;
+using Web.Api.Core.Interfaces.Services;
+using Web.Api.Core.Interfaces.UseCases.Comment;
+using Web.Api.Models.Request.Comment;
+using Web.Api.Serialization;
 
 namespace Web.Api.Controllers
 {
@@ -27,26 +26,44 @@ namespace Web.Api.Controllers
     public class RequestController : ControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly IAuthService _authService;
         private readonly IRequestRepository _repository;
+        private readonly ICommentRepository _commentRepository;
+        private readonly ICreateCommentUseCase _createCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IBulkRequestUseCase _bulkRequestUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly BulkRequestPresenter _bulkRequestPresenter;
+        private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
 
-        public RequestController(IMapper mapper, IRequestRepository repository, ICreateRequestUseCase createRequestUseCase,
-            CreateRequestPresenter createRequestPresenter, UpdateRequestPresenter updateRequestPresenter, IUpdateRequestUseCase updateRequestUseCase,
-            IBulkRequestUseCase bulkRequestUseCase, BulkRequestPresenter bulkRequestPresenter)
+        public RequestController(
+            IMapper mapper,
+            IAuthService authService,
+            IRequestRepository repository,
+            ICommentRepository commentRepository,
+            ICreateCommentUseCase createCommentUseCase,
+            ICreateRequestUseCase createRequestUseCase,
+            CreateRequestPresenter createRequestPresenter,
+            UpdateRequestPresenter updateRequestPresenter,
+            IUpdateRequestUseCase updateRequestUseCase,
+            IBulkRequestUseCase bulkRequestUseCase,
+            BulkRequestPresenter bulkRequestPresenter,
+            ResourcePresenter<CreateCommentResponse> createCommentPresenter )
         {
             _mapper = mapper;
             _repository = repository;
+            _authService = authService;
+            _commentRepository = commentRepository;
+            _createCommentUseCase = createCommentUseCase;
             _createRequestUseCase = createRequestUseCase;
             _updateRequestUseCase = updateRequestUseCase;
             _bulkRequestUseCase = bulkRequestUseCase;
             _createRequestPresenter = createRequestPresenter;
             _updateRequestPresenter = updateRequestPresenter;
             _bulkRequestPresenter = bulkRequestPresenter;
+            _createCommentPresenter = createCommentPresenter;
         }
 
         //CREATE
@@ -119,5 +136,43 @@ namespace Web.Api.Controllers
 
         }
 
+        
+        [HttpGet("{id}/comments")]
+        [Authorize("CanViewRequest")]
+        public async Task<string> GetCommentsOfRequest(Guid id)
+        {
+            var comments = await _commentRepository.FindCommentsOfRequest(id);
+            return JsonSerializer.SerializeObject(comments.Select(c =>
+            {
+                return new
+                {
+                    c.Id,
+                    c.Content,
+                    c.ParentId,
+                    c.RequestId,
+                    c.CreatedAt,
+                    Author = new { FirstName=c.Author.FirstName, LastName=c.Author.LastName}
+                };
+            }));
+        }
+
+        [HttpPost("{id}/comments")]
+        [Authorize("CanEditRequest")]
+        public async Task<IActionResult> CreateCommentForRequest(Guid id, [FromBody] CreateCommentRequest request)
+        {
+            _createCommentPresenter.HandleResource = r =>
+            {
+                return r.Success
+                    ? JsonSerializer.SerializeObject(new {r.Id, r.CreatedAt})
+                    : JsonSerializer.SerializeObject(new {r.Errors});
+            };
+            var currentUser = _authService.GetCurrentUser();
+            
+            var response = await _createCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.CreateCommentRequest(
+                id, request.Content, currentUser, request.ParentId
+            ), _createCommentPresenter);
+
+            return _createCommentPresenter.ContentResult;
+        }
     }
 }
