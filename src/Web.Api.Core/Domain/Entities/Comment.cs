@@ -9,7 +9,7 @@ namespace Web.Api.Core.Domain.Entities
         public Comment(
             Guid requestId,
             Guid? parentId, string content,
-            Guid? id, Guid? createdBy, DateTime? createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, bool? isDeleted, bool? status
+            Guid id, Guid createdBy, DateTime createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt, bool? isDeleted, bool? status
         )
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {

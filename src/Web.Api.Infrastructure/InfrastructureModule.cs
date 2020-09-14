@@ -10,6 +10,7 @@ using FluentEmail.Smtp;
 using System.Net.Mail;
 using Web.Api.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
+using Web.Api.Infrastructure.Data.EntityFramework.Repositories.Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 
 namespace Web.Api.Infrastructure
 {

@@ -39,6 +39,10 @@ using Web.Api.Hubs;
 using Web.Api.Infrastructure.Event;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.EventHandlers;
+using Web.Api.Core.Interfaces.UseCases.RequestInterface;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.UseCases;
+using Web.Api.Core.UseCases.Request;
 
 namespace Web.Api
 {
@@ -58,7 +62,6 @@ namespace Web.Api
     // This method gets called by the runtime. Use this method to add services to the container.
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
-      CheckRequiredConfiguration();
 
       //Config CORS
       services.AddCors(options =>
@@ -79,6 +82,9 @@ namespace Web.Api
       // Add framework services.
       var connectionString = Configuration.GetConnectionString("Default");
       services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+      services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
+      services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
+      services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));

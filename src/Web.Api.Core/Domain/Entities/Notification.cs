@@ -6,11 +6,6 @@ namespace Web.Api.Core.Domain.Entities
 {
   public class Notification : BaseEntity
   {
-    private Guid guid;
-    private Guid? id1;
-    private Guid? id2;
-    private string v;
-
     public Notification(Guid? id, Guid? fromUserId, Guid toUserId, string notificationType, string data, Guid? createdBy = null, DateTime? createdAt = null)
        : base(id, createdAt, createdBy)
     {

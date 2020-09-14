@@ -17,22 +17,23 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
       _httpContext = httpContextAccessor;
     }
 
-    public virtual DbSet<Notification> Notification { get; set; }
-    public virtual DbSet<Account> Account { get; set; }
-    public virtual DbSet<Comment> Comment { get; set; }
-    public virtual DbSet<Customer> Customer { get; set; }
-    public virtual DbSet<CustomerServer> CustomerServer { get; set; }
-    public virtual DbSet<EmailLog> EmailLog { get; set; }
-    public virtual DbSet<FileInstance> FileInstance { get; set; }
-    public virtual DbSet<HistoryLog> HistoryLog { get; set; }
-    public virtual DbSet<Permission> Permission { get; set; }
-    public virtual DbSet<PermissionRole> PermissionRole { get; set; }
-    public virtual DbSet<Request> Request { get; set; }
-    public virtual DbSet<Role> Role { get; set; }
-    public virtual DbSet<Server> Server { get; set; }
-    public virtual DbSet<User> User { get; set; }
-    public virtual DbSet<UserFileInstance> UserFileInstance { get; set; }
-    public virtual DbSet<UserLog> UserLog { get; set; }
+        public virtual DbSet<Account> Account { get; set; }
+        public virtual DbSet<Comment> Comment { get; set; }
+        public virtual DbSet<Customer> Customer { get; set; }
+        public virtual DbSet<CustomerServer> CustomerServer { get; set; }
+        public virtual DbSet<EmailLog> EmailLog { get; set; }
+        public virtual DbSet<FileInstance> FileInstance { get; set; }
+        public virtual DbSet<HistoryLog> HistoryLog { get; set; }
+        public virtual DbSet<Permission> Permission { get; set; }
+        public virtual DbSet<PermissionRole> PermissionRole { get; set; }
+        public virtual DbSet<Request> Request { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<Server> Server { get; set; }
+        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserFileInstance> UserFileInstance { get; set; }
+        public virtual DbSet<UserLog> UserLog { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
+        public DbQuery<SPRequestResultView> SPRequestResultView { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -276,6 +277,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         entity.Property(e => e.StartDate).HasColumnType("datetime");
 
         entity.Property(e => e.Status).HasMaxLength(50);
+                entity.Property(e => e.RequestStatus).HasMaxLength(50);
 
         entity.Property(e => e.Title).HasMaxLength(50);
 
@@ -296,135 +298,139 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
             .HasForeignKey(d => d.ServerId)
             .HasConstraintName("fk_Request_serverId");
 
-      });
-
-      modelBuilder.Entity<Role>(entity =>
-      {
-        entity.Property(e => e.Id).ValueGeneratedNever();
-
-        entity.Property(e => e.Name).HasMaxLength(20);
-      });
-
-      modelBuilder.Entity<Server>(entity =>
-      {
-        entity.Property(e => e.Id).ValueGeneratedNever();
-
-        entity.Property(e => e.CreatedAt)
-                  .HasColumnType("datetime")
-                  .HasDefaultValueSql("(getutcdate())");
-
-        entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-
-        entity.Property(e => e.EndDate).HasColumnType("date");
-
-        entity.Property(e => e.IpAddress)
-                  .IsRequired()
-                  .HasMaxLength(15);
-
-        entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
-
-        entity.Property(e => e.Name)
-                  .IsRequired()
-                  .HasMaxLength(150);
-
-        entity.Property(e => e.StartDate).HasColumnType("date");
-
-        entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-      });
-
-      modelBuilder.Entity<User>(entity =>
-      {
-        entity.HasIndex(e => e.Email)
-                  .HasName("UQ__User__A9D10534550C08B5")
-                  .IsUnique();
-
-        entity.Property(e => e.Id).ValueGeneratedNever();
-
-        entity.Property(e => e.CreatedAt)
-                  .HasColumnType("datetime")
-                  .HasDefaultValueSql("(getutcdate())");
-
-        entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-
-        entity.Property(e => e.Email).HasMaxLength(256);
-
-        entity.Property(e => e.FirstName).HasMaxLength(50);
-
-        entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
-
-        entity.Property(e => e.LastName).HasMaxLength(50);
-
-        entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
-
-              // entity.HasOne(d => d.CreatedByNavigation)
-              //     .WithMany(p => p.InverseCreatedByNavigation)
-              //     .HasForeignKey(d => d.CreatedBy)
-              //     .OnDelete(DeleteBehavior.ClientSetNull)
-              //     .HasConstraintName("fk_User_createdBy");
-
-              // entity.HasOne(d => d.DeletedByNavigation)
-              //     .WithMany(p => p.InverseDeletedByNavigation)
-              //     .HasForeignKey(d => d.DeletedBy)
-              //     .HasConstraintName("fk_User_deletedBy");
-
-              entity.HasOne(d => d.Role)
-                  .WithMany(p => p.User)
-                  .HasForeignKey(d => d.RoleId)
-                  .HasConstraintName("fk_User_roleId");
-
-              // entity.HasOne(d => d.UpdatedByNavigation)
-              //     .WithMany(p => p.InverseUpdatedByNavigation)
-              //     .HasForeignKey(d => d.UpdatedBy)
-              //     .HasConstraintName("fk_User_updatedBy");
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.RequestUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_Request_updatedBy");
             });
 
-      modelBuilder.Entity<UserFileInstance>(entity =>
-      {
-        entity.HasKey(e => new { e.UserId, e.FileInstanceId })
-                  .HasName("PK__UserFile__6CBD4397C469411F");
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
-        entity.HasOne(d => d.FileInstance)
-                  .WithMany(p => p.UserFileInstance)
-                  .HasForeignKey(d => d.FileInstanceId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
-                  .HasConstraintName("fk_UserFileInstance_FileInstanceId");
+                entity.Property(e => e.Name).HasMaxLength(20);
+            });
 
-        entity.HasOne(d => d.User)
-                  .WithMany(p => p.UserFileInstance)
-                  .HasForeignKey(d => d.UserId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
-                  .HasConstraintName("fk_UserFileInstance_UserId");
-      });
+            modelBuilder.Entity<Server>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
-      modelBuilder.Entity<UserLog>(entity =>
-      {
-        entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getutcdate())");
 
-        entity.Property(e => e.Behavior)
-                  .IsRequired()
-                  .HasMaxLength(20);
+                entity.Property(e => e.DeletedAt).HasColumnType("datetime");
 
-        entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+                entity.Property(e => e.EndDate).HasColumnType("date");
 
-        entity.HasOne(d => d.User)
-                  .WithMany(p => p.UserLog)
-                  .HasForeignKey(d => d.UserId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
-                  .HasConstraintName("fk_UserLog_userId");
-      });
-    }
+                entity.Property(e => e.IpAddress)
+                    .IsRequired()
+                    .HasMaxLength(15);
 
-    public override int SaveChanges()
-    {
-      AddAuitInfo();
-      return base.SaveChanges();
-    }
+                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
 
-    public async Task<int> SaveChangesAsync()
-    {
-      AddAuitInfo();
-      return await base.SaveChangesAsync();
-    }
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(e => e.Email)
+                    .HasName("UQ__User__A9D10534550C08B5")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.Email).HasMaxLength(256);
+
+                entity.Property(e => e.FirstName).HasMaxLength(50);
+
+                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.LastName).HasMaxLength(50);
+
+                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+                // entity.HasOne(d => d.CreatedByNavigation)
+                //     .WithMany(p => p.InverseCreatedByNavigation)
+                //     .HasForeignKey(d => d.CreatedBy)
+                //     .OnDelete(DeleteBehavior.ClientSetNull)
+                //     .HasConstraintName("fk_User_createdBy");
+
+                // entity.HasOne(d => d.DeletedByNavigation)
+                //     .WithMany(p => p.InverseDeletedByNavigation)
+                //     .HasForeignKey(d => d.DeletedBy)
+                //     .HasConstraintName("fk_User_deletedBy");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.RoleId)
+                    .HasConstraintName("fk_User_roleId");
+
+                // entity.HasOne(d => d.UpdatedByNavigation)
+                //     .WithMany(p => p.InverseUpdatedByNavigation)
+                //     .HasForeignKey(d => d.UpdatedBy)
+                //     .HasConstraintName("fk_User_updatedBy");
+            });
+
+            modelBuilder.Entity<UserFileInstance>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.FileInstanceId })
+                    .HasName("PK__UserFile__6CBD4397C469411F");
+
+                entity.HasOne(d => d.FileInstance)
+                    .WithMany(p => p.UserFileInstance)
+                    .HasForeignKey(d => d.FileInstanceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_UserFileInstance_FileInstanceId");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserFileInstance)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_UserFileInstance_UserId");
+            });
+
+            modelBuilder.Entity<UserLog>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Behavior)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserLog)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_UserLog_userId");
+            });
+        }
+
+        public override int SaveChanges()
+        {
+            AddAuitInfo();
+            return base.SaveChanges();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            AddAuitInfo();
+            return await base.SaveChangesAsync();
+        }
 
     private void AddAuitInfo()
     {

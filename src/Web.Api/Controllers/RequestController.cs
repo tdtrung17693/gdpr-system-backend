@@ -1,17 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases;
-using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Models.Request;
 using Web.Api.Presenters;
-using BulkRequestRequest = Web.Api.Core.Dto.UseCaseRequests.BulkRequestRequest;
+using Web.Api.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Web.Api.Core.Dto.UseCaseResponses.Comment;
 using Web.Api.Core.Interfaces.Services;
@@ -25,120 +22,93 @@ namespace Web.Api.Controllers
     [ApiController]
     public class RequestController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IAuthService _authService;
-        private readonly IRequestRepository _repository;
         private readonly ICommentRepository _commentRepository;
         private readonly ICreateCommentUseCase _createCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
-        private readonly IBulkRequestUseCase _bulkRequestUseCase;
+        private readonly IGetRequestUseCase _getRequestUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
-        private readonly BulkRequestPresenter _bulkRequestPresenter;
+        private readonly GetRequestPresenter _getRequestPresenter;
         private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
 
         public RequestController(
-            IMapper mapper,
             IAuthService authService,
-            IRequestRepository repository,
             ICommentRepository commentRepository,
             ICreateCommentUseCase createCommentUseCase,
             ICreateRequestUseCase createRequestUseCase,
             CreateRequestPresenter createRequestPresenter,
             UpdateRequestPresenter updateRequestPresenter,
             IUpdateRequestUseCase updateRequestUseCase,
-            IBulkRequestUseCase bulkRequestUseCase,
-            BulkRequestPresenter bulkRequestPresenter,
-            ResourcePresenter<CreateCommentResponse> createCommentPresenter )
+            IGetRequestUseCase getRequestUseCase,
+            GetRequestPresenter getRequestPresenter,
+            ResourcePresenter<CreateCommentResponse> createCommentPresenter)
         {
-            _mapper = mapper;
-            _repository = repository;
             _authService = authService;
             _commentRepository = commentRepository;
             _createCommentUseCase = createCommentUseCase;
             _createRequestUseCase = createRequestUseCase;
-            _updateRequestUseCase = updateRequestUseCase;
-            _bulkRequestUseCase = bulkRequestUseCase;
             _createRequestPresenter = createRequestPresenter;
+            _updateRequestUseCase = updateRequestUseCase;
             _updateRequestPresenter = updateRequestPresenter;
-            _bulkRequestPresenter = bulkRequestPresenter;
+            _getRequestUseCase = getRequestUseCase;
+            _getRequestPresenter = getRequestPresenter;
             _createCommentPresenter = createCommentPresenter;
         }
 
         //CREATE
+        [EnableCors("request")]
         [HttpPost("create")]
-        public async Task<ActionResult> CreateNewRequest([FromBody] RequestRequest request)
+        public async Task<ActionResult> CreateRequest([FromBody] CreateRequestRequestModel message)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var currentUser = _authService.GetCurrentUser();
 
-            await _createRequestUseCase.Handle(new CreateRequestRequest(request.Id, currentUser.Id, request.CreatedAt, request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,
-                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus, request.Response, request.ApprovedBy), _createRequestPresenter);
-            return Ok();
-
-
+            await _createRequestUseCase.Handle(
+                new CreateRequestRequest(message.CreatedBy, message.Title, message.StartDate, message.EndDate,
+                    message.ServerId, message.Description), _createRequestPresenter);
+            return _createRequestPresenter.ContentResult;
         }
 
         //READ
+        [EnableCors("request")]
         [HttpGet]
-        public ActionResult<IEnumerable<RequestRequest>> GetRequestList()
+        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
+            int _pageSize = Constants.DefaultValues.Paging.PageSize)
         {
-            var requestItems = _repository.GetRequestList();
-            return Ok(_mapper.Map<IEnumerable<RequestRequest>>(requestItems));
+            await _getRequestUseCase.Handle(new GetRequestRequest(_pageNo, _pageSize, "getAll"), _getRequestPresenter);
+
+            return _getRequestPresenter.ContentResult;
         }
 
+        //[HttpGet("search/{keyword}")]
+        //public ActionResult<IEnumerable<RequestJoined>> GetRequestFilter(string keyword, int pageNo = Constants.DefaultValues.Paging.PageNo, int pageSize = Constants.DefaultValues.Paging.PageSize)
+        //{
+        //    var requestItems = _repository.GetRequestFilter(keyword, pageNo, pageSize);
+        //    return Ok(_mapper.Map<IEnumerable<RequestJoined>>(requestItems));
+        //}
 
 
         //UPDATE
-
-        [HttpPut]
-        public async Task<ActionResult> UpdateRequest([FromBody] RequestRequest request)
+        [EnableCors("request")]
+        [HttpPut("update/{requestId}")]
+        public async Task<ActionResult> UpdateRequest(string requestId, [FromBody] UpdateRequestRequestModel message)
         {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            await _updateRequestUseCase.Handle(new UpdateRequestRequest(request.Id, request.CreatedBy, request.CreatedAt, request.UpdatedBy, request.UpdatedAt, request.DeletedBy, request.DeletedAt,
-                request.Title, request.Description, request.StartDate, request.EndDate, request.ServerId, request.RequestStatus, request.Response, request.ApprovedBy), _updateRequestPresenter);
-            return Ok();
-        }
-
-        //Active/Deactive multi request
-
-        [HttpPut("bulkStatus")]
-        public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestsRequest bulkRequest)
-            //IEnumerable<Guid> requestIdList,bool status, Guid updator
-        {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            //create table type
-            DataTable idList = new DataTable();
-            idList.Columns.Add("Id", typeof(Guid));
-            foreach (Guid id in bulkRequest.requestIdList)
-            {
-                idList.Rows.Add(id);
-            }
-
-
-
-            //var response = await _repository.UpdateMutilRequestStatus(idList, bulkRequest.status, bulkRequest.updator);
-            var response = await _bulkRequestUseCase.Handle(new BulkRequestRequest(idList, bulkRequest.requestStatus, bulkRequest.updator), _bulkRequestPresenter);
-            if (response) return Ok("Done");
-            else return Content("Error");
-
+            await _updateRequestUseCase.Handle(
+                new UpdateRequestRequest(new Guid(requestId), message.UpdatedBy, DateTime.UtcNow, message.Title,
+                    message.StartDate, message.EndDate, message.ServerId, message.Description, message.RequestStatus,
+                    message.Response, message.ApprovedBy), _updateRequestPresenter);
+            return _updateRequestPresenter.ContentResult;
         }
 
-        
         [HttpGet("{id}/comments")]
         [Authorize("CanViewRequest")]
         public async Task<string> GetCommentsOfRequest(Guid id)
@@ -153,7 +123,7 @@ namespace Web.Api.Controllers
                     c.ParentId,
                     c.RequestId,
                     c.CreatedAt,
-                    Author = new { FirstName=c.Author.FirstName, LastName=c.Author.LastName}
+                    Author = new {c.Author.FirstName, c.Author.LastName}
                 };
             }));
         }
@@ -169,8 +139,8 @@ namespace Web.Api.Controllers
                     : JsonSerializer.SerializeObject(new {r.Errors});
             };
             var currentUser = _authService.GetCurrentUser();
-            
-            var response = await _createCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.CreateCommentRequest(
+
+            await _createCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.CreateCommentRequest(
                 id, request.Content, currentUser, request.ParentId
             ), _createCommentPresenter);
 

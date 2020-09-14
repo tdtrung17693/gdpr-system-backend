@@ -25,9 +25,12 @@ namespace Web.Api.Core.UseCases
 
         public async Task<bool> Handle(UpdateRequestRequest message, IOutputPort<UpdateRequestResponse> outputPort)
         {
-            var response = await _requestRepository.Create(new Request(message.Title, message.StartDate, message.EndDate,
-                 message.ServerId, message.Description, message.RequestStatus, message.Response, message.ApprovedBy,
-                 message.Id, message.CreatedBy, message.CreatedAt, message.UpdatedBy, message.UpdatedAt, message.DeletedBy, message.DeletedAt));
+
+            var response = await _requestRepository.UpdateRequest(
+                new Core.Domain.Entities.Request(message.Title, message.StartDate, message.EndDate, message.ServerId, message.Description,
+                message.RequestStatus, message.Response, message.ApprovedBy, message.Id, Guid.NewGuid(), DateTime.UtcNow, message.UpdatedBy, DateTime.UtcNow, null, null));
+
+
             return response.Success;
         }
     }

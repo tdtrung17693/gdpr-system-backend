@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto;
@@ -13,7 +12,7 @@ using Web.Api.Core.Interfaces.Services;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
-  class NotificationRepository : INotificationRepository
+  public class NotificationRepository : INotificationRepository
   {
     private readonly ApplicationDbContext _context;
     private readonly User _currentUser;
@@ -25,7 +24,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     public async Task<bool> CreateNewRequestNotification(User creator, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId)
     {
       var newNotifications = recipients.Select(u => {
-        var notifContent = JsonConvert.SerializeObject(new
+        var notifiedContent = JsonConvert.SerializeObject(new
         {
           creator.Account.Username,
           ServerName = serverName,
@@ -33,9 +32,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
           RequestId = requestId
         }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-        var newNotif = new Notification(Guid.NewGuid(), creator.Id, (Guid)u.Id, "new-request", notifContent);
+        var newNotification = new Notification(Guid.NewGuid(), creator.Id, u.Id, "new-request", notifiedContent);
 
-        return newNotif;
+        return newNotification;
       });
 
       try
@@ -44,6 +43,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         await _context.SaveChangesAsync();
       } catch (Exception e)
       {
+        // Add log here
+        Console.Error.WriteLine(e);
         return false;
       }
 
@@ -57,11 +58,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
     public async Task<UpdateNotificationResponse> MarkAsRead(Guid id)
     {
-      Notification noti = _context.Notification.Where(n => n.Id == id).FirstOrDefault();
-      if (noti == null) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND) });
-      if (_currentUser.Id != noti.ToUserId) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.UNAUTHORIZED_ACCESS, Error.Messages.UNAUTHORIZED_ACCESS) });
+      var notification = _context.Notification.FirstOrDefault(n => n.Id == id);
+      if (notification == null) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND) });
+      if (_currentUser.Id != notification.ToUserId) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.UNAUTHORIZED_ACCESS, Error.Messages.UNAUTHORIZED_ACCESS) });
 
-      noti.IsRead = true;
+      notification.IsRead = true;
       await _context.SaveChangesAsync();
       return new UpdateNotificationResponse();
     }
