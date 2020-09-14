@@ -109,7 +109,7 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, 
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, 
                 request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
@@ -146,7 +146,7 @@ namespace Web.Api.Controllers
             /*Customer newCustomer = new Customer(request.Name, req
              * uest.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description);
             return Ok(await _repository.Update(newCustomer));*/
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status, 
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, request.Description, request.Status, 
                 request.Id), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
