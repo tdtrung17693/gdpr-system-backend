@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System;
 using DomainEntities = Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Infrastructure.Data.Mapping
@@ -10,10 +11,14 @@ namespace Web.Api.Infrastructure.Data.Mapping
             CreateMap<DomainEntities.Account, DomainEntities.User>().ConstructUsing(acc =>
             {
                 return new DomainEntities.User(
+                    
                     acc.User.FirstName,
                     acc.User.LastName,
                     acc.User.Email,
-                    acc.User.RoleId);
+                    acc.User.RoleId,
+                    new Guid("11223344-5566-7788-99AA-BBCCDDEEFF00"),
+                    new Guid("11223344-5566-7788-99AA-BBCCDDEEFF00"),
+                    DateTime.UtcNow);
                     //System.Text.Encoding.Default.GetString(acc.HashedPassword));
             });
 

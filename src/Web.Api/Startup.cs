@@ -29,6 +29,7 @@ using Web.Api.Presenters;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.UseCases;
+using Web.Api.Core.UseCases.Request;
 
 namespace Web.Api
 {
@@ -62,6 +63,7 @@ namespace Web.Api
             services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
             services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
             services.AddScoped<IBulkRequestUseCase, BulkRequestUseCase>();
+            services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
             //services.AddScoped<ICustomerRepository>();
             // jwt wire up
             // Get options from app settings

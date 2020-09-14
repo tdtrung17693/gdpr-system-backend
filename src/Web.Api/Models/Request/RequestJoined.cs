@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Web.Api.Models.Request
 {
-    public class RequestRequest
+    public class RequestJoined
     {
         public Guid Id { get; set; }
         public Guid CreatedBy { get; set; }
@@ -22,5 +22,8 @@ namespace Web.Api.Models.Request
         public Guid? ServerId { get; set; }
         public string Response { get; set; }
         public Guid? ApprovedBy { get; set; }
+        public string serverName { get; set; }
+        public string userFName { get; set; }
+        public string userLName { get; set; }
     }
 }
