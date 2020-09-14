@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Web.Api.Core.Domain.Entities;
-using Web.Api.Core.Dto.GatewayResponses.Repositories;
+using Web.Api.Core.Dto.UseCaseResponses.Comment;
 
 namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
@@ -10,5 +10,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     {
         Task<IEnumerable<Comment>> FindCommentsOfRequest(Guid requestId);
         Task<CreateCommentResponse> CreateCommentOfRequest(Guid requestId, string content, User author, Guid? parentId);
+        Task<DeleteCommentResponse> DeleteCommentOfRequest(Guid commentId);
     }
 }

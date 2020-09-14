@@ -70,7 +70,7 @@ namespace Web.Api.Controllers
             await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
                                                 server.IpAddress, server.IsDeleted, server.Name,
                                                 server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
-            return Ok("You have add an row");
+            return Ok("You have added an row");
            
            
         }

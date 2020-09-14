@@ -30,6 +30,7 @@ namespace Web.Api.Controllers
         private readonly IRequestRepository _repository;
         private readonly ICommentRepository _commentRepository;
         private readonly ICreateCommentUseCase _createCommentUseCase;
+        private readonly IDeleteCommentUseCase _deleteCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IBulkRequestUseCase _bulkRequestUseCase;
@@ -37,6 +38,7 @@ namespace Web.Api.Controllers
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly BulkRequestPresenter _bulkRequestPresenter;
         private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
+        private readonly ResourcePresenter<DeleteCommentResponse> _deleteCommentPresenter;
 
         public RequestController(
             IMapper mapper,
@@ -50,7 +52,9 @@ namespace Web.Api.Controllers
             IUpdateRequestUseCase updateRequestUseCase,
             IBulkRequestUseCase bulkRequestUseCase,
             BulkRequestPresenter bulkRequestPresenter,
-            ResourcePresenter<CreateCommentResponse> createCommentPresenter )
+            ResourcePresenter<CreateCommentResponse> createCommentPresenter,
+            ResourcePresenter<DeleteCommentResponse> deleteCommentPresenter,
+            IDeleteCommentUseCase deleteCommentUseCase)
         {
             _mapper = mapper;
             _repository = repository;
@@ -64,6 +68,8 @@ namespace Web.Api.Controllers
             _updateRequestPresenter = updateRequestPresenter;
             _bulkRequestPresenter = bulkRequestPresenter;
             _createCommentPresenter = createCommentPresenter;
+            _deleteCommentPresenter = deleteCommentPresenter;
+            _deleteCommentUseCase = deleteCommentUseCase;
         }
 
         //CREATE
@@ -111,7 +117,7 @@ namespace Web.Api.Controllers
 
         [HttpPut("bulkStatus")]
         public async Task<ActionResult> UpdateMultiStatusRequest([FromBody] Models.Request.BulkRequestsRequest bulkRequest)
-            //IEnumerable<Guid> requestIdList,bool status, Guid updator
+        //IEnumerable<Guid> requestIdList,bool status, Guid updator
         {
 
             if (!ModelState.IsValid)
@@ -136,7 +142,7 @@ namespace Web.Api.Controllers
 
         }
 
-        
+
         [HttpGet("{id}/comments")]
         [Authorize("CanViewRequest")]
         public async Task<string> GetCommentsOfRequest(Guid id)
@@ -151,7 +157,7 @@ namespace Web.Api.Controllers
                     c.ParentId,
                     c.RequestId,
                     c.CreatedAt,
-                    Author = new { FirstName=c.Author.FirstName, LastName=c.Author.LastName}
+                    Author = new { FirstName = c.Author.FirstName, LastName = c.Author.LastName }
                 };
             }));
         }
@@ -163,16 +169,33 @@ namespace Web.Api.Controllers
             _createCommentPresenter.HandleResource = r =>
             {
                 return r.Success
-                    ? JsonSerializer.SerializeObject(new {r.Id, r.CreatedAt})
-                    : JsonSerializer.SerializeObject(new {r.Errors});
+                    ? JsonSerializer.SerializeObject(new { r.Id, r.CreatedAt })
+                    : JsonSerializer.SerializeObject(new { r.Errors });
             };
             var currentUser = _authService.GetCurrentUser();
-            
+
             var response = await _createCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.CreateCommentRequest(
                 id, request.Content, currentUser, request.ParentId
             ), _createCommentPresenter);
 
             return _createCommentPresenter.ContentResult;
         }
+
+        [HttpDelete("{id}/comments")]
+        [Authorize("CanEditRequest")]
+        public async Task<IActionResult> DeleteCommentOfRequest(Guid id, [FromBody] DeleteCommentRequest request)
+        {
+            _deleteCommentPresenter.HandleResource = r =>
+            {
+                return r.Success
+                   ? JsonSerializer.SerializeObject(new { r.Id })
+                   : JsonSerializer.SerializeObject(new { r.Errors });
+            };
+            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(request.CommentId),
+                _deleteCommentPresenter);
+
+            return _deleteCommentPresenter.ContentResult;
+        }
+
     }
 }

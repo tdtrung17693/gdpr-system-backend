@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
-using Web.Api.Core.Dto.GatewayResponses.Repositories;
+using Web.Api.Core.Dto.UseCaseResponses.Comment;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services.Event;
 
@@ -32,6 +33,45 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<DeleteCommentResponse> DeleteCommentOfRequest(Guid commentId)
+        {
+            var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = "DeleteComment";
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add(new SqlParameter("@CommentId", commentId));
+            if (command.Connection.State == ConnectionState.Closed)
+                await command.Connection.OpenAsync();
+
+            try
+            {
+                var reader = await command.ExecuteReaderAsync();
+                await reader.ReadAsync();
+                var deleteId = Guid.Parse(reader["Id"].ToString());
+                var requestId = Guid.Parse(reader["RequestId"].ToString());
+                var content = reader["Content"].ToString();
+                var parentId = Guid.Parse(reader["ParentId"].ToString());
+                await _eventBus.Trigger(new CommentDeleted(
+                    deleteId,
+                    requestId,
+                    content,
+                    parentId
+                   ));
+                return new DeleteCommentResponse(deleteId);
+            }
+            catch (SqlException e)
+            {
+                // Unique constraint violation code number
+                return new DeleteCommentResponse(new[]
+                {
+                    new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)
+                });
+            }
+            finally
+            {
+                command.Connection.Close();
+            }
+
+        }
         public async Task<CreateCommentResponse> CreateCommentOfRequest(Guid requestId, string content, User author,
             Guid? parentId)
         {

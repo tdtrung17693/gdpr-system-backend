@@ -20,9 +20,11 @@ namespace Web.Api.Core
       builder.RegisterType<UpdateUserUseCase>().As<IUpdateUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ChangeUsersStatusUseCase>().As<IChangeUsersStatusUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ManageUserUseCase>().As<ManageUserUseCase>().InstancePerLifetimeScope();
+      
       builder.RegisterType<CreateCommentUseCase>().As<ICreateCommentUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<DeleteCommentUseCase>().As<IDeleteCommentUseCase>().InstancePerLifetimeScope();
 
-      builder.RegisterType<ExportCustomerUseCase>().As<IExportCustomerUseCase>().InstancePerLifetimeScope();  
+            builder.RegisterType<ExportCustomerUseCase>().As<IExportCustomerUseCase>().InstancePerLifetimeScope();  
       builder.RegisterType<CRUDCustomerUseCase>().As<ICRUDCustomerUseCase>().InstancePerLifetimeScope();  
 
       builder.RegisterType<LoginUseCase>().As<ILoginUseCase>().InstancePerLifetimeScope();
