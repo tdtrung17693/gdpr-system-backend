@@ -37,9 +37,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
     public async Task<CreateUserResponse> Create(User userInfo, string userName, string password, Guid creator)
     {
-      //var appUser = _mapper.Map<AppUser>(user);
-      //var identityResult = await _userManager.CreateAsync(appUser, password);
-      //return new CreateUserResponse(appUser.Id, identityResult.Succeeded, identityResult.Succeeded ? null : identityResult.Errors.Select(e => new Error(e.Code, e.Description)));
       var salt = GenerateSalt(10);
       var rawPassword = new Password().IncludeLowercase().IncludeNumeric().IncludeUppercase().IncludeSpecial().Next();
       var hashPassword = CalculateHash(rawPassword, salt);

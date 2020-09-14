@@ -2,11 +2,9 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Core;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 
-using Web.Api.Infrastructure.Helpers;
 using Web.Api.Core.Dto.UseCaseRequests.User;
 using Web.Api.Core.UseCases.User;
 using Web.Api.Presenters;

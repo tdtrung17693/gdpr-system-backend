@@ -39,7 +39,7 @@ namespace Web.Api.Core.Domain.Entities
 
     public virtual ICollection<Customer> Customers { get; set; }
 
-    // public virtual ICollection<Comment> CommentCreatedByNavigation { get; set; }
+    public virtual ICollection<Comment> CommentCreatedByNavigation { get; set; }
     // public virtual ICollection<Comment> CommentDeletedByNavigation { get; set; }
     // public virtual ICollection<Comment> CommentUpdatedByNavigation { get; set; }
     // public virtual ICollection<Customer> CustomerCreatedByNavigation { get; set; }

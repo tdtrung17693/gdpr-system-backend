@@ -83,10 +83,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
         entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-              // entity.HasOne(d => d.CreatedByNavigation)
-              //     .WithMany(p => p.CommentCreatedByNavigation)
-              //     .HasForeignKey(d => d.CreatedBy)
-              //     .HasConstraintName("fk_Comment_createdBy");
+        entity.HasOne(d => d.Author)
+          .WithMany(p => p.CommentCreatedByNavigation)
+          .HasForeignKey(d => d.CreatedBy)
+          .HasConstraintName("fk_Comment_createdBy");
 
               // entity.HasOne(d => d.DeletedByNavigation)
               //     .WithMany(p => p.CommentDeletedByNavigation)

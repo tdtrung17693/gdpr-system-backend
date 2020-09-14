@@ -34,9 +34,14 @@ using Web.Api.Auth.RequirementHandlers;
 using Web.Api.Infrastructure.Helpers;
 using Web.Api.Core.Interfaces.Services;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.SignalR;
+using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
+using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Serialization;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
+using Web.Api.Hubs;
+using Web.Api.Infrastructure.Event;
 
 namespace Web.Api
 {
@@ -75,7 +80,8 @@ namespace Web.Api
       });
 
       // Add framework services.
-      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+      var connectionString = Configuration.GetConnectionString("Default");
+      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("Web.Api.Infrastructure")));
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -133,6 +139,8 @@ namespace Web.Api
         .AddJsonOptions(
             options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
+
+      services.AddSignalR();
       services.AddAutoMapper();
       services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
       services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
@@ -144,11 +152,33 @@ namespace Web.Api
         c.SwaggerDoc("v1", new Info { Title = "GDPR System API", Version = "v1" });
       });
 
+      
       // Now register our services with Autofac container.
       var builder = new ContainerBuilder();
+      
+      builder.Register(c =>
+      {
+        var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
+        eventBus.AddEventHandler<UserCreated, EventHandlers.SendInviteMail>();
+        eventBus.AddEventHandler<CommentCreated, EventHandlers.BroadcastCreatedComment>();
+        return eventBus;
+      }).As<IDomainEventBus>().SingleInstance();
+
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.SendInviteMail(c.Resolve<IMailService>());
+        return handler;
+      }).As<EventHandlers.SendInviteMail>().SingleInstance();
+      
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.BroadcastCreatedComment(c.Resolve<IHubContext<ConversationHub>>());
+        return handler;
+      }).As<EventHandlers.BroadcastCreatedComment>().SingleInstance();
 
       builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());
+      
 
       // Presenters
       builder.RegisterType<RegisterUserPresenter>().SingleInstance();
@@ -206,6 +236,10 @@ namespace Web.Api
 
 
       app.UseCors(MyAllowSpecificOrigins);
+      app.UseSignalR(e =>
+      {
+        e.MapHub<ConversationHub>("/conversation");
+      });
       app.UseMvc();
 
     }
