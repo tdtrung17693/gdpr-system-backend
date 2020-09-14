@@ -80,7 +80,8 @@ namespace Web.Api
       });
 
       // Add framework services.
-      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+      var connectionString = Configuration.GetConnectionString("Default");
+      services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString, b => b.MigrationsAssembly("Web.Api.Infrastructure")));
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));

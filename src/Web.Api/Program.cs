@@ -16,6 +16,7 @@ namespace Web.Api
                 .UseStartup<Startup>()
                 .ConfigureAppConfiguration((hostContext, builder) =>
                 {
+                    builder.AddEnvironmentVariables();
                     if (hostContext.HostingEnvironment.IsDevelopment())
                     {
                         builder.AddUserSecrets<Program>();

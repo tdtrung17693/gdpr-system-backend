@@ -27,7 +27,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public async Task<IEnumerable<Comment>> FindCommentsOfRequest(Guid requestId)
         {
-            return await _context.Comment.Include(c => c.Author).Where(c => c.RequestId == requestId).ToListAsync();
+            var query = _context.Comment.Include(c => c.Author).Where(c => c.RequestId == requestId);
+            query = query.OrderBy(c => c.CreatedAt);
+            return await query.ToListAsync();
         }
 
         public async Task<CreateCommentResponse> CreateCommentOfRequest(Guid requestId, string content, User author,

@@ -24,7 +24,7 @@ namespace Web.Api.EventHandlers
                     FirstName=ev.AuthorFirstName,
                     LastName=ev.AuthorLastName
                 },
-                CreatedAt=TimeZoneInfo.ConvertTimeToUtc(ev.CreatedAt, TimeZoneInfo.Utc),
+                ev.CreatedAt,
                 ev.Content,
                 ev.Id,
                 ev.ParentId,
