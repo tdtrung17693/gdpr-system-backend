@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses.User;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Presenters;
@@ -17,12 +18,14 @@ namespace Web.Api.Controllers
     private readonly RegisterUserPresenter _registerUserPresenter;
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;
+    private readonly INotificationRepository _notiRepo;
 
-    public AccountsController(RegisterUserPresenter registerUserPresenter, IAuthService authService, IMapper mapper)
+    public AccountsController(RegisterUserPresenter registerUserPresenter, IAuthService authService, IMapper mapper, INotificationRepository notiRepo)
     {
       _registerUserPresenter = registerUserPresenter;
       _authService = authService;
       _mapper = mapper;
+      _notiRepo = notiRepo;
     }
 
     // POST api/accounts
@@ -39,9 +42,10 @@ namespace Web.Api.Controllers
 
     [HttpGet("me")]
     [Authorize()]
-    public ActionResult<object> CurrentUser()
+    public async Task<ActionResult<object>> CurrentUser()
     {
       var user = _authService.GetCurrentUser();
+      var notifications = await _notiRepo.GetNotificationOf((System.Guid)user.Id);
 
       return new
       {
@@ -51,7 +55,8 @@ namespace Web.Api.Controllers
         Username = user.Account.Username,
         Role = user.Role.Name,
         RoleId = user.RoleId,
-        Permissions = _authService.GetAllPermissions()
+        Permissions = _authService.GetAllPermissions(),
+        Notifications = notifications
       };
     }
   } 

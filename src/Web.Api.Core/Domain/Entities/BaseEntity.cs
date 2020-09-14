@@ -7,12 +7,12 @@ namespace Web.Api.Core.Domain.Entities
 {
   public class BaseEntity
   {
-    public BaseEntity(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt, Guid? updatedBy, DateTime? deletedAt = null, Guid? deletedBy = null, bool? isDeleted = false, bool? status = true)
+    public BaseEntity(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt = null, Guid? updatedBy = null, DateTime? deletedAt = null, Guid? deletedBy = null, bool? isDeleted = false, bool? status = true)
     {
       Id = id;
       IsDeleted = isDeleted;
       CreatedBy = createdBy;
-      CreatedAt = createdAt;
+      CreatedAt = createdAt == null ? createdAt : DateTime.UtcNow;
       UpdatedBy = updatedBy;
       UpdatedAt = updatedAt;
       DeletedBy = deletedBy;

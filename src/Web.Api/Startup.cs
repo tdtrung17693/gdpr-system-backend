@@ -20,10 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Web.Api.Core;
-using Web.Api.Core.Interfaces.UseCases;
-using Web.Api.Core.UseCases;
-using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 using Web.Api.Extensions;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
@@ -39,9 +35,10 @@ using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Serialization;
-using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Hubs;
 using Web.Api.Infrastructure.Event;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.EventHandlers;
 
 namespace Web.Api
 {
@@ -152,6 +149,10 @@ namespace Web.Api
         c.SwaggerDoc("v1", new Info { Title = "GDPR System API", Version = "v1" });
       });
 
+      services.ConfigureSwaggerGen(options =>
+      {
+        options.CustomSchemaIds(x => x.FullName);
+      });
       
       // Now register our services with Autofac container.
       var builder = new ContainerBuilder();
@@ -159,22 +160,26 @@ namespace Web.Api
       builder.Register(c =>
       {
         var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
-        eventBus.AddEventHandler<UserCreated, EventHandlers.SendInviteMail>();
-        eventBus.AddEventHandler<CommentCreated, EventHandlers.BroadcastCreatedComment>();
+        eventBus.AddEventHandler<UserCreated, SendInviteMail>();
+        eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
+        eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
 
       builder.Register(c =>
       {
-        var handler = new EventHandlers.SendInviteMail(c.Resolve<IMailService>());
+        var handler = new SendInviteMail(c.Resolve<IMailService>());
         return handler;
-      }).As<EventHandlers.SendInviteMail>().SingleInstance();
+      }).As<SendInviteMail>().SingleInstance();
       
       builder.Register(c =>
       {
-        var handler = new EventHandlers.BroadcastCreatedComment(c.Resolve<IHubContext<ConversationHub>>());
+        var handler = new BroadcastCreatedComment(c.Resolve<IHubContext<ConversationHub>>());
         return handler;
-      }).As<EventHandlers.BroadcastCreatedComment>().SingleInstance();
+      }).As<BroadcastCreatedComment>().SingleInstance();
+
+      // This handler depends on the auth service, so its lifetime must be the same as the auth service
+      builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
 
       builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());

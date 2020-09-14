@@ -25,6 +25,7 @@ namespace Web.Api.Infrastructure
       builder.RegisterType<CustomerRepository>().As<ICustomerRepository>().InstancePerLifetimeScope();
       builder.RegisterType<RequestRepository>().As<IRequestRepository>().InstancePerLifetimeScope();
       builder.RegisterType<CommentRepository>().As<ICommentRepository>().InstancePerLifetimeScope();
+      builder.RegisterType<NotificationRepository>().As<INotificationRepository>().InstancePerLifetimeScope();
 
       // Services
       builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();

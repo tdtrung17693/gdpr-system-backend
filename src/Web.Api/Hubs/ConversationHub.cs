@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Web.Api.Hubs
 {
+    [Authorize()]
     public class ConversationHub : Hub
     {
         public async Task JoinGroup(string groupName)

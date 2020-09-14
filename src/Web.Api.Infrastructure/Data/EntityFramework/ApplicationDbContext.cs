@@ -17,6 +17,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
       _httpContext = httpContextAccessor;
     }
 
+    public virtual DbSet<Notification> Notification { get; set; }
     public virtual DbSet<Account> Account { get; set; }
     public virtual DbSet<Comment> Comment { get; set; }
     public virtual DbSet<Customer> Customer { get; set; }
