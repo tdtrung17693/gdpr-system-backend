@@ -19,9 +19,10 @@ namespace Web.Api.EventHandlers
         }
         public async Task HandleAsync(CommentDeleted ev)
         {
-            await _hubContext.Clients.Group($"conversation:{ev.Id.ToString().ToLower()}").SendAsync("commentDeleted", new
+            await _hubContext.Clients.Group($"conversation:{ev.RequestId.ToString().ToLower()}").SendAsync("commentDeleted", new
             {
-                ev.Id
+                ev.Id,
+                ev.RequestId
             }) ;
         }
     }

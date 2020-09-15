@@ -181,9 +181,9 @@ namespace Web.Api.Controllers
             return _createCommentPresenter.ContentResult;
         }
 
-        [HttpDelete("comments/{id}")]
+        [HttpDelete("{requestId}/comments/{id}")]
         [Authorize("CanEditRequest")]
-        public async Task<IActionResult> DeleteCommentOfRequest(string id)
+        public async Task<IActionResult> DeleteCommentOfRequest(string requestId, string id)
         {
             _deleteCommentPresenter.HandleResource = r =>
             {
@@ -191,8 +191,8 @@ namespace Web.Api.Controllers
                    ? JsonSerializer.SerializeObject(new { r.Id })
                    : JsonSerializer.SerializeObject(new { r.Errors });
             };
-            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id)),
-                _deleteCommentPresenter);
+            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id), Guid.Parse(requestId)),
+                _deleteCommentPresenter); 
 
             return _deleteCommentPresenter.ContentResult;
         }

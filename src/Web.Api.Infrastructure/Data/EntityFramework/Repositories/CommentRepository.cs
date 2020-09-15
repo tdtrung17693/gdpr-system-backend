@@ -40,7 +40,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<DeleteCommentResponse> DeleteCommentOfRequest(Guid commentId)
+        public async Task<DeleteCommentResponse> DeleteCommentOfRequest(Guid commentId, Guid requestId)
         {
             var command = _context.Database.GetDbConnection().CreateCommand();
             command.CommandText = "DeleteComment";
@@ -53,7 +53,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             {
                 var reader = await command.ExecuteReaderAsync();
                 await _eventBus.Trigger(new CommentDeleted(
-                    commentId
+                    commentId, requestId
                    ));
                 return new DeleteCommentResponse();
             }

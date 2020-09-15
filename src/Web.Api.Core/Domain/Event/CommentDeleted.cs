@@ -7,10 +7,12 @@ namespace Web.Api.Core.Domain.Event
     {
         public Guid Id { get; }
 
+        public Guid RequestId { get;  }
 
-        public CommentDeleted(Guid id)
+        public CommentDeleted(Guid id,  Guid requestId)
         {
             Id = id;
+            RequestId = requestId;
         }
     }
 }

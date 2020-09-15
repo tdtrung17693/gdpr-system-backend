@@ -20,9 +20,10 @@ namespace Web.Api.Core.UseCases.Comment
         public async Task<bool> Handle(DeleteCommentRequest message, IOutputPort<DeleteCommentResponse> outputPort)
         {
             var commentId = message.commentId;
+            var requestId = message.requestId;
 
             var response = await _commentRepository.DeleteCommentOfRequest(
-                commentId
+                commentId, requestId
             );
 
             if (!response.Success)
