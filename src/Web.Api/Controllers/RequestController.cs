@@ -65,9 +65,9 @@ namespace Web.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            var currentUser = _authService.GetCurrentUser();
             await _createRequestUseCase.Handle(
-                new CreateRequestRequest(message.CreatedBy, message.Title, message.StartDate, message.EndDate,
+                new CreateRequestRequest((Guid)currentUser.Id, message.Title, message.StartDate, message.EndDate,
                     message.ServerId, message.Description), _createRequestPresenter);
             return _createRequestPresenter.ContentResult;
         }

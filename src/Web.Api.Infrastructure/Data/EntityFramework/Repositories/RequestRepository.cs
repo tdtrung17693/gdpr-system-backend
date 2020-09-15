@@ -48,6 +48,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var description = new SqlParameter("@Description", request.Description);
                 _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", tempCreatedBy, title, fromDate, toDate, server, description);
                 var success = await _context.SaveChangesAsync();
+
+                if (success == 0)
+                {
+                    await _eventBus.Trigger(new RequestCreated(Guid.Empty, DateTime.UtcNow, (Guid)request.ServerId));
+                }
                 return new CreateRequestResponse((Guid) request.Id, success > 0, null);
             }
 

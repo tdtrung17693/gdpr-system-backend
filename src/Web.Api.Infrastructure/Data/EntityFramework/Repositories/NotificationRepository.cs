@@ -5,10 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
+using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
+using Web.Api.Core.Interfaces.Services.Event;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -16,10 +18,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
   {
     private readonly ApplicationDbContext _context;
     private readonly User _currentUser;
-    public NotificationRepository(ApplicationDbContext context, IAuthService authService)
+    private readonly IDomainEventBus _eventBus;
+    public NotificationRepository(ApplicationDbContext context, IAuthService authService, IDomainEventBus eventBus)
     {
       _context = context;
       _currentUser = authService.GetCurrentUser();
+      _eventBus = eventBus;
     }
     public async Task<bool> CreateNewRequestNotification(User creator, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId)
     {
@@ -32,7 +36,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
           RequestId = requestId
         }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-        var newNotification = new Notification(Guid.NewGuid(), creator.Id, (Guid) u.Id, "new-request", notifiedContent);
+        var newNotification = new Notification(Guid.NewGuid(), creator.Id, (Guid) u.Id, "new-request", notifiedContent,createdAt:DateTime.UtcNow);
+
 
         return newNotification;
       });
@@ -41,6 +46,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       {
         await _context.Notification.AddRangeAsync(newNotifications);
         await _context.SaveChangesAsync();
+        _eventBus.Trigger(new NotificationsCreated(newNotifications));
       } catch (Exception e)
       {
         // Add log here

@@ -184,6 +184,7 @@ namespace Web.Api
         eventBus.AddEventHandler<UserCreated, SendInviteMail>();
         eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
+        eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
 
@@ -201,6 +202,7 @@ namespace Web.Api
 
       // This handler depends on the auth service, so its lifetime must be the same as the auth service
       builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
+      builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
 
       builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());

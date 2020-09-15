@@ -56,7 +56,7 @@ namespace Web.Api.Infrastructure
         {
           var client = new SmtpClient(smtpServer, smtpPort);
           client.Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword);
-          client.EnableSsl = true;
+          client.EnableSsl = config.GetValue<bool>("Mail:EnableSsl");
           return client;
         });
       }).As<ISender>().InstancePerLifetimeScope();
