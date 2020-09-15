@@ -31,6 +31,7 @@ namespace Web.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IServerRepository _repository;
         private readonly ICreateServerUseCase _createServerUseCase;
+        private readonly IReadServerUseCase _readServerUseCase;
         private readonly IUpdateServerUseCase _updateServerUseCase;
         private readonly IExportServerUseCase _exportServerUseCase;
         private readonly IBulkServerUseCase _bulkServerUseCase;
@@ -43,12 +44,14 @@ namespace Web.Api.Controllers
 
         public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
-            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter, IExportServerUseCase exportServerUseCase, ExportServerPresenter exportServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
+            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter
+            , IExportServerUseCase exportServerUseCase, ExportServerPresenter exportServerPresenter, IReadServerUseCase readServerUseCase)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {
             _hostingEnvironment = hostingEnvironment;
             _mapper = mapper;
             _repository = repository;
             _createServerUseCase = createServerUseCase;
+            _readServerUseCase = readServerUseCase;
             _updateServerUseCase = updateServerUseCase;
             _bulkServerUseCase = bulkServerUseCase;
             _createServerPresenter = createServerPresenter;
@@ -105,8 +108,25 @@ namespace Web.Api.Controllers
         }
 
         //READ
-        [HttpGet]
-        public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
+       /* [HttpGet]
+        public async Task<ActionResult> GetAll([FromQuery] PagedServerRequest request)
+        {
+            _readServerPresenter.HandleResource = r =>
+            {
+                var users = _mapper.Map<Pagination<Server>, Pagination<ServerDTO>>(r.Server);
+
+                return r.Success ? JsonSerializer.SerializeObject(users) : JsonSerializer.SerializeObject(r.Errors);
+            };
+
+            var filterString = request.FilterBy == null ? "" : request.FilterBy;
+            await _readServerUseCase.Handle(
+              new ReadServerRequest(request.Page, request.PageSize, filterString, request.SortedBy, request.SortOrder),
+              _readServerPresenter);
+            return _readServerPresenter.ContentResult;
+        }*/
+
+        /*
+          public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
         {
             if (!ModelState.IsValid)
             {
@@ -115,6 +135,7 @@ namespace Web.Api.Controllers
             var serverItems = _repository.GetAllCommand();
             return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
         }
+         */
 
         [HttpGet("listServer")]
         public ActionResult<DataTable> GetListServer()
@@ -184,12 +205,11 @@ namespace Web.Api.Controllers
             }
             //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
             var response = await _bulkServerUseCase.Handle(new BulkServerRequest(idList, bulkServer.updator) , _bulkServerPresenter);
-            if (response) return Ok("Done");
-            else return Content("Erorr");
+            return Ok("Done");
 
         }
 
-        //Import Server
+        /*//Import Server
         [HttpPost("{id}/import")]
         [Consumes("multipart/form-data; boundary=----WebKitFormBoundarymx2fSWqWSd0OxQqq")]
         public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiServer(Guid id, IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
@@ -236,7 +256,7 @@ namespace Web.Api.Controllers
                 }
             }
             return ServerImportResponse<List<ServerImportRequest>>.GetResult(200, "OK", list);
-        }
+        }*/
 
         [HttpPost("export-csv")]
         public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)

@@ -45,18 +45,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             try
             {
                 var reader = await command.ExecuteReaderAsync();
-                await reader.ReadAsync();
-                var deleteId = Guid.Parse(reader["Id"].ToString());
-                var requestId = Guid.Parse(reader["RequestId"].ToString());
-                var content = reader["Content"].ToString();
-                var parentId = Guid.Parse(reader["ParentId"].ToString());
                 await _eventBus.Trigger(new CommentDeleted(
-                    deleteId,
-                    requestId,
-                    content,
-                    parentId
+                    commentId
                    ));
-                return new DeleteCommentResponse(deleteId);
+                return new DeleteCommentResponse(commentId);
             }
             catch (SqlException e)
             {

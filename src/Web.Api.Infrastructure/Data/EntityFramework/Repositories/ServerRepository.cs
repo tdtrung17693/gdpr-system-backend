@@ -9,6 +9,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Web.Api.Core;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
@@ -153,6 +154,22 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                             }
                             ).GroupBy(u => u.FirstName).ToList();
             return new ExportCSVByCustomerResponse(response, true, null);
+        }
+
+        public async Task<Server> FindById(Guid id)
+        {
+            Server server = await _context.Server
+                                            .Where(s => s.Id == id)
+                                            .FirstOrDefaultAsync();
+            return server;
+        }
+
+        public IPagedCollection<Server> FindAll()
+        {
+            // TODO: Remove magic number
+            return new PagedCollection<Server>(
+                _context.Server.AsQueryable()
+            );
         }
 
     }

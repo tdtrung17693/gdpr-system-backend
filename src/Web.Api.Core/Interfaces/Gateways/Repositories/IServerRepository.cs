@@ -37,5 +37,11 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 
         //Todo: export files
         public Task<ExportCSVByCustomerResponse> GetExportServers(ExportServerRequest request);
+
+        //Todo:Find By id
+        Task<Server> FindById(Guid id);
+
+        //Todo:Find All
+        IPagedCollection<Server> FindAll();
     }
 } 
