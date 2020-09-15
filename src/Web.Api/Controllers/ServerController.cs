@@ -91,14 +91,6 @@ namespace Web.Api.Controllers
             {
                 /* StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
                             EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),*/
-                if (server.StartDate != null)
-                {
-                    server.StartDate = DateTime.FromOADate(double.Parse(server.StartDate.ToString()));
-                }
-                if(server.EndDate != null)
-                {
-                    server.EndDate = DateTime.FromOADate(double.Parse(server.EndDate.ToString()));
-                }
                 await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.StartDate,
                                                     server.IpAddress, server.IsDeleted, server.Name,
                                                     server.EndDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);

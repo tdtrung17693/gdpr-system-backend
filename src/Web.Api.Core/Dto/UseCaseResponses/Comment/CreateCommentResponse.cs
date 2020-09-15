@@ -15,7 +15,7 @@ namespace Web.Api.Core.Dto.UseCaseResponses.Comment
             Errors = errors;
         }
 
-        public CreateCommentResponse(Guid id, DateTime createdAt, bool success = false, string message = null) : base(success, message)
+        public CreateCommentResponse(Guid id, DateTime createdAt, string message = null) : base(true, message)
         {
             Id = id;
             CreatedAt = createdAt;

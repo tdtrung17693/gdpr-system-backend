@@ -9,14 +9,13 @@ namespace Web.Api.Core.Dto.UseCaseResponses.Comment
         public Guid Id { get; }
         public IEnumerable<Error> Errors { get; }
 
-        public DeleteCommentResponse(IEnumerable<Error> errors, bool success = false, string message = null) : base(success, message)
+        public DeleteCommentResponse(IEnumerable<Error> errors, string message = null) : base(false, message)
         {
             Errors = errors;
         }
 
-        public DeleteCommentResponse(Guid id, bool success = false, string message = null) : base(success, message)
+        public DeleteCommentResponse(string message = null) : base(true, message)
         {
-            Id = id;
         }
     }
 }

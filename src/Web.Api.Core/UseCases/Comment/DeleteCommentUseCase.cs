@@ -33,7 +33,7 @@ namespace Web.Api.Core.UseCases.Comment
                 return false;
             }
 
-            outputPort.Handle(new DeleteCommentResponse(response.Id, true));
+            outputPort.Handle(new DeleteCommentResponse());
             return true;
         }
     }

@@ -48,7 +48,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 await _eventBus.Trigger(new CommentDeleted(
                     commentId
                    ));
-                return new DeleteCommentResponse(commentId);
+                return new DeleteCommentResponse();
             }
             catch (SqlException e)
             {
