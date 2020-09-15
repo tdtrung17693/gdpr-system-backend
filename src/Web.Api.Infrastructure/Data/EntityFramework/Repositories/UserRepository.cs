@@ -19,6 +19,7 @@ using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Core.Domain.Event;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Web.Api.Core.Dto.UseCaseRequests;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -158,27 +159,88 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       );
     }
 
-    public Task<UpdateUserResponse> Update(User user)
+    public async Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName)
     {
-      throw new NotImplementedException();
+      var updatedFields = new Dictionary<string, string>();
+      if (user.FirstName != firstName) {
+        updatedFields.Add("FirstName", firstName);
+        user.FirstName = firstName;
+      }
+
+      if (user.LastName != lastName) {
+        updatedFields.Add("LastName", lastName);
+        user.LastName = lastName;
+      }
+      if (updatedFields.Any())
+      {
+        try
+        {
+          await _context.SaveChangesAsync();
+        } catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+        }
+      }
+      return new UpdateUserResponse(updatedFields);
     }
     public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
     {
       var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+      var updatedFields = new Dictionary<string, string>();
+
       if (user == null)
       {
         return new UpdateUserResponse(false, new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
       }
 
-      user.RoleId = roleId;
-      user.Status = status;
-      _context.SaveChanges();
-      return new UpdateUserResponse(true);
+      if (user.RoleId != roleId)
+      {
+        updatedFields.Add("RoleId", roleId.ToString());
+        user.RoleId = roleId;
+      }
+      if (user.Status != status)
+      {
+        updatedFields.Add("Status", status.ToString());
+        user.Status = status;
+      }
+
+      if (updatedFields.Count() > 0)
+      {
+        try
+        {
+          await _context.SaveChangesAsync();
+        }
+        catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+        }
+      }
+
+      return new UpdateUserResponse(updatedFields);
     }
 
     public Task<CreateUserResponse> Delete(User user)
     {
       throw new NotImplementedException();
+    }
+
+    public async Task<UpdateUserResponse> ChangePassword(User user, string newPassword)
+    {
+      var salt = GenerateSalt(10);
+      var hashPassword = CalculateHash(newPassword, salt);
+      user.Account.HashedPassword = hashPassword;
+      user.Account.Salt = Convert.ToBase64String(salt);
+      
+      try
+      {
+        await _context.SaveChangesAsync();
+      }
+      catch (Exception e)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
+
+      return new UpdateUserResponse(true);
     }
 
     public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
@@ -195,5 +257,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
       return new UpdateUserResponse(true);
     }
+
+    //Cho nay cua em nha a Trung :D
+     public async Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request)
+     {
+        var fileId = Guid.NewGuid();
+        await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension, "Some path" ));
+        await _context.UserFileInstance.AddAsync(new UserFileInstance(request.Id, fileId));
+        var success = await _context.SaveChangesAsync();
+        return new UploadAvatarUserResponse(success > 0, null);       
+     }   
   }
 }

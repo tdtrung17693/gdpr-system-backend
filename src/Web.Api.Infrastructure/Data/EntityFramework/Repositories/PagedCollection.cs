@@ -42,6 +42,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     // Filter exactly value
     public void FilterBy<TFieldValue>(string fieldName, TFieldValue fieldValue)
     {
+      if (fieldName == "") return;
       fieldName = this._normalizeFieldName(fieldName);
       if (!_filterableFields.Contains(fieldName)) return;
 

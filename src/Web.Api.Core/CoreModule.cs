@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.Account;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Core.Interfaces.UseCases.User;
 using Web.Api.Core.UseCases;
+using Web.Api.Core.UseCases.Account;
 using Web.Api.Core.UseCases.User;
 
 namespace Web.Api.Core
@@ -13,6 +15,9 @@ namespace Web.Api.Core
     protected override void Load(ContainerBuilder builder)
     {
       builder.RegisterType<ManageServerUseCase>().As<IManageServerUseCase>().InstancePerLifetimeScope();  
+      builder.RegisterType<UpdateProfileInfoUseCase>().As<IUpdateProfileInfoUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<ChangePasswordUseCase>().As<IChangePasswordUseCase>().InstancePerLifetimeScope();
+      
       builder.RegisterType<ReadUserUseCase>().As<IReadUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateUserUseCase>().As<ICreateUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<DeleteUserUseCase>().As<IDeleteUserUseCase>().InstancePerLifetimeScope();
