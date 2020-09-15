@@ -152,43 +152,101 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             );
         }
 
-        public Task<UpdateUserResponse> Update(User user)
-        {
-            throw new NotImplementedException();
-        }
+    public async Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName)
+    {
+      var updatedFields = new Dictionary<string, string>();
+      if (user.FirstName != firstName) {
+        updatedFields.Add("FirstName", firstName);
+        user.FirstName = firstName;
+      }
 
-        public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
+      if (user.LastName != lastName) {
+        updatedFields.Add("LastName", lastName);
+        user.LastName = lastName;
+      }
+      if (updatedFields.Any())
+      {
+        try
         {
-            var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                return new UpdateUserResponse(false,
-                    new[] {new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
-            }
-
-            user.RoleId = roleId;
-            user.Status = status;
-            await _context.SaveChangesAsync();
-            return new UpdateUserResponse(true);
+          await _context.SaveChangesAsync();
+        } catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
         }
+      }
+      return new UpdateUserResponse(updatedFields);
+    }
+    public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
+    {
+      var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+      var updatedFields = new Dictionary<string, string>();
+
+      if (user == null)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
+      }
+
+      if (user.RoleId != roleId)
+      {
+        updatedFields.Add("RoleId", roleId.ToString());
+        user.RoleId = roleId;
+      }
+      if (user.Status != status)
+      {
+        updatedFields.Add("Status", status.ToString());
+        user.Status = status;
+      }
+
+      if (updatedFields.Count() > 0)
+      {
+        try
+        {
+          await _context.SaveChangesAsync();
+        }
+        catch
+        {
+          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+        }
+      }
+
+      return new UpdateUserResponse(updatedFields);
+    }
 
         public Task<CreateUserResponse> Delete(User user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
-        {
-            List<User> userList = await _context.User.Where(u => ids.Contains((Guid) u.Id)).ToListAsync();
-            userList.ForEach(u => u.Status = status);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                return new UpdateUserResponse(false, new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
-            }
+    public async Task<UpdateUserResponse> ChangePassword(User user, string newPassword)
+    {
+      var salt = GenerateSalt(10);
+      var hashPassword = CalculateHash(newPassword, salt);
+      user.Account.HashedPassword = hashPassword;
+      user.Account.Salt = Convert.ToBase64String(salt);
+      
+      try
+      {
+        await _context.SaveChangesAsync();
+      }
+      catch (Exception e)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
+
+      return new UpdateUserResponse(true);
+    }
+
+    public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
+    {
+      List<User> userList = await _context.User.Where(u => ids.Contains((Guid)u.Id)).ToListAsync();
+      userList.ForEach(u => u.Status = status);
+      try
+      {
+        await _context.SaveChangesAsync();
+      } catch (Exception e)
+      {
+        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
 
             return new UpdateUserResponse(true);
         }

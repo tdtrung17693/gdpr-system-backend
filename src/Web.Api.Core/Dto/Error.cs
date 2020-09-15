@@ -18,6 +18,7 @@ namespace Web.Api.Core.Dto
             public const string UNKNOWN = "unknown_error";
             public const string UNIQUE_CONSTRAINT_VIOLATED = "unique_constraint_error";
             public const string UNAUTHORIZED_ACCESS = "unauthorized_access";
+            public const string INVALID_CREDENTIAL = "invalid_credential";
         }
 
         public static class Messages
@@ -26,6 +27,7 @@ namespace Web.Api.Core.Dto
             public const string UNKNOWN = "Unexpected error happened.";
             public const string UNIQUE_CONSTRAINT_VIOLATED = "Unique constraint violated";
             public const string UNAUTHORIZED_ACCESS = "Unauthorized access";
+            public const string INVALID_CREDENTIAL = "Invalid credential";
         }
     }
 }

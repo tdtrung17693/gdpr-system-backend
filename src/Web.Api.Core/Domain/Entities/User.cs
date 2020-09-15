@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Web.Api.Core.Interfaces;
 
 namespace Web.Api.Core.Domain.Entities
 {
