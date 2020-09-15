@@ -26,10 +26,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             _eventBus = eventBus;
         }
 
-        public async Task<IEnumerable<Comment>> FindCommentsOfRequest(Guid requestId)
+        public async Task<IEnumerable<Comment>> FindCommentsOfRequest(Guid requestId, string order)
         {
             var query = _context.Comment.Include(c => c.Author).Where(c => c.RequestId == requestId);
-            query = query.OrderBy(c => c.CreatedAt);
+            if(order == "desc")
+            {
+                query = query.OrderByDescending(c => c.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderBy(c => c.CreatedAt);
+            }
             return await query.ToListAsync();
         }
 
@@ -52,7 +59,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             }
             catch (SqlException e)
             {
-                // Unique constraint violation code number
                 return new DeleteCommentResponse(new[]
                 {
                     new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)
