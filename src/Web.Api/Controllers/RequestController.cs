@@ -67,9 +67,11 @@ namespace Web.Api.Controllers
         //READ 
         [EnableCors("request")]
         [HttpGet]
-        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo, int _pageSize = Constants.DefaultValues.Paging.PageSize, string keyword = Constants.DefaultValues.keyword, string filterStatus = Constants.DefaultValues.filterStatus)
+        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo, int _pageSize = Constants.DefaultValues.Paging.PageSize,
+                            string keyword = Constants.DefaultValues.keyword, string filterStatus = Constants.DefaultValues.filterStatus/*, 
+                            DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
         {
-            await _getRequestUseCase.Handle(new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, "getAll"), _getRequestPresenter);
+            await _getRequestUseCase.Handle(new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/ "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
         }

@@ -59,7 +59,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize, string Keyword, string FilterStatus)
+            public async Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize, string Keyword, string FilterStatus/*,
+                                                                DateTime? FromDateExport = null, DateTime? ToDateExport = null*/)
             {
                 var parameters = new List<SqlParameter>();
                 var pageNo = new SqlParameter("@PageNumber", PageNo);
@@ -71,6 +72,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
                 parameters.Add(filterStatus);
                 var sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                /*if (FromDateExport is null || ToDateExport is null)
+                {
+                    var fromDateExport = new SqlParameter("@FromDateExport", FromDateExport);
+                    parameters.Add(fromDateExport);
+                    var toDateExport = new SqlParameter("@ToDateExport", ToDateExport);
+                    parameters.Add(toDateExport);
+                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus, @FromDate=@FromDateExport, @ToDate=@ToDateExport";
+                } */
                 List<SPRequestResultView> resultRequestPaging = await _context.SPRequestResultView .FromSql(sql, parameters.ToArray()).ToListAsync();
                 //Console.WriteLine(resultRequestPaging.ToString());
                 if (resultRequestPaging != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(resultRequestPaging);
