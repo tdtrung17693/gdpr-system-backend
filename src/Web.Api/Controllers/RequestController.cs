@@ -143,11 +143,11 @@ namespace Web.Api.Controllers
         }
 
 
-        [HttpGet("{id}/comments")]
+        [HttpGet("{id}/comments/{order}")]
         [Authorize("CanViewRequest")]
-        public async Task<string> GetCommentsOfRequest(Guid id)
+        public async Task<string> GetCommentsOfRequest(Guid id, string order)
         {
-            var comments = await _commentRepository.FindCommentsOfRequest(id);
+            var comments = await _commentRepository.FindCommentsOfRequest(id, order);
             return JsonSerializer.SerializeObject(comments.Select(c =>
             {
                 return new
@@ -181,9 +181,9 @@ namespace Web.Api.Controllers
             return _createCommentPresenter.ContentResult;
         }
 
-        [HttpDelete("{id}/comments")]
+        [HttpDelete("comments/{id}")]
         [Authorize("CanEditRequest")]
-        public async Task<IActionResult> DeleteCommentOfRequest(Guid id, [FromBody] DeleteCommentRequest request)
+        public async Task<IActionResult> DeleteCommentOfRequest(string id)
         {
             _deleteCommentPresenter.HandleResource = r =>
             {
@@ -191,7 +191,7 @@ namespace Web.Api.Controllers
                    ? JsonSerializer.SerializeObject(new { r.Id })
                    : JsonSerializer.SerializeObject(new { r.Errors });
             };
-            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(request.CommentId),
+            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id)),
                 _deleteCommentPresenter);
 
             return _deleteCommentPresenter.ContentResult;

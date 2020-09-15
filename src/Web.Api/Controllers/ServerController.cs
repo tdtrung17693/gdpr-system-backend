@@ -89,8 +89,6 @@ namespace Web.Api.Controllers
             
             foreach (ServerRequest server in serverList)
             {
-                /* StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
-                            EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),*/
                 await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.StartDate,
                                                     server.IpAddress, server.IsDeleted, server.Name,
                                                     server.EndDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
@@ -200,55 +198,6 @@ namespace Web.Api.Controllers
             return Ok("Done");
 
         }
-
-        /*//Import Server
-        [HttpPost("{id}/import")]
-        [Consumes("multipart/form-data; boundary=----WebKitFormBoundarymx2fSWqWSd0OxQqq")]
-        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiServer(Guid id, IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
-        {
-
-
-            if (formFile == null || formFile.Length <= 0)
-            {
-                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "formfile is empty");
-            }
-
-            if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-            {
-                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "Not Support file extension");
-            }
-
-            var list = new List<ServerImportRequest>();
-
-            using (var stream = new MemoryStream())
-            {
-                await formFile.CopyToAsync(stream, cancellationToken);
-
-                using (var package = new ExcelPackage(stream))
-                {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                    var rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        list.Add(new ServerImportRequest
-                        {
-                            Name = worksheet.Cells[row, 1].Value.ToString().Trim(),
-                            IpAddress = worksheet.Cells[row, 2].Value.ToString().Trim(),
-                            StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
-                            EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),
-                            CreatedBy = id
-
-                        }) ;
-
-                        await _createServerUseCase.Handle(new CreateServerRequest(Guid.NewGuid(), null, list[list.Count - 1].CreatedBy, null, null, list[list.Count - 1].EndDate,
-                         list[list.Count - 1].IpAddress, false, list[list.Count - 1].Name,
-                            list[list.Count - 1].StartDate, true, null, null), _createServerPresenter);
-                    }
-                }
-            }
-            return ServerImportResponse<List<ServerImportRequest>>.GetResult(200, "OK", list);
-        }*/
 
         [HttpPost("export-csv")]
         public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)

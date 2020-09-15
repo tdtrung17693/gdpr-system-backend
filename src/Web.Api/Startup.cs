@@ -161,6 +161,9 @@ namespace Web.Api
         var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
         eventBus.AddEventHandler<UserCreated, EventHandlers.SendInviteMail>();
         eventBus.AddEventHandler<CommentCreated, EventHandlers.BroadcastCreatedComment>();
+          //NEW ADD TOHUB
+        eventBus.AddEventHandler<CommentDeleted, EventHandlers.BroadcastDeletedComment>();
+
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
 
@@ -176,7 +179,13 @@ namespace Web.Api
         return handler;
       }).As<EventHandlers.BroadcastCreatedComment>().SingleInstance();
 
-      builder.RegisterModule(new CoreModule());
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.BroadcastDeletedComment(c.Resolve<IHubContext<ConversationHub>>());
+        return handler;
+      }).As<EventHandlers.BroadcastDeletedComment>().SingleInstance();
+      
+            builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());
       
 
