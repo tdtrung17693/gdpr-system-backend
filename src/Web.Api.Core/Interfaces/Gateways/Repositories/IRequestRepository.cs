@@ -20,7 +20,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         
         Task<CreateRequestResponse> CreateRequest(Request request);
         Task<UpdateRequestResponse> UpdateRequest(Request request);
-        Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize);
+        Task<IList<RequestDetail>> GetRequest(int PageNo = 1, int PageSize = 10, string keyword = "", string filterStatus = ""/*, DateTime? FromDateExport = null, DateTime? TSoDateExport = null*/);
         Task<int> getNoPages(int PageSize);
     }
 }
