@@ -108,6 +108,19 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return (int)noPages.Value;
             }
 
+            public async Task<IList<RequestDetail>> GetRequestForExport(ExportRequest request)
+            {
+                var parameters = new List<SqlParameter>();
+                var fromDate = new SqlParameter("@FromDateInput", request.fromDate);
+                parameters.Add(fromDate);
+                var toDate = new SqlParameter("@ToDateInput", request.toDate);
+                parameters.Add(toDate);
+                var sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
+                List<SPRequestResultView> result = await _context.SPRequestResultView.FromSql(sql, parameters.ToArray()).ToListAsync();
+                if (result != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(result);
+                return null;
+            }
+
             public RequestRepository(IMapper mapper, ApplicationDbContext context)
             {
                 _mapper = mapper;

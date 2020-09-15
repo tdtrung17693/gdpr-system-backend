@@ -63,6 +63,7 @@ namespace Web.Api
             services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
             services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
             services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
+            services.AddScoped<IExportUseCase, ExportUseCase>();
             //services.AddScoped<ICustomerRepository>();
             // jwt wire up
             // Get options from app settings

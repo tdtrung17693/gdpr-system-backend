@@ -32,14 +32,17 @@ namespace Web.Api.Controllers
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IGetRequestUseCase _getRequestUseCase;
+        private readonly IExportUseCase _exportUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly GetRequestPresenter _getRequestPresenter;
+        private readonly ExportPresenter _exportPresenter;
         public RequestController(IMapper mapper, IRequestRepository repository,
                                 ICreateRequestUseCase createRequestUseCase, CreateRequestPresenter createRequestPresenter,
                                 IUpdateRequestUseCase updateRequestUseCase, UpdateRequestPresenter updateRequestPresenter,
-                                IGetRequestUseCase getRequestUseCase, GetRequestPresenter getRequestPresenter)
-
+                                IGetRequestUseCase getRequestUseCase, GetRequestPresenter getRequestPresenter,
+                                IExportUseCase exportUseCase, ExportPresenter exportPresenter)
+                   
         {
             _mapper = mapper;
             _repository = repository;
@@ -49,6 +52,8 @@ namespace Web.Api.Controllers
             _updateRequestPresenter = updateRequestPresenter;
             _getRequestUseCase = getRequestUseCase;
             _getRequestPresenter = getRequestPresenter;
+            _exportUseCase = exportUseCase;
+            _exportPresenter = exportPresenter;
         }
 
         //CREATE
@@ -62,6 +67,18 @@ namespace Web.Api.Controllers
             }
             await _createRequestUseCase.Handle(new CreateRequestRequest(message.CreatedBy, message.Title, message.StartDate, message.EndDate, message.ServerId, message.Description), _createRequestPresenter);
             return _createRequestPresenter.ContentResult;
+        }
+
+        [EnableCors("request")]
+        [HttpPost("exportRequest")]
+        public async Task<ActionResult> GetRequestForExport(ExportRequestModel message)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids), _exportPresenter);
+            return _exportPresenter.ContentResult;
         }
 
         //READ 
@@ -96,5 +113,7 @@ namespace Web.Api.Controllers
             await _updateRequestUseCase.Handle(new UpdateRequestRequest(new Guid(requestId), message.UpdatedBy,DateTime.UtcNow, message.Title, message.StartDate, message.EndDate, message.ServerId, message.Description, message.RequestStatus, message.Response, message.ApprovedBy), _updateRequestPresenter);
             return _updateRequestPresenter.ContentResult;
         }
+
+        
     }
 }
