@@ -16,6 +16,7 @@ namespace Web.Api.Core.Domain.Entities
       IsRead = false;
     }
 
+
     public Guid? FromUserId { get; set; }
     public virtual User? FromUser { get; set; }
     public Guid ToUserId { get; set; }

@@ -8,7 +8,7 @@ namespace Web.Api.Core.Domain.Entities
   {
     public BaseEntity(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? updatedAt = null, Guid? updatedBy = null, DateTime? deletedAt = null, Guid? deletedBy = null, bool? isDeleted = false, bool? status = true)
     {
-      Id = (Guid) id;
+      Id = id;
       IsDeleted = isDeleted;
       CreatedBy = createdBy;
       CreatedAt = createdAt ?? DateTime.UtcNow;
@@ -20,8 +20,8 @@ namespace Web.Api.Core.Domain.Entities
     }
 
         [Key]
-        public Guid Id { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public Guid? Id { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public Guid? CreatedBy { get; set; }
 

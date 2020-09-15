@@ -41,7 +41,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
       {
         // Use the entity name instead of the Context.DbSet<T> name
         // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
-        modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+        // modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
       }
 
       modelBuilder.Entity<Account>(entity =>

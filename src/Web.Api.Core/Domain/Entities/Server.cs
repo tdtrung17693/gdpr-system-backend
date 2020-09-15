@@ -7,7 +7,7 @@ namespace Web.Api.Core.Domain.Entities
 {
     public class Server : BaseEntity
     {
-        public Server(Guid id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
+        public Server(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
             , DateTime? endDate, string ipAddress, bool? isDeleted, string name, DateTime? startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {

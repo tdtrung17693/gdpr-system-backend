@@ -32,7 +32,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
           RequestId = requestId
         }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
-        var newNotification = new Notification(Guid.NewGuid(), creator.Id, u.Id, "new-request", notifiedContent);
+        var newNotification = new Notification(Guid.NewGuid(), creator.Id, (Guid) u.Id, "new-request", notifiedContent);
 
         return newNotification;
       });
