@@ -15,7 +15,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         //Todo: Read list server
        public IEnumerable<Server> GetAllCommand();
 
-       public DataTable GetListServer();
+        public DataTable GetListServer();
 
         public DataTable GetListServerByFilter(string filter);
 
@@ -39,9 +39,15 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         public Task<ExportCSVByCustomerResponse> GetExportServers(ExportServerRequest request);
 
         //Todo:Find By id
-        Task<Server> FindById(Guid id);
+        public Task<Server> FindById(Guid id);
 
         //Todo:Find All
-        IPagedCollection<Server> FindAll();
+        public IPagedCollection<Server> FindAll();
+
+        //Todo: Count Servers
+        public DataTable CountServers();
+
+        //Todo: Paging
+        public DataTable Paging(int Page, int PageSize, string SortBy, bool SortOrder, string FilterBy);
     }
 } 

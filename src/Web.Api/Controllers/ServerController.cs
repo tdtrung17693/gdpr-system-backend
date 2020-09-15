@@ -75,7 +75,6 @@ namespace Web.Api.Controllers
                                                 server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
             return Ok("You have added an row");
            
-           
         }
 
         //CREATE NEW LIST SERVER
@@ -146,6 +145,28 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
             }
             var dt = _repository.GetListServerByFilter(filterKey);
+            return dt;
+        }
+
+        [HttpGet("count")]
+        public ActionResult<DataTable> CountServers()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.CountServers();
+            return dt;
+        }
+
+        [HttpPost("paging")]
+        public ActionResult<DataTable> Paging([FromBody] PagedServerRequest paged)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.Paging(paged.Page, paged.PageSize, paged.SortedBy, paged.SortOrder, paged.FilterBy);
             return dt;
         }
 

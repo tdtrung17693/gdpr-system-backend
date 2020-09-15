@@ -12,13 +12,13 @@ namespace Web.Api.Models.Request
             Page = 1;
             PageSize = 10;
             FilterBy = "";
-            SortedBy = "Name";
-            SortOrder = "";
+            SortedBy = "ServerName";
+            SortOrder = true;
         }
         public int Page { get; set; }
         public int PageSize { get; set; }
         public string FilterBy { get; set; }
         public string SortedBy { get; set; }
-        public string SortOrder { get; set; }
+        public bool SortOrder { get; set; }
     }
 }
