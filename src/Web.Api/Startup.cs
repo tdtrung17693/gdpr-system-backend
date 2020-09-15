@@ -30,6 +30,7 @@ using Web.Api.Auth.RequirementHandlers;
 using Web.Api.Infrastructure.Helpers;
 using Web.Api.Core.Interfaces.Services;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
@@ -125,6 +126,20 @@ namespace Web.Api
         configureOptions.SaveToken = true;
         configureOptions.Events = new JwtBearerEvents
         {
+          OnMessageReceived = context =>
+          {
+            var accessToken = context.Request.Query["access_token"];
+
+            // If the request is for our hub...
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/conversation")))
+            {
+              // Read the token out of the query string
+              context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+          },
           OnTokenValidated = async context =>
                 {
                   var uid = context

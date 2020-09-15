@@ -58,7 +58,6 @@ namespace Web.Api.Controllers
         }
 
         //CREATE
-        [EnableCors("request")]
         [HttpPost("create")]
         public async Task<ActionResult> CreateRequest([FromBody] CreateRequestRequestModel message)
         {
@@ -74,7 +73,6 @@ namespace Web.Api.Controllers
         }
 
         //READ
-        [EnableCors("request")]
         [HttpGet]
         public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize)
@@ -93,7 +91,6 @@ namespace Web.Api.Controllers
 
 
         //UPDATE
-        [EnableCors("request")]
         [HttpPut("update/{requestId}")]
         public async Task<ActionResult> UpdateRequest(string requestId, [FromBody] UpdateRequestRequestModel message)
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Event;
@@ -28,7 +29,7 @@ namespace Web.Api.EventHandlers
       var admin = await _context.User.Include(user => user.Role).Where(user => user.Role.Name == "Administrator").ToListAsync();
       if (server != null)
       {
-        await _notiRepo.CreateNewRequestNotification(user, admin, server.Name, server.Id, ev.RequestId);
+        await _notiRepo.CreateNewRequestNotification(user, admin, server.Name, (Guid) server.Id, ev.RequestId);
       }
     }
   }
