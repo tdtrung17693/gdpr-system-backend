@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Event;
+using Web.Api.Core.Dto;
+using Web.Api.Core.Dto.Requests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.Services.Event;
@@ -24,13 +26,13 @@ namespace Web.Api.EventHandlers
 
     public async Task HandleAsync(RequestCreated ev)
     {
-      var server = _context.Server.Where(server => server.Id == ev.ServerId).FirstOrDefault();
-      var user = _authService.GetCurrentUser();
       var admin = await _context.User.Include(user => user.Role).Where(user => user.Role.Name == "Administrator").ToListAsync();
-      if (server != null)
+      await _notiRepo.CreateNewRequestNotification(new Requester()
       {
-        await _notiRepo.CreateNewRequestNotification(user, admin, server.Name, (Guid) server.Id, ev.RequestId);
-      }
+        FullName = ev.RequesterFullName,
+        Username = ev.RequesterUsername,
+        UserId = ev.RequesterId
+      }, admin, ev.ServerName, ev.ServerId, ev.RequestId);
     }
   }
 }
