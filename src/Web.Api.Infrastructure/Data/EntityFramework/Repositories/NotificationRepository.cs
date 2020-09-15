@@ -59,7 +59,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
     public async Task<IEnumerable<Notification>> GetNotificationOf(Guid userId)
     {
-      return await _context.Notification.Where(n => n.ToUserId == userId && n.IsRead == false).ToListAsync();
+      return await _context.Notification.Where(n => n.ToUserId == userId && n.IsRead == false).OrderByDescending(n => n.CreatedAt).ToListAsync();
     }
 
     public async Task<UpdateNotificationResponse> MarkAsRead(Guid id)

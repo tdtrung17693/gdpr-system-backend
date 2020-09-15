@@ -59,6 +59,7 @@ namespace Web.Api.Controllers
 
         //CREATE
         [HttpPost("create")]
+        [Authorize("CanCreateRequest")]
         public async Task<ActionResult> CreateRequest([FromBody] CreateRequestRequestModel message)
         {
             if (!ModelState.IsValid)

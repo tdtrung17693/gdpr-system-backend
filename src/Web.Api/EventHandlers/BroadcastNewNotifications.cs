@@ -19,11 +19,11 @@ namespace Web.Api.EventHandlers
     public async Task HandleAsync(NotificationsCreated ev)
     {
       var notifications = ev.Notifications;
-      var recipients = new List<string>();
+      var tasks = new List<Task>();
 
       foreach(var notification in notifications)
       {
-        _hubContext.Clients.Group($"notification:{notification.ToUserId}").SendAsync("newNotification", new
+        tasks.Add(_hubContext.Clients.Group($"notification:{notification.ToUserId}").SendAsync("newNotification", new
         {
           notification.FromUser,
           notification.ToUser,
@@ -31,9 +31,10 @@ namespace Web.Api.EventHandlers
           notification.NotificationType,
           notification.CreatedAt,
           notification.Id
-        });
+        }));
       }
 
+      await Task.WhenAll(tasks);
     }
   }
 }
