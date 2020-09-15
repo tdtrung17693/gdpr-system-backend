@@ -11,6 +11,7 @@ using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
+using Web.Api.Core.Dto.Requests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.Services.Event;
@@ -30,7 +31,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       _eventBus = eventBus;
       _mapper = mapper;
     }
-    public async Task<bool> CreateNewRequestNotification(User creator, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId)
+    public async Task<bool> CreateNewRequestNotification(Requester requester, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId)
     {
       var newNotificationTable = new DataTable();
       newNotificationTable.Columns.Add("Data", typeof(string));
@@ -38,19 +39,19 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       newNotificationTable.Columns.Add("ToUserId", typeof(Guid));
       newNotificationTable.Columns.Add("NotificationType", typeof(string));
 
-      DataRow newRow;
       foreach (var recipient in recipients)
       {
-        var notifiedContent = JsonConvert.SerializeObject(new
-        {
-          creator.Account.Username,
-          ServerName = serverName,
-          ServerId = serverId,
-          RequestId = requestId
-        }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-        newRow = newNotificationTable.NewRow();
+        var notifiedContent = JsonConvert.SerializeObject(
+          new NewRequestNotificationData(
+            requester.Username,
+            serverName,
+            serverId,
+            requestId
+          ),
+          new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        var newRow = newNotificationTable.NewRow();
         newRow["Data"] = notifiedContent;
-        newRow["FromUserId"] = creator.Id;
+        newRow["FromUserId"] = requester.UserId;
         newRow["ToUserId"] = recipient.Id;
         newRow["NotificationType"] = "new-request";
         newNotificationTable.Rows.Add(newRow);

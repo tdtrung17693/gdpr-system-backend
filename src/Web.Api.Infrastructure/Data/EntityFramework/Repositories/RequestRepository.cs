@@ -40,20 +40,54 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<CreateRequestResponse> CreateRequest(Request request)
             {
-                var tempCreatedBy = new SqlParameter("@CreatedBy", request.CreatedBy);
+                var createdBy = new SqlParameter("@CreatedBy", request.CreatedBy);
                 var title = new SqlParameter("@Title",request.Title);
                 var fromDate = new SqlParameter("@FromDate", request.StartDate);
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", tempCreatedBy, title, fromDate, toDate, server, description);
+                
+                var command = _context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = "CreateRequest";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(createdBy);
+                command.Parameters.Add(title);
+                command.Parameters.Add(fromDate);
+                command.Parameters.Add(toDate);
+                command.Parameters.Add(server);
+                command.Parameters.Add(description);
+                
                 var success = await _context.SaveChangesAsync();
 
                 if (success == 0)
                 {
-                    await _eventBus.Trigger(new RequestCreated(Guid.Empty, DateTime.UtcNow, (Guid)request.ServerId));
                 }
-                return new CreateRequestResponse((Guid) request.Id, success > 0, null);
+                if (command.Connection.State == ConnectionState.Closed)
+                    await command.Connection.OpenAsync();
+                try
+                {
+                    var requestReader = await command.ExecuteReaderAsync();
+                    await requestReader.ReadAsync();
+                    var requestCreatedEvent = new RequestCreated()
+                    {
+                        RequesterId = (Guid)requestReader["RequesterId"],
+                        CreatedAt = Convert.ToDateTime(requestReader["CreatedAt"]),
+                        RequesterFullName = Convert.ToString(requestReader["RequesterFullName"]),
+                        RequesterUsername = Convert.ToString(requestReader["RequesterUsername"]),
+                        RequestId = (Guid)requestReader["RequestId"],
+                        ServerId = (Guid)requestReader["ServerId"],
+                        ServerName = (string)requestReader["ServerName"],
+                    };
+                    await _eventBus.Trigger(requestCreatedEvent);
+                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
+                }
+                catch (SqlException e)
+                {
+                    // Unique constraint violation code number
+                    Console.Error.WriteLine(e);
+                    return new CreateRequestResponse(Guid.Empty, false, new[]
+                        {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+                }
             }
 
             public async Task<UpdateRequestResponse> UpdateRequest(Request request)
@@ -148,11 +182,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var description = new SqlParameter("@Description", request.Description);
                 await _context.Database.ExecuteSqlCommandAsync(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", createdBy, title, fromDate, toDate, server, description);
                 var success = await _context.SaveChangesAsync();
-                
-                if (success == 0)
-                {
-                    await _eventBus.Trigger(new RequestCreated(Guid.Empty, DateTime.UtcNow, (Guid)request.ServerId));
-                }
                 
                 return new CRUDRequestResponse(request.Id, success > 0, null);
             }

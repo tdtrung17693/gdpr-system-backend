@@ -13,8 +13,9 @@ namespace Web.Api.Infrastructure.Migrations
                 [ToUserId] uniqueidentifier,
                 [NotificationType] nvarchar(20)
             )
-            go;
-
+            ";
+            migrationBuilder.Sql(sql);
+            sql = @"
             create or alter proc CreateNotifications
             (
             @Notifications NewNotifications readonly
@@ -46,6 +47,9 @@ namespace Web.Api.Infrastructure.Migrations
         {
             var sql = @"
             drop type [dbo].[NewNotification];
+            ";
+            migrationBuilder.Sql(sql);
+            sql = @"
             drop proc CreateNotifications;
             ";
 
