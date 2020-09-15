@@ -59,14 +59,18 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize)
+            public async Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize, string Keyword, string FilterStatus)
             {
                 var parameters = new List<SqlParameter>();
                 var pageNo = new SqlParameter("@PageNumber", PageNo);
                 parameters.Add(pageNo);
                 var pageSize = new SqlParameter("@RowsOfPage", PageSize);
                 parameters.Add(pageSize);
-                var sql = "EXEC GetRequestPagination @PageNo=@PageNumber, @PageSize=@RowsOfPage";
+                var keyword = new SqlParameter("@Keyword", Keyword);
+                parameters.Add(keyword);
+                var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
+                parameters.Add(filterStatus);
+                var sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 List<SPRequestResultView> resultRequestPaging = await _context.SPRequestResultView .FromSql(sql, parameters.ToArray()).ToListAsync();
                 //Console.WriteLine(resultRequestPaging.ToString());
                 if (resultRequestPaging != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(resultRequestPaging);
