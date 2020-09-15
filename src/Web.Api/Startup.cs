@@ -1,49 +1,51 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
+using System.Net;
+using System.Linq;
+using System.Text;
+using AutoMapper.Data;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
-using Web.Api.Core;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+using Web.Api.Auth;
+using Web.Api.Hubs;
 using Web.Api.Extensions;
+using Web.Api.Presenters;
+using Web.Api.EventHandlers;
+using Web.Api.Serialization;
 using Web.Api.Infrastructure;
 using Web.Api.Infrastructure.Auth;
-using Web.Api.Infrastructure.Data.EntityFramework;
-using Web.Api.Presenters;
-using Web.Api.Auth;
-using Web.Api.Auth.RequirementHandlers;
 using Web.Api.Infrastructure.Helpers;
-using Web.Api.Core.Interfaces.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
-using Web.Api.Core.Domain.Event;
+using Web.Api.Auth.RequirementHandlers;
+using Web.Api.Infrastructure.Data.EntityFramework;
+
+using Web.Api.Core;
 using Web.Api.Core.Dto;
-using Web.Api.Core.Interfaces.Services.Event;
-using Web.Api.Serialization;
-using Web.Api.Hubs;
-using Web.Api.Infrastructure.Event;
-using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.EventHandlers;
-using Web.Api.Core.Interfaces.UseCases.RequestInterface;
-using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.UseCases;
+using Web.Api.Core.Domain.Event;
 using Web.Api.Core.UseCases.Request;
+using Web.Api.Core.Interfaces.Services;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.Services.Event;
+
+using Web.Api.Infrastructure.Event;
 
 namespace Web.Api
 {
@@ -159,7 +161,10 @@ namespace Web.Api
         );
 
       services.AddSignalR();
-      services.AddAutoMapper();
+      services.AddAutoMapper(cfg =>
+      {
+        cfg.AddDataReaderMapping();
+      });
       services.AddSingleton<IAuthorizationPolicyProvider, HavePermissionProvider>();
       services.AddSingleton(typeof(ResourcePresenter<>), typeof(ResourcePresenter<>));
       services.AddScoped<IAuthorizationHandler, PermissionHandler>();

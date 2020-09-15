@@ -54,9 +54,12 @@ namespace Web.Api.Infrastructure
 
         return new SmtpSender(() =>
         {
-          var client = new SmtpClient(smtpServer, smtpPort);
-          client.Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword);
-          client.EnableSsl = config.GetValue<bool>("Mail:EnableSsl");
+          var client = new SmtpClient(smtpServer, smtpPort)
+          {
+            Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword),
+            EnableSsl = config.GetValue<bool>("Mail:EnableSsl"),
+            DeliveryMethod = config.GetValue<SmtpDeliveryMethod>("Mail:DeliveryMethod")
+          };
           return client;
         });
       }).As<ISender>().InstancePerLifetimeScope();

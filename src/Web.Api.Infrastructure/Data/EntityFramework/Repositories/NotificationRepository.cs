@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
@@ -19,15 +22,25 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
     private readonly ApplicationDbContext _context;
     private readonly User _currentUser;
     private readonly IDomainEventBus _eventBus;
-    public NotificationRepository(ApplicationDbContext context, IAuthService authService, IDomainEventBus eventBus)
+    private readonly IMapper _mapper;
+    public NotificationRepository(ApplicationDbContext context, IAuthService authService, IDomainEventBus eventBus, IMapper mapper)
     {
       _context = context;
       _currentUser = authService.GetCurrentUser();
       _eventBus = eventBus;
+      _mapper = mapper;
     }
     public async Task<bool> CreateNewRequestNotification(User creator, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId)
     {
-      var newNotifications = recipients.Select(u => {
+      var newNotificationTable = new DataTable();
+      newNotificationTable.Columns.Add("Data", typeof(string));
+      newNotificationTable.Columns.Add("FromUserId", typeof(Guid));
+      newNotificationTable.Columns.Add("ToUserId", typeof(Guid));
+      newNotificationTable.Columns.Add("NotificationType", typeof(string));
+
+      DataRow newRow;
+      foreach (var recipient in recipients)
+      {
         var notifiedContent = JsonConvert.SerializeObject(new
         {
           creator.Account.Username,
@@ -35,18 +48,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
           ServerId = serverId,
           RequestId = requestId
         }, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        newRow = newNotificationTable.NewRow();
+        newRow["Data"] = notifiedContent;
+        newRow["FromUserId"] = creator.Id;
+        newRow["ToUserId"] = recipient.Id;
+        newRow["NotificationType"] = "new-request";
+        newNotificationTable.Rows.Add(newRow);
+      }
 
-        var newNotification = new Notification(Guid.NewGuid(), creator.Id, (Guid) u.Id, "new-request", notifiedContent,createdAt:DateTime.UtcNow);
+      var command = _context.Database.GetDbConnection().CreateCommand();
+      command.CommandText = "CreateNotifications";
+      command.CommandType = CommandType.StoredProcedure;
+      command.Parameters.Add(new SqlParameter("@Notifications", newNotificationTable));
 
-
-        return newNotification;
-      });
-
+      if (command.Connection.State == ConnectionState.Closed)
+          await command.Connection.OpenAsync();
       try
       {
-        await _context.Notification.AddRangeAsync(newNotifications);
-        await _context.SaveChangesAsync();
-        _eventBus.Trigger(new NotificationsCreated(newNotifications));
+        var reader = await command.ExecuteReaderAsync();
+        var createdNotifications = _mapper.Map<IDataReader, List<NotificationDto>>(reader);
+        _eventBus.Trigger(new NotificationsCreated(_mapper.Map<IEnumerable<NotificationDto>>(createdNotifications)));
       } catch (Exception e)
       {
         // Add log here
