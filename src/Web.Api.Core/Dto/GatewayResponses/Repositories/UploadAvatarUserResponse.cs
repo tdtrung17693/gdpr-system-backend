@@ -7,7 +7,7 @@ namespace Web.Api.Core.Dto.GatewayResponses.Repositories
 {
     public sealed class UploadAvatarUserResponse : BaseGatewayResponse
     {
-        Guid Id { get; }
+        public Guid Id { get; set; }
         public  UploadAvatarUserResponse(Guid id, bool success = false, IEnumerable<Error> errors = null) : base(success, errors)
         {
             Id = id;
