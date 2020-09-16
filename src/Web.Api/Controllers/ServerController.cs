@@ -19,7 +19,6 @@ using BulkServerRequest = Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest
 using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using System.IO;
 using OfficeOpenXml;
-using Microsoft.AspNetCore.Hosting;
 
 namespace Web.Api.Controllers
 {
@@ -35,13 +34,11 @@ namespace Web.Api.Controllers
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
         private readonly BulkServerPresenter _bulkServerPresenter;
-        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
+        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
             IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {
-            _hostingEnvironment = hostingEnvironment;
             _mapper = mapper;
             _repository = repository;
             _createServerUseCase = createServerUseCase;
@@ -64,7 +61,7 @@ namespace Web.Api.Controllers
             await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
-            return Ok("You hav add an row");
+            return Ok("Server has been successfully created.");
            
            
         }
@@ -89,7 +86,7 @@ namespace Web.Api.Controllers
             await _updateServerUseCase.Handle(new UpdateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
-            return Ok("You hav update an row");
+            return Ok("Server has been successfully updated");
         }
 
         //Get detail a server
@@ -120,7 +117,7 @@ namespace Web.Api.Controllers
             //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
             var response = await _bulkServerUseCase.Handle( new BulkServerRequest(idList, bulkServer.status, bulkServer.updator) , _bulkServerPresenter);
             if (response) return Ok("Done");
-            else return Content("Erorr");
+            else return BadRequest("Error");
 
         }
 
