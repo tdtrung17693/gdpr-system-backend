@@ -129,7 +129,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return (int)noPages.Value;
             }
 
-            public async Task<IList<RequestDetail>> GetRequestForExport(ExportRequest request)
+            public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
             {
                 var parameters = new List<SqlParameter>();
                 var fromDate = new SqlParameter("@FromDateInput", request.fromDate);
@@ -137,8 +137,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var toDate = new SqlParameter("@ToDateInput", request.toDate);
                 parameters.Add(toDate);
                 var sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
-                List<SPRequestResultView> result = await _context.SPRequestResultView.FromSql(sql, parameters.ToArray()).ToListAsync();
-                if (result != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(result);
+                List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
+                if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
                 return null;
             }
 
