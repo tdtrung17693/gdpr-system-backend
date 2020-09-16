@@ -98,8 +98,8 @@ namespace Web.Api.Controllers
             return _createRequestPresenter.ContentResult;
         }
 
-        [EnableCors("request")]
         [HttpPost("exportRequest")]
+        [Authorize("CanExportData")]
         public async Task<ActionResult> GetRequestForExport(ExportRequestModel message)
         {
             if (!ModelState.IsValid)
@@ -114,7 +114,6 @@ namespace Web.Api.Controllers
         }
 
         //READ 
-        [EnableCors("request")]
         [HttpGet]
         public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,

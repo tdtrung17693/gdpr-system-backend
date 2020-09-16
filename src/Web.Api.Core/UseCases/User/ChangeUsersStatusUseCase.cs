@@ -16,7 +16,7 @@ namespace Web.Api.Core.UseCases.User
   public sealed class ChangeUsersStatusUseCase : IChangeUsersStatusUseCase
   {
     private IUserRepository _userRepository;
-    private User _currentUser;
+    private DomainEntities.User _currentUser;
     public ChangeUsersStatusUseCase(IUserRepository userRepository, IAuthService authService)
     {
       _userRepository = userRepository;
