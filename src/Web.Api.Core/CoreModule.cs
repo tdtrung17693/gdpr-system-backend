@@ -26,16 +26,21 @@ namespace Web.Api.Core
       builder.RegisterType<UpdateUserUseCase>().As<IUpdateUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ChangeUsersStatusUseCase>().As<IChangeUsersStatusUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ManageUserUseCase>().As<ManageUserUseCase>().InstancePerLifetimeScope();
+      
       builder.RegisterType<CreateCommentUseCase>().As<ICreateCommentUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<DeleteCommentUseCase>().As<IDeleteCommentUseCase>().InstancePerLifetimeScope();
 
       builder.RegisterType<ExportCustomerUseCase>().As<IExportCustomerUseCase>().InstancePerLifetimeScope();  
       builder.RegisterType<CRUDCustomerUseCase>().As<ICRUDCustomerUseCase>().InstancePerLifetimeScope();  
 
       builder.RegisterType<LoginUseCase>().As<ILoginUseCase>().InstancePerLifetimeScope();
 
+      builder.RegisterType<ReadServerUseCase>().As<IReadServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateServerUseCase>().As<ICreateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<UpdateServerUseCase>().As<IUpdateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<BulkServerUseCase>().As<IBulkServerUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<ExportServerUseCase>().As<IExportServerUseCase>().InstancePerLifetimeScope();
+      
 
       builder.RegisterType<CreateRequestUseCase>().As<ICreateRequestUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<UpdateRequestUseCase>().As<IUpdateRequestUseCase>().InstancePerLifetimeScope();

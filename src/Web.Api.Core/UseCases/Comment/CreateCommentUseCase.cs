@@ -38,7 +38,7 @@ namespace Web.Api.Core.UseCases.Comment
                 return false;
             }
             
-            outputPort.Handle(new CreateCommentResponse(response.Id, response.CreatedAt, true));
+            outputPort.Handle(new CreateCommentResponse(response.Id, response.CreatedAt));
             return true;
         }
     }

@@ -4,9 +4,9 @@ using Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Models.Request
 {
-    public class ServerUpdateRequest
+    public class ServerListRequest
     {
-        public Guid id { get; set; }
+        public Guid? id { get; set; }
         public Guid CreatedBy { get; set; }
         public DateTime? CreatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
@@ -16,8 +16,8 @@ namespace Web.Api.Models.Request
         public bool? IsDeleted { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public bool Status { get; set; }
+        public string? StartDate { get; set; }
+        public string? EndDate { get; set; }
+        public bool? Status { get; set; }
     }
 }

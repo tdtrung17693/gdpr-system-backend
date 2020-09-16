@@ -42,13 +42,15 @@ namespace Web.Api.Controllers
       _updateProfileInfoPresenter = updateProfileInfoPresenter;
       _changePasswordUseCase = changePasswordUseCase;
       _changePasswordPresenter = changePasswordPresenter;
+      _notiRepo = notiRepo;
     }
 
     [HttpGet("me")]
     [Authorize()]
-    public ActionResult<object> CurrentUser()
+    public async Task<ActionResult<object>> CurrentUser()
     {
       var user = _authService.GetCurrentUser();
+      var notifications = await _notiRepo.GetNotificationOf((System.Guid)user.Id);
 
       return new
       {
@@ -59,7 +61,8 @@ namespace Web.Api.Controllers
         user.RoleId,
         user.Email,
         Role = user.Role.Name,
-        Permissions = _authService.GetAllPermissions()
+        Permissions = _authService.GetAllPermissions(),
+        Notifications = notifications
       };
     }
 

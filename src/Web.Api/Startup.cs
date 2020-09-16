@@ -186,6 +186,9 @@ namespace Web.Api
       builder.Register(c =>
       {
         var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
+          //NEW ADD TOHUB
+        eventBus.AddEventHandler<CommentDeleted, EventHandlers.BroadcastDeletedComment>();
+
         eventBus.AddEventHandler<UserCreated, SendInviteMail>();
         eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
@@ -209,7 +212,13 @@ namespace Web.Api
       builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
 
-      builder.RegisterModule(new CoreModule());
+      builder.Register(c =>
+      {
+        var handler = new EventHandlers.BroadcastDeletedComment(c.Resolve<IHubContext<ConversationHub>>());
+        return handler;
+      }).As<EventHandlers.BroadcastDeletedComment>().SingleInstance();
+      
+            builder.RegisterModule(new CoreModule());
       builder.RegisterModule(new InfrastructureModule());
       
 

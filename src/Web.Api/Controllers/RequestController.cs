@@ -26,6 +26,7 @@ namespace Web.Api.Controllers
         private readonly IAuthService _authService;
         private readonly ICommentRepository _commentRepository;
         private readonly ICreateCommentUseCase _createCommentUseCase;
+        private readonly IDeleteCommentUseCase _deleteCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IGetRequestUseCase _getRequestUseCase;
@@ -33,6 +34,7 @@ namespace Web.Api.Controllers
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly GetRequestPresenter _getRequestPresenter;
         private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
+        private readonly ResourcePresenter<DeleteCommentResponse> _deleteCommentPresenter;
 
         public RequestController(
             IAuthService authService,
@@ -42,6 +44,8 @@ namespace Web.Api.Controllers
             CreateRequestPresenter createRequestPresenter,
             UpdateRequestPresenter updateRequestPresenter,
             IUpdateRequestUseCase updateRequestUseCase,
+            ResourcePresenter<DeleteCommentResponse> deleteCommentPresenter,
+            IDeleteCommentUseCase deleteCommentUseCase,
             IGetRequestUseCase getRequestUseCase,
             GetRequestPresenter getRequestPresenter,
             ResourcePresenter<CreateCommentResponse> createCommentPresenter)
@@ -56,6 +60,8 @@ namespace Web.Api.Controllers
             _getRequestUseCase = getRequestUseCase;
             _getRequestPresenter = getRequestPresenter;
             _createCommentPresenter = createCommentPresenter;
+            _deleteCommentPresenter = deleteCommentPresenter;
+            _deleteCommentUseCase = deleteCommentUseCase;
         }
 
         //CREATE
@@ -108,11 +114,12 @@ namespace Web.Api.Controllers
             return _updateRequestPresenter.ContentResult;
         }
 
-        [HttpGet("{id}/comments")]
+
+        [HttpGet("{id}/comments/{order}")]
         [Authorize("CanViewRequest")]
-        public async Task<string> GetCommentsOfRequest(Guid id)
+        public async Task<string> GetCommentsOfRequest(Guid id, string order)
         {
-            var comments = await _commentRepository.FindCommentsOfRequest(id);
+            var comments = await _commentRepository.FindCommentsOfRequest(id, order);
             return JsonSerializer.SerializeObject(comments.Select(c =>
             {
                 return new
@@ -122,7 +129,7 @@ namespace Web.Api.Controllers
                     c.ParentId,
                     c.RequestId,
                     c.CreatedAt,
-                    Author = new {c.Author.FirstName, c.Author.LastName}
+                    Author = new { FirstName = c.Author.FirstName, LastName = c.Author.LastName }
                 };
             }));
         }
@@ -134,8 +141,8 @@ namespace Web.Api.Controllers
             _createCommentPresenter.HandleResource = r =>
             {
                 return r.Success
-                    ? JsonSerializer.SerializeObject(new {r.Id, r.CreatedAt})
-                    : JsonSerializer.SerializeObject(new {r.Errors});
+                    ? JsonSerializer.SerializeObject(new { r.Id, r.CreatedAt })
+                    : JsonSerializer.SerializeObject(new { r.Errors });
             };
             var currentUser = _authService.GetCurrentUser();
 
@@ -145,5 +152,22 @@ namespace Web.Api.Controllers
 
             return _createCommentPresenter.ContentResult;
         }
+
+        [HttpDelete("{requestId}/comments/{id}")]
+        [Authorize("CanEditRequest")]
+        public async Task<IActionResult> DeleteCommentOfRequest(string requestId, string id)
+        {
+            _deleteCommentPresenter.HandleResource = r =>
+            {
+                return r.Success
+                   ? JsonSerializer.SerializeObject(new { r.Id })
+                   : JsonSerializer.SerializeObject(new { r.Errors });
+            };
+            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id), Guid.Parse(requestId)),
+                _deleteCommentPresenter); 
+
+            return _deleteCommentPresenter.ContentResult;
+        }
+
     }
 }

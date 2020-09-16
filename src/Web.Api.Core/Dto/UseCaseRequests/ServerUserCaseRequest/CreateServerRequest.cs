@@ -31,13 +31,13 @@ namespace Web.Api.Core.Dto.UseCaseRequests
 
         public string IpAddress { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public bool? Status { get; set; }
         public CreateServerRequest(Guid? id, DateTime? createdAt, Guid createdBy, DateTime? deletedAt, Guid? deletedBy
-            , DateTime endDate, string ipAddress, bool? isDeleted, string name, DateTime startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
+            , DateTime? endDate, string ipAddress, bool? isDeleted, string name, DateTime? startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
         {
             Id = id;
 

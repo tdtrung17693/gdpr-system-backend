@@ -7,7 +7,7 @@ namespace Web.Api.Core.Domain.Entities
 {
     public class Server : BaseEntity
     {
-        public Server(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
+        public Server(Guid id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
             , DateTime? endDate, string ipAddress, bool? isDeleted, string name, DateTime? startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy, isDeleted, status)
         {
@@ -18,11 +18,14 @@ namespace Web.Api.Core.Domain.Entities
             EndDate = endDate;
             Request = new HashSet<Request>();
         }
+        [NotMapped]
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
-        public virtual ICollection<Request> Request { get; set;}
+        public virtual ICollection<Request> Request { get; set; }
+        //public virtual ICollection<User> User { get; set; }
     }
 }
