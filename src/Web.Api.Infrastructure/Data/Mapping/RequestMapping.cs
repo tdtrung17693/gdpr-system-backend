@@ -11,8 +11,8 @@ namespace Web.Api.Infrastructure.Data.Mapping
         {
             CreateMap<SPRequestResultView, RequestDetail>().ConstructUsing(res => new RequestDetail(
                 res.Title,
-                res.StartDate,
-                res.EndDate,
+                String.Format("{0:F}", res.StartDate),
+                String.Format("{0:F}", res.EndDate),
                 res.ServerId,
                 res.Description,
                 res.RequestStatus,
@@ -20,15 +20,19 @@ namespace Web.Api.Infrastructure.Data.Mapping
                 res.ApprovedBy,
                 res.Id,
                 res.CreatedBy,
-                res.CreatedAt,
+                String.Format("{0:F}", res.CreatedAt),
                 res.UpdatedBy,
-                res.UpdatedAt,
+                String.Format("{0:F}", res.UpdatedAt),
                 null,
                 null,
                 res.ServerName ,
                 res.ServerIP,
-                (res.CreatedByFName != null && res.CreatedByLName != null) ? res.CreatedAt +"   -   " + res.CreatedByFName + " " + res.CreatedByLName + " - " + res.CreatedByEmail: "God",
-                (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedAt + "   -   " + res.UpdatedByFName + " " + res.UpdatedByLName + " - " + res.UpdatedByEmail : "-"
+                (res.CreatedByFName !=null && res.CreatedByLName !=null) ? res.CreatedByFName + " " + res.CreatedByLName : "-",
+                res.CreatedByEmail,
+                (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedByFName + " " + res.UpdatedByLName : "-",
+                res.UpdatedByEmail,
+                (res.CreatedByFName != null && res.CreatedByLName != null) ?  res.CreatedByFName + " " + res.CreatedByLName + " - " + res.CreatedByEmail: "God",
+                (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedByFName + " " + res.UpdatedByLName + " - " + res.UpdatedByEmail : "-"
                 ));
 
             CreateMap<SPRequestResultExportView, ExportRequestDetail>().ConstructUsing(res => new ExportRequestDetail(

@@ -138,6 +138,7 @@ namespace Web.Api.Controllers
             return _updateRequestPresenter.ContentResult;
         }
 
+        [EnableCors("request")]
         [HttpPut("manage")]
         public async Task<ActionResult> ManageRequest([FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
         {
