@@ -15,13 +15,13 @@ namespace Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest
         public string Name { get; set; }
         public DateTime? ContractBeginDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
-        public Guid? ContactPoint { get; set; }
+        public string? ContactPoint { get; set; }
         public string Description { get; set; }
         public bool? Status { get; set; }
 
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
         public CustomerRequest(string customerName,
-          DateTime? contractBeginDate, DateTime? contractEndDate, Guid? contactPoint, string description, bool? status = true,
+          DateTime? contractBeginDate, DateTime? contractEndDate, string? contactPoint, string description, bool? status = true,
           Guid? id = null, Guid? createdBy = null, Guid? updatedBy = null)
         {
             Name = customerName;

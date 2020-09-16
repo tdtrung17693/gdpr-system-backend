@@ -11,13 +11,11 @@ using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
-
 namespace Web.Api.Core.UseCases.CustomerUseCases
 {
     public sealed class CRUDCustomerUseCase: ICRUDCustomerUseCase
     {
         private readonly ICustomerRepository _customerRepository;
-
         public CRUDCustomerUseCase(ICustomerRepository customerRepository)
         {
             _customerRepository = customerRepository;
@@ -29,13 +27,24 @@ namespace Web.Api.Core.UseCases.CustomerUseCases
 
             if (message.Id == null)
             {
-                response = await _customerRepository.Create(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate, message.ContactPoint, message.Description, message.Status, Guid.NewGuid()));
+                Guid x;
+                var isContactPointUID = Guid.TryParse(message.ContactPoint, out x);
+                if (isContactPointUID)
+                {
+                    response = await _customerRepository.Create(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate,
+                        Guid.Parse(message.ContactPoint), message.Description, message.Status, Guid.NewGuid()));
+                }
+                else
+                {
+                    response = await _customerRepository.CreateFromImport(message);
+                }
                 //In case able to get Id
                 //response = await _customerRepository.Create(message);
             }
             else
             {
-                response = await _customerRepository.Update(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate, message.ContactPoint, message.Description, message.Status, message.Id));
+                response = await _customerRepository.Update(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate, 
+                    Guid.Parse(message.ContactPoint), message.Description, message.Status, message.Id));
                 //In case able to get Id
                 //response = await _customerRepository.Update(message);
             }
