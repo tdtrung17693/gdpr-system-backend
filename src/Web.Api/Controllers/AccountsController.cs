@@ -3,10 +3,15 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.Account;
+using Web.Api.Core.Dto.UseCaseResponses.Account;
 using Web.Api.Core.Dto.UseCaseResponses.User;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.Account;
 using Web.Api.Presenters;
+using Web.Api.Serialization;
 
 namespace Web.Api.Controllers
 {
@@ -14,45 +19,84 @@ namespace Web.Api.Controllers
   [ApiController]
   public class AccountsController : ControllerBase
   {
-    private readonly RegisterUserPresenter _registerUserPresenter;
+    private readonly IUpdateProfileInfoUseCase _updateProfileInfoUseCase;
+    private readonly IChangePasswordUseCase _changePasswordUseCase;
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;
+    private readonly INotificationRepository _notiRepo;
+    private readonly ResourcePresenter<UpdateProfileInfoResponse> _updateProfileInfoPresenter;
+    private readonly ResourcePresenter<ChangePasswordResponse> _changePasswordPresenter;
 
-    public AccountsController(RegisterUserPresenter registerUserPresenter, IAuthService authService, IMapper mapper)
+    public AccountsController(
+      IUpdateProfileInfoUseCase updateProfileInfoUseCase,
+      IChangePasswordUseCase changePasswordUseCase,
+      IAuthService authService,
+      IMapper mapper,
+      ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter,
+      ResourcePresenter<ChangePasswordResponse> changePasswordPresenter,
+      INotificationRepository notiRepo)
     {
-      _registerUserPresenter = registerUserPresenter;
       _authService = authService;
       _mapper = mapper;
-    }
-
-    // POST api/accounts
-    [HttpPost]
-    public async Task<ActionResult> Post()
-    {
-      if (!ModelState.IsValid)
-      { // re-render the view when validation failed.
-        return BadRequest(ModelState);
-      }
-      //await _registerUserUseCase.Handle(new RegisterUserRequest(request.FirstName,request.LastName,request.Email, request.UserName,request.Password), _registerUserPresenter);
-      return _registerUserPresenter.ContentResult;
+      _updateProfileInfoUseCase = updateProfileInfoUseCase;
+      _updateProfileInfoPresenter = updateProfileInfoPresenter;
+      _changePasswordUseCase = changePasswordUseCase;
+      _changePasswordPresenter = changePasswordPresenter;
+      _notiRepo = notiRepo;
     }
 
     [HttpGet("me")]
     [Authorize()]
-    public ActionResult<object> CurrentUser()
+    public async Task<ActionResult<object>> CurrentUser()
     {
       var user = _authService.GetCurrentUser();
+      var notifications = await _notiRepo.GetNotificationOf((System.Guid)user.Id);
 
       return new
       {
-        Id = user.Id,
-        FirstName = user.FirstName,
-        LastName = user.LastName,
-        Username = user.Account.Username,
+        user.Id,
+        user.FirstName,
+        user.LastName,
+        user.Account.Username,
+        user.RoleId,
+        user.Email,
         Role = user.Role.Name,
-        RoleId = user.RoleId,
-        Permissions = _authService.GetAllPermissions()
+        Permissions = _authService.GetAllPermissions(),
+        Notifications = notifications
       };
+    }
+
+    [HttpPut("profile/info")]
+    [Authorize()]
+    public async Task<ActionResult> UpdateProfileInfo(UpdateProfileInfoRequest request)
+    {
+      _updateProfileInfoPresenter.HandleResource = r =>
+      {
+        return r.Success ? JsonSerializer.SerializeObject(new { r.UpdatedFields }) : JsonSerializer.SerializeObject(new { r.Errors });
+      };
+      var user = _authService.GetCurrentUser();
+      await _updateProfileInfoUseCase.Handle(
+        new Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest(user, request.FirstName, request.LastName),
+        _updateProfileInfoPresenter);
+
+      return _updateProfileInfoPresenter.ContentResult;
+    }
+
+    [HttpPut("profile/password")]
+    [Authorize()]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+      var user = _authService.GetCurrentUser();
+      _changePasswordPresenter.HandleResource = r => r.Success ? "" : JsonSerializer.SerializeObject(new {r.Errors});
+
+      var response = await _changePasswordUseCase.Handle(
+        new Core.Dto.UseCaseRequests.Account.ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
+        _changePasswordPresenter
+      );
+      
+      if (!response) return _changePasswordPresenter.ContentResult;
+      
+      return _changePasswordPresenter.ContentResult;
     }
   } 
 }

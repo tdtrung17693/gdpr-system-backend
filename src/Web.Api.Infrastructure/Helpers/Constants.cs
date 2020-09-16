@@ -19,6 +19,18 @@ namespace Web.Api.Infrastructure.Helpers
             {
                 public const string ApiAccess = "api_access";
             }
+
+        }
+        public static class DefaultValues
+        {
+            public static class Paging
+            {
+                public const int PageSize = 10;
+                public const int PageNo = 1;
+            }
+
+            public const string keyword = "";
+            public const string filterStatus = "";
         }
 
     }

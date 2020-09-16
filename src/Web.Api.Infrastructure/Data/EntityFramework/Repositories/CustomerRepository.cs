@@ -12,6 +12,8 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -29,7 +31,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<IEnumerable<Object>> GetCustomerList()
         {
             return await _context.Customer.AsNoTracking()
-                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPoint = c.ContactPointNavigation.Email,
+                .Select(c => new { key = c.Id, c.Name, c.ContractBeginDate, c.ContractEndDate, c.Description, c.Status, contactPointID = c.ContactPoint, contactPoint = c.ContactPointNavigation.Email,
                 serverOwned = c.CustomerServer.Select(cs => new { cs.Server.Id, cs.Server.Name, cs.Server.IpAddress }).Count()
                 }).ToListAsync();
         }
@@ -101,7 +103,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     ownedBy = s.CustomerServer.Select(cs => cs.Customer.Name),
                     customerid = s.CustomerServer.Select(cs => cs.Customer.Id),
                 })
-                .Take(156)
+                .Take(50)
                 .ToListAsync();
         }
 
@@ -123,6 +125,45 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             /*return new CreateCustomerResponse(newCustomer.Id, success > 0, 
                 success > 0 ? null : new IdentityError(){Description = $"Could not add user {customer.Id}."});*/
             return new CRUDCustomerResponse(customer.Id, success > 0,
+                null);
+        }
+
+        /*public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
+        {
+            var customerId = new SqlParameter("@CustomerId", request.CustomerId);
+            var serverIds = new SqlParameter("@ServerIds", request.ServerIds);
+            serverIds.SqlDbType = SqlDbType.Structured;
+            serverIds.TypeName = "dbo.IdList";
+            //Console.WriteLine(request.ServerIds);
+            *//*_context.Database.ExecuteSqlCommand("DECLARE @si IdList INSERT @si VALUES('390EA8C0-1714-415F-B4AD-00447E8A7F2D')" +
+               "EXEC[gdpr_system].[dbo].[AssignCustomerToServers] @CustomerId, @ServerIds = @si", customerId);*//*
+            _context.Database.ExecuteSqlCommand("EXEC dbo.AssignCustomerToServers @CustomerId, @ServerIds", customerId, serverIds);
+
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
+                null);
+        }*/
+        public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
+        {
+            foreach (var serverId in request.ServerIds)
+            {
+                await _context.CustomerServer.AddAsync(new CustomerServer(request.CustomerId, serverId));
+            }
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
+                null);
+        }
+
+        public async Task<ManageServerCustomerResponse> RemoveServerOwner(ManageServerRequest request)
+        {
+            foreach (var serverId in request.ServerIds)
+            {
+                var deletedCustomerServer = await _context.CustomerServer.FindAsync(request.CustomerId, serverId);
+                _context.CustomerServer.Remove(deletedCustomerServer);
+                //await _context.CustomerServer.Remove(new CustomerServer(request.CustomerId, serverId));
+            }
+            var success = await _context.SaveChangesAsync();
+            return new ManageServerCustomerResponse(success > 0,
                 null);
         }
 

@@ -26,5 +26,6 @@ namespace Web.Api.Core.Domain.Entities
         public DateTime? EndDate { get; set; }
         public virtual ICollection<CustomerServer> CustomerServer { get; set; }
         public virtual ICollection<Request> Request { get; set; }
+        //public virtual ICollection<User> User { get; set; }
     }
 }

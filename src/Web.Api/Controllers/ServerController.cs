@@ -20,6 +20,7 @@ using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using System.IO;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
+using Web.Api.Core.Interfaces.UseCases;
 
 namespace Web.Api.Controllers
 {
@@ -30,26 +31,33 @@ namespace Web.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IServerRepository _repository;
         private readonly ICreateServerUseCase _createServerUseCase;
+        private readonly IReadServerUseCase _readServerUseCase;
         private readonly IUpdateServerUseCase _updateServerUseCase;
+        private readonly IExportServerUseCase _exportServerUseCase;
         private readonly IBulkServerUseCase _bulkServerUseCase;
         private readonly CreateServerPresenter _createServerPresenter;
         private readonly UpdateServerPresenter _updateServerPresenter;
         private readonly BulkServerPresenter _bulkServerPresenter;
+        private readonly ExportServerPresenter _exportServerPresenter;
         private readonly IHostingEnvironment _hostingEnvironment;
+        
 
-        public ServerController(IHostingEnvironment hostingEnvironment, IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
+        public ServerController(IMapper mapper, IServerRepository repository, ICreateServerUseCase createServerUseCase, 
             CreateServerPresenter createServerPresenter, UpdateServerPresenter updateServerPresenter ,IUpdateServerUseCase updateServerUseCase,
-            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
+            IBulkServerUseCase bulkServerUseCase, BulkServerPresenter bulkServerPresenter
+            , IExportServerUseCase exportServerUseCase, ExportServerPresenter exportServerPresenter, IReadServerUseCase readServerUseCase)//, ICreateServerUseCase createServerUseCase, CreateServerPresenter createServerPresenter   
         {
-            _hostingEnvironment = hostingEnvironment;
             _mapper = mapper;
             _repository = repository;
             _createServerUseCase = createServerUseCase;
+            _readServerUseCase = readServerUseCase;
             _updateServerUseCase = updateServerUseCase;
             _bulkServerUseCase = bulkServerUseCase;
             _createServerPresenter = createServerPresenter;
             _updateServerPresenter = updateServerPresenter;
             _bulkServerPresenter = bulkServerPresenter;
+            _exportServerUseCase = exportServerUseCase;
+            _exportServerPresenter = exportServerPresenter;
         }
 
         //CREATE
@@ -62,19 +70,82 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
             }
             await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
-            server.IpAddress, server.IsDeleted, server.Name,
-             server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
-            return Ok("You hav add an row");
+                                                server.IpAddress, server.IsDeleted, server.Name,
+                                                server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
+            return Ok("You have added an row");
            
            
         }
 
-        //READ
-        [HttpGet]
-        public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
+        //CREATE NEW LIST SERVER
+        [HttpPost("importExcel")]
+        public async Task<ActionResult> ImportServerByXLSX([FromBody] IEnumerable<ServerRequest> serverList)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            foreach (ServerRequest server in serverList)
+            {
+                await _createServerUseCase.Handle(new CreateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.StartDate,
+                                                    server.IpAddress, server.IsDeleted, server.Name,
+                                                    server.EndDate, server.Status, server.UpdatedAt, server.UpdatedBy), _createServerPresenter);
+            }
+
+            return Ok(serverList);
+        }
+
+        //READ
+       /* [HttpGet]
+        public async Task<ActionResult> GetAll([FromQuery] PagedServerRequest request)
+        {
+            _readServerPresenter.HandleResource = r =>
+            {
+                var users = _mapper.Map<Pagination<Server>, Pagination<ServerDTO>>(r.Server);
+
+                return r.Success ? JsonSerializer.SerializeObject(users) : JsonSerializer.SerializeObject(r.Errors);
+            };
+
+            var filterString = request.FilterBy == null ? "" : request.FilterBy;
+            await _readServerUseCase.Handle(
+              new ReadServerRequest(request.Page, request.PageSize, filterString, request.SortedBy, request.SortOrder),
+              _readServerPresenter);
+            return _readServerPresenter.ContentResult;
+        }*/
+
+        /*
+          public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var serverItems = _repository.GetAllCommand();
             return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
+        }
+         */
+
+        [HttpGet("listServer")]
+        public ActionResult<DataTable> GetListServer()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.GetListServer();
+            return dt;
+        }
+
+        [HttpGet("filter/{filterKey}")]
+        public ActionResult<DataTable> GetListServerByFilter(string filterKey)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.GetListServerByFilter(filterKey);
+            return dt;
         }
 
         //UPDATE
@@ -89,13 +160,17 @@ namespace Web.Api.Controllers
             await _updateServerUseCase.Handle(new UpdateServerRequest(server.id, server.CreatedAt, server.CreatedBy, server.DeletedAt, server.DeletedBy, server.EndDate,
             server.IpAddress, server.IsDeleted, server.Name,
              server.StartDate, server.Status, server.UpdatedAt, server.UpdatedBy) , _updateServerPresenter);
-            return Ok("You hav update an row");
+            return Ok("Server has been successfully updated");
         }
 
         //Get detail a server
         [HttpGet("detail/{id}")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var serverItem = _repository.GetServerDetail(id);
             return Ok(_mapper.Map<ServerRequest>(serverItem));
         }
@@ -118,58 +193,20 @@ namespace Web.Api.Controllers
                 idList.Rows.Add(id);
             }
             //var response = await _repository.UpdateMutilServerStatus(idList, bulkServer.status, bulkServer.updator);
-            var response = await _bulkServerUseCase.Handle( new BulkServerRequest(idList, bulkServer.status, bulkServer.updator) , _bulkServerPresenter);
-            if (response) return Ok("Done");
-            else return Content("Erorr");
+            var response = await _bulkServerUseCase.Handle(new BulkServerRequest(idList, bulkServer.updator) , _bulkServerPresenter);
+            return Ok("Done");
 
         }
 
-        //Import Server
-        [HttpPost("{id}/import")]
-        public async Task<ServerImportResponse<List<ServerImportRequest>>> ImportMultiStatusServer(Guid id,IFormFile formFile, CancellationToken cancellationToken)//IEnumerable<Guid> serverIdList,bool status, Guid updator
+        [HttpPost("export-csv")]
+        public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)
         {
-
-
-            if (formFile == null || formFile.Length <= 0)
-            {
-                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "formfile is empty");
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
             }
-
-            if (!Path.GetExtension(formFile.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
-            {
-                return ServerImportResponse<List<ServerImportRequest>>.GetResult(-1, "Not Support file extension");
-            }
-
-            var list = new List<ServerImportRequest>();
-
-            using (var stream = new MemoryStream())
-            {
-                await formFile.CopyToAsync(stream, cancellationToken);
-
-                using (var package = new ExcelPackage(stream))
-                {
-                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-                    var rowCount = worksheet.Dimension.Rows;
-
-                    for (int row = 2; row <= rowCount; row++)
-                    {
-                        list.Add(new ServerImportRequest
-                        {
-                            Name = worksheet.Cells[row, 1].Value.ToString().Trim(),
-                            IpAddress = worksheet.Cells[row, 2].Value.ToString().Trim(),
-                            StartDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 3].Value.ToString())),
-                            EndDate = DateTime.FromOADate(double.Parse(worksheet.Cells[row, 4].Value.ToString())),
-                            CreatedBy = id
-
-                        }) ;
-
-                        await _createServerUseCase.Handle(new CreateServerRequest(Guid.NewGuid(), null, list[list.Count - 1].CreatedBy, null, null, list[list.Count - 1].EndDate,
-                         list[list.Count - 1].IpAddress, false, list[list.Count - 1].Name,
-                            list[list.Count - 1].StartDate, true, null, null), _createServerPresenter);
-                    }
-                }
-            }
-            return ServerImportResponse<List<ServerImportRequest>>.GetResult(200, "OK", list);
+            await _exportServerUseCase.Handle(new ExportServerRequest(request.FromDate, request.ToDate, request.Guids), _exportServerPresenter);
+            return _exportServerPresenter.ContentResult;
         }
 
     }

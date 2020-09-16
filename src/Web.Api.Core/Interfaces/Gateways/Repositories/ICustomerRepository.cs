@@ -19,8 +19,12 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         public Task<IEnumerable<Object>> GetOwnedServer(string id);
         public Task<IEnumerable<Object>> GetAvailableServer();
         public Task<IEnumerable<Object>> GetAllContactPoint();
+
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
         public Task<CRUDCustomerResponse> Create(Customer customer);
+        public Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request);
+        public Task<ManageServerCustomerResponse> RemoveServerOwner(ManageServerRequest request);
+
         public Task<CRUDCustomerResponse> Update(Customer customer);
         public Task<CRUDCustomerResponse> Delete(Customer customer);
     }

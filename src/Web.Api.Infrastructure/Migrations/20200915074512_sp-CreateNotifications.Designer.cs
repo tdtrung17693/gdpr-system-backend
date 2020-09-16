@@ -10,8 +10,8 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200910105216_sp-Createuser")]
-    partial class spCreateuser
+    [Migration("20200915074512_sp-CreateNotifications")]
+    partial class spCreateNotifications
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -87,6 +87,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<Guid?>("UpdatedBy");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("ParentId");
 
@@ -244,6 +246,46 @@ namespace Web.Api.Infrastructure.Migrations
                     b.ToTable("HistoryLog");
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime?>("CreatedAt");
+
+                    b.Property<Guid?>("CreatedBy");
+
+                    b.Property<string>("Data");
+
+                    b.Property<DateTime?>("DeletedAt");
+
+                    b.Property<Guid?>("DeletedBy");
+
+                    b.Property<Guid?>("FromUserId");
+
+                    b.Property<bool?>("IsDeleted");
+
+                    b.Property<bool>("IsRead");
+
+                    b.Property<string>("NotificationType");
+
+                    b.Property<bool?>("Status");
+
+                    b.Property<Guid>("ToUserId");
+
+                    b.Property<DateTime?>("UpdatedAt");
+
+                    b.Property<Guid?>("UpdatedBy");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("Notification");
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Permission", b =>
                 {
                     b.Property<Guid>("Id");
@@ -291,21 +333,22 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(100);
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("((0))");
 
-                    b.Property<string>("RequestStatus");
+                    b.Property<string>("RequestStatus")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Response")
                         .HasMaxLength(200);
 
-                    b.Property<Guid?>("ServerId");
+                    b.Property<Guid>("ServerId");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("Status")
@@ -344,7 +387,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -485,6 +528,11 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Comment", b =>
                 {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "Author")
+                        .WithMany("CommentCreatedByNavigation")
+                        .HasForeignKey("CreatedBy")
+                        .HasConstraintName("fk_Comment_createdBy");
+
                     b.HasOne("Web.Api.Core.Domain.Entities.Comment", "Parent")
                         .WithMany("InverseParent")
                         .HasForeignKey("ParentId")
@@ -530,6 +578,18 @@ namespace Web.Api.Infrastructure.Migrations
                         .HasConstraintName("fk_HistoryLog_requestId");
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ToUser")
+                        .WithMany()
+                        .HasForeignKey("ToUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.PermissionRole", b =>
                 {
                     b.HasOne("Web.Api.Core.Domain.Entities.Permission", "Permission")
@@ -558,7 +618,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")
                         .HasForeignKey("ServerId")
-                        .HasConstraintName("fk_Request_serverId");
+                        .HasConstraintName("fk_Request_serverId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>

@@ -1,14 +1,13 @@
 ﻿using System.Threading.Tasks;
-using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.Services.Event;
 
-namespace Web.Api.Domain.Event
+namespace Web.Api.EventHandlers
 {
   public class SendInviteMail : IEventHandler<UserCreated>
   {
-    protected IMailService _mailService;
+    private IMailService _mailService;
     public SendInviteMail(IMailService mailService)
     {
       _mailService = mailService;
