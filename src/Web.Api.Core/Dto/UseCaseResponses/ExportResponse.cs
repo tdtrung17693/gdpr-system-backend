@@ -17,7 +17,7 @@ namespace Web.Api.Core.Dto.UseCaseResponses
             Errors = errors;
         }
 
-        public ExportResponse(IEnumerable<Object> responsedRequest, bool success = false, string message = null)
+        public ExportResponse(IEnumerable<Object> responsedRequest, bool success = true, string message = null)
             : base(success, message)
         {
             ResponsedRequest = responsedRequest;

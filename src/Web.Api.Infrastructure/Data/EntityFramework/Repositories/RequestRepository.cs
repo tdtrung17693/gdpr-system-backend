@@ -101,7 +101,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var rId = new SqlParameter("@rId", requestId);
                 parameters.Add(rId);
                 var sqlQuery = "EXEC GetEachRequest @IdRequest=@rId";
-                var resultEachRequest = _context.SPRequestResultView.FromSql(sqlQuery, parameters.ToArray()).ToList();
+                List<SPRequestResultView> resultEachRequest = _context.SPRequestResultView.FromSql(sqlQuery, parameters.ToArray()).ToList();
                 if (resultEachRequest != null) return _mapper.Map<RequestDetail>(resultEachRequest[0]);
                 return null;
             }
