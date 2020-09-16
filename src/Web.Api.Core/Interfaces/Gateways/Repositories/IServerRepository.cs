@@ -43,5 +43,11 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 
         //Todo:Find All
         IPagedCollection<Server> FindAll();
+
+        //Todo: Count Servers
+        public DataTable CountServers();
+
+        //Todo: Paging
+        public DataTable Paging(int Page, int PageSize, string SortBy, bool SortOrder, string FilterBy);
     }
 } 

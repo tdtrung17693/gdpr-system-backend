@@ -9,16 +9,16 @@ namespace Web.Api.Models.Request
     {
         public PagedServerRequest()
         {
-            Page = 1;
-            PageSize = 10;
-            FilterBy = "";
-            SortedBy = "Name";
-            SortOrder = "";
+            page = 1;
+            pageSize = 10;
+            filterBy = "";
+            sortedBy = "ServerName";
+            sortOrder = true;
         }
-        public int Page { get; set; }
-        public int PageSize { get; set; }
-        public string FilterBy { get; set; }
-        public string SortedBy { get; set; }
-        public string SortOrder { get; set; }
+        public int page { get; set; }
+        public int pageSize { get; set; }
+        public string filterBy { get; set; }
+        public string sortedBy { get; set; }
+        public bool sortOrder { get; set; }
     }
 }

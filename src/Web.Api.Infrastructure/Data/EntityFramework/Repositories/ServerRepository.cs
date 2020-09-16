@@ -171,6 +171,43 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 _context.Server.AsQueryable()
             );
         }
+        public DataTable CountServers()
+        {
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                // var commandText = "exec getListServerFilter @filterKey";
+                command.CommandText = "GetServerCount";
+                command.CommandType = CommandType.StoredProcedure;
+                DataTable dt = new DataTable();
+                _context.Database.OpenConnection();
+                dt.Load(command.ExecuteReader());
+                return dt;
+            }
+        }
+
+        public DataTable Paging(int Page, int PageSize, string SortBy, bool SortOrder, string FilterBy)
+        {
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                var page = new SqlParameter("@Page", Page);
+                var pageSize = new SqlParameter("@PageSize", PageSize);
+                var sortBy = new SqlParameter("@SortBy", SortBy);
+                var sortOrder = new SqlParameter("@SortOrder", SortOrder);
+                var filterBy = new SqlParameter("@FilterBy", FilterBy);
+                // var commandText = "exec getListServerFilter @filterKey";
+                command.CommandText = "GetServerPaging";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(page);
+                command.Parameters.Add(pageSize);
+                command.Parameters.Add(filterBy);
+                command.Parameters.Add(sortBy);
+                command.Parameters.Add(sortOrder);
+                DataTable dt = new DataTable();
+                _context.Database.OpenConnection();
+                dt.Load(command.ExecuteReader());
+                return dt;
+            }
+        }
 
     }
 }
