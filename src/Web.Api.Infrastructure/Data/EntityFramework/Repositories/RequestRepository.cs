@@ -67,11 +67,21 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 parameters.Add(pageNo);
                 var pageSize = new SqlParameter("@RowsOfPage", PageSize);
                 parameters.Add(pageSize);
-                var keyword = new SqlParameter("@Keyword", Keyword);
-                parameters.Add(keyword);
-                var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
-                parameters.Add(filterStatus);
-                var sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                var sql = "";
+                if (Keyword != null)
+                {
+                    var keyword = new SqlParameter("@Keyword", Keyword);
+                    parameters.Add(keyword);
+                    var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
+                    parameters.Add(filterStatus);
+                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                }
+                else
+                {
+                    var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
+                    parameters.Add(filterStatus);
+                    sql = "EXEC GetRequestPagination @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                }
                 /*if (FromDateExport is null || ToDateExport is null)
                 {
                     var fromDateExport = new SqlParameter("@FromDateExport", FromDateExport);

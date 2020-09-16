@@ -106,7 +106,7 @@ namespace Web.Api.Controllers
         }
 
         [EnableCors("request")]
-        [HttpGet("request/{requestId}")]
+        [HttpGet("{requestId}")]
         public async Task<ActionResult> GetEachRequest(string requestId)
         {
             if (!ModelState.IsValid)
