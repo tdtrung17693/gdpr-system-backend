@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
@@ -30,13 +31,22 @@ namespace Web.Api.Controllers
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IGetRequestUseCase _getRequestUseCase;
+        private readonly IGetEachRequestUseCase _getEachRequestUseCase;
+        private readonly IExportUseCase _exportUseCase;
+        private readonly IManageRequestUseCase _manageRequestUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly GetRequestPresenter _getRequestPresenter;
+        private readonly GetEachRequestPresenter _getEachRequestPresenter;
+        private readonly ExportPresenter _exportPresenter;
+        private readonly ManageRequestPresenter _manageRequestPresenter;
         private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
         private readonly ResourcePresenter<DeleteCommentResponse> _deleteCommentPresenter;
 
         public RequestController(
+            IExportUseCase exportUseCase, ExportPresenter exportPresenter,
+            IManageRequestUseCase manageRequestUseCase, ManageRequestPresenter manageRequestPresenter,
+            IGetEachRequestUseCase getEachRequestUseCase, GetEachRequestPresenter getEachRequestPresenter,
             IAuthService authService,
             ICommentRepository commentRepository,
             ICreateCommentUseCase createCommentUseCase,
@@ -59,6 +69,13 @@ namespace Web.Api.Controllers
             _updateRequestPresenter = updateRequestPresenter;
             _getRequestUseCase = getRequestUseCase;
             _getRequestPresenter = getRequestPresenter;
+            _getEachRequestUseCase = getEachRequestUseCase;
+            _getEachRequestPresenter = getEachRequestPresenter;
+            _exportUseCase = exportUseCase;
+            _exportPresenter = exportPresenter;
+            _manageRequestUseCase = manageRequestUseCase;
+            _manageRequestPresenter = manageRequestPresenter;
+
             _createCommentPresenter = createCommentPresenter;
             _deleteCommentPresenter = deleteCommentPresenter;
             _deleteCommentUseCase = deleteCommentUseCase;
@@ -73,21 +90,56 @@ namespace Web.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             var currentUser = _authService.GetCurrentUser();
             await _createRequestUseCase.Handle(
-                new CreateRequestRequest((Guid)currentUser.Id, message.Title, message.StartDate, message.EndDate,
+                new CreateRequestRequest((Guid) currentUser.Id, message.Title, message.StartDate, message.EndDate,
                     message.ServerId, message.Description), _createRequestPresenter);
             return _createRequestPresenter.ContentResult;
         }
 
+        [EnableCors("request")]
+        [HttpPost("exportRequest")]
+        public async Task<ActionResult> GetRequestForExport(ExportRequestModel message)
+        {
+            if (!ModelState.IsValid)
+            {
+                // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+
+            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids),
+                _exportPresenter);
+            return _exportPresenter.ContentResult;
+        }
+
+        //READ 
+        [EnableCors("request")]
         [HttpGet]
-        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo, int _pageSize = Constants.DefaultValues.Paging.PageSize,
-                            string keyword = Constants.DefaultValues.keyword, string filterStatus = Constants.DefaultValues.filterStatus/*, 
+        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
+            int _pageSize = Constants.DefaultValues.Paging.PageSize,
+            string keyword = Constants.DefaultValues.keyword,
+            string filterStatus = Constants.DefaultValues.filterStatus /*, 
                             DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
         {
-            await _getRequestUseCase.Handle(new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/ "getAll"), _getRequestPresenter);
+            await _getRequestUseCase.Handle(
+                new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
+                    "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
+        }
+
+        [EnableCors("request")]
+        [HttpGet("request/{requestId}")]
+        public async Task<ActionResult> GetEachRequest(string requestId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _getEachRequestUseCase.Handle(new GetEachRequestRequest(requestId), _getEachRequestPresenter);
+            return _getEachRequestPresenter.ContentResult;
         }
 
         //[HttpGet("search/{keyword}")]
@@ -129,7 +181,7 @@ namespace Web.Api.Controllers
                     c.ParentId,
                     c.RequestId,
                     c.CreatedAt,
-                    Author = new { FirstName = c.Author.FirstName, LastName = c.Author.LastName }
+                    Author = new {FirstName = c.Author.FirstName, LastName = c.Author.LastName}
                 };
             }));
         }
@@ -141,8 +193,8 @@ namespace Web.Api.Controllers
             _createCommentPresenter.HandleResource = r =>
             {
                 return r.Success
-                    ? JsonSerializer.SerializeObject(new { r.Id, r.CreatedAt })
-                    : JsonSerializer.SerializeObject(new { r.Errors });
+                    ? JsonSerializer.SerializeObject(new {r.Id, r.CreatedAt})
+                    : JsonSerializer.SerializeObject(new {r.Errors});
             };
             var currentUser = _authService.GetCurrentUser();
 
@@ -160,14 +212,30 @@ namespace Web.Api.Controllers
             _deleteCommentPresenter.HandleResource = r =>
             {
                 return r.Success
-                   ? JsonSerializer.SerializeObject(new { r.Id })
-                   : JsonSerializer.SerializeObject(new { r.Errors });
+                    ? JsonSerializer.SerializeObject(new {r.Id})
+                    : JsonSerializer.SerializeObject(new {r.Errors});
             };
-            var response = await _deleteCommentUseCase.Handle(new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id), Guid.Parse(requestId)),
-                _deleteCommentPresenter); 
+            var response = await _deleteCommentUseCase.Handle(
+                new Core.Dto.UseCaseRequests.Comment.DeleteCommentRequest(Guid.Parse(id), Guid.Parse(requestId)),
+                _deleteCommentPresenter);
 
             return _deleteCommentPresenter.ContentResult;
         }
 
+
+        [HttpPut("manage")]
+        public async Task<ActionResult> ManageRequest(
+            [FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _manageRequestUseCase.Handle(
+                new ManageRequestRequest(manageRequestRequest.userId, manageRequestRequest.answer,
+                    manageRequestRequest.status, manageRequestRequest.requestId), _manageRequestPresenter);
+            return _manageRequestPresenter.ContentResult;
+        }
     }
 }
