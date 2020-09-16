@@ -28,7 +28,7 @@ namespace Web.Api.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    FileName = table.Column<string>(maxLength: 20, nullable: false),
+                    FileName = table.Column<string>(maxLength: 100, nullable: false),
                     Extension = table.Column<string>(maxLength: 5, nullable: false),
                     Path = table.Column<string>(maxLength: 200, nullable: false)
                 },

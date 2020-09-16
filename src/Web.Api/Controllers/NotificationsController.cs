@@ -11,6 +11,7 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Models.Request;
 using Web.Api.Presenters;
 
 namespace Web.Api.Controllers
@@ -26,6 +27,19 @@ namespace Web.Api.Controllers
     {
       _currentUser = authService.GetCurrentUser();
       _notificationRepository = notificationRepository;
+    }
+
+    [HttpGet("more")]
+    [Authorize()]
+    public async Task<IEnumerable<Notification>> GetNotifications([FromQuery] GetNotificationsRequest request)
+    {
+      if (request.Page < 0)
+      {
+        request.Page = 1;
+      }
+      
+      var notifications = await _notificationRepository.GetNotificationOf((System.Guid)_currentUser.Id, request.Page);
+      return notifications;
     }
 
     [HttpPut("{id}")]

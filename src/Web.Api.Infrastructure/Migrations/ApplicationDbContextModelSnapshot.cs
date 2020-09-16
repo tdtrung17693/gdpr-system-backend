@@ -197,7 +197,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(100);
 
                     b.Property<string>("Path")
                         .IsRequired()

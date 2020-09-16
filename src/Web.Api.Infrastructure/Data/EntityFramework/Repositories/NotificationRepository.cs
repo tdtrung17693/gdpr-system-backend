@@ -79,9 +79,20 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       return true;
     }
 
-    public async Task<IEnumerable<Notification>> GetNotificationOf(Guid userId)
+    public async Task<IEnumerable<Notification>> GetNotificationOf(Guid userId, int page, int pageSize = 5)
     {
-      return await _context.Notification.Where(n => n.ToUserId == userId && n.IsRead == false).OrderByDescending(n => n.CreatedAt).ToListAsync();
+      return await _context.Notification
+          .Where(u => u.ToUserId == userId)
+          .OrderByDescending(n => n.CreatedAt)
+          .Skip(page * pageSize)
+          .Take(pageSize)
+          .ToListAsync();
+    }
+
+    public async Task<int> CountAllUnreadNotificationsOf(Guid userId)
+    {
+      return await _context.Notification.Where(u => u.ToUserId == userId && u.IsRead == false)
+        .CountAsync();
     }
 
     public async Task<UpdateNotificationResponse> MarkAsRead(Guid id)
@@ -93,6 +104,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       notification.IsRead = true;
       await _context.SaveChangesAsync();
       return new UpdateNotificationResponse();
+    }
+
+    public async Task<UpdateNotificationResponse> MarkAllNotificationsOfUserAsRead(Guid userId)
+    {
+      return default(UpdateNotificationResponse);
     }
   }
 }
