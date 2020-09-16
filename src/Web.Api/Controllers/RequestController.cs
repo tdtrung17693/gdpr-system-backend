@@ -32,17 +32,24 @@ namespace Web.Api.Controllers
         private readonly ICreateRequestUseCase _createRequestUseCase;
         private readonly IUpdateRequestUseCase _updateRequestUseCase;
         private readonly IGetRequestUseCase _getRequestUseCase;
+        private readonly IGetEachRequestUseCase _getEachRequestUseCase;
         private readonly IExportUseCase _exportUseCase;
+        private readonly IManageRequestUseCase _manageRequestUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly GetRequestPresenter _getRequestPresenter;
+        private readonly GetEachRequestPresenter _getEachRequestPresenter;
         private readonly ExportPresenter _exportPresenter;
+        private readonly ManageRequestPresenter _manageRequestPresenter;
+
         public RequestController(IMapper mapper, IRequestRepository repository,
                                 ICreateRequestUseCase createRequestUseCase, CreateRequestPresenter createRequestPresenter,
                                 IUpdateRequestUseCase updateRequestUseCase, UpdateRequestPresenter updateRequestPresenter,
                                 IGetRequestUseCase getRequestUseCase, GetRequestPresenter getRequestPresenter,
-                                IExportUseCase exportUseCase, ExportPresenter exportPresenter)
-                   
+                                IExportUseCase exportUseCase, ExportPresenter exportPresenter,
+                                IManageRequestUseCase manageRequestUseCase, ManageRequestPresenter manageRequestPresenter,
+                                IGetEachRequestUseCase getEachRequestUseCase, GetEachRequestPresenter getEachRequestPresenter)
+
         {
             _mapper = mapper;
             _repository = repository;
@@ -52,8 +59,13 @@ namespace Web.Api.Controllers
             _updateRequestPresenter = updateRequestPresenter;
             _getRequestUseCase = getRequestUseCase;
             _getRequestPresenter = getRequestPresenter;
+            _getEachRequestUseCase = getEachRequestUseCase;
+            _getEachRequestPresenter = getEachRequestPresenter;
             _exportUseCase = exportUseCase;
             _exportPresenter = exportPresenter;
+            _manageRequestUseCase = manageRequestUseCase;
+            _manageRequestPresenter = manageRequestPresenter;
+
         }
 
         //CREATE
@@ -93,6 +105,17 @@ namespace Web.Api.Controllers
             return _getRequestPresenter.ContentResult;
         }
 
+        [HttpGet("/request/{requestId}")]
+        public async Task<ActionResult> GetEachRequest(string requestId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            await _getEachRequestUseCase.Handle(new GetEachRequestRequest(requestId), _getEachRequestPresenter);
+            return _getEachRequestPresenter.ContentResult;
+        }
+
         //[HttpGet("search/{keyword}")]
         //public ActionResult<IEnumerable<RequestJoined>> GetRequestFilter(string keyword, int pageNo = Constants.DefaultValues.Paging.PageNo, int pageSize = Constants.DefaultValues.Paging.PageSize)
         //{
@@ -114,6 +137,15 @@ namespace Web.Api.Controllers
             return _updateRequestPresenter.ContentResult;
         }
 
-        
+        [HttpPut("manage")]
+        public async Task<ActionResult> ManageRequest([FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            await _manageRequestUseCase.Handle(new ManageRequestRequest(manageRequestRequest.userId, manageRequestRequest.answer, manageRequestRequest.status, manageRequestRequest.requestId), _manageRequestPresenter);
+            return _manageRequestPresenter.ContentResult;
+        }
     }
 }

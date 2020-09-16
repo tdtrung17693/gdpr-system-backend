@@ -95,6 +95,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             //    return result;
             //}
 
+            public RequestDetail getEachRequest(string requestId)
+            {
+                var parameters = new List<SqlParameter>();
+                var rId = new SqlParameter("@rId", requestId);
+                parameters.Add(rId);
+                var sqlQuery = "EXEC GetEachRequest @IdRequest=@rId";
+                var resultEachRequest = _context.SPRequestResultView.FromSql(sqlQuery, parameters.ToArray()).ToList();
+                if (resultEachRequest != null) return _mapper.Map<RequestDetail>(resultEachRequest[0]);
+                return null;
+            }
+
             public async Task<int> getNoPages(int PageSize)
             {
                 var parameters = new List<SqlParameter>();
@@ -119,6 +130,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 List<SPRequestResultView> result = await _context.SPRequestResultView.FromSql(sql, parameters.ToArray()).ToListAsync();
                 if (result != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(result);
                 return null;
+            }
+
+            public async Task<bool> ManageRequest(ManageRequestRequest message)
+            {
+                var parameters = new List<SqlParameter>();
+
+                var rId = new SqlParameter("@rId", message.RequestId);
+                parameters.Add(rId);
+                string mockUserID = "B2895635-180A-4AB3-B8A8-430BEA69301F";
+                var uId = new SqlParameter("@uId", /*message.UserId*/ mockUserID);
+                parameters.Add(uId);
+                var response = new SqlParameter("@response", message.Answer);
+                parameters.Add(response);
+                var status = new SqlParameter("@status", message.Status);
+                parameters.Add(status);
+
+                var manageQuery = "EXEC RequestManage @rID, @uId, @response, @status";
+                await _context.Database.ExecuteSqlCommandAsync(manageQuery, parameters.ToArray());
+
+                return true;
             }
 
             public RequestRepository(IMapper mapper, ApplicationDbContext context)
