@@ -4,6 +4,8 @@ using Web.Api.Core.Interfaces.UseCases.Account;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Core.Interfaces.UseCases.User;
+using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
+using Web.Api.Core.UseCases.CustomerUseCases;
 using Web.Api.Core.UseCases;
 using Web.Api.Core.UseCases.Account;
 using Web.Api.Core.UseCases.User;

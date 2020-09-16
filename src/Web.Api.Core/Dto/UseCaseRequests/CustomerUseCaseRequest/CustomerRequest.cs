@@ -5,7 +5,7 @@ using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 
-namespace Web.Api.Core.Dto.UseCaseRequests
+namespace Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest
 {
     public class CustomerRequest: IUseCaseRequest<CustomerResponse>
     {

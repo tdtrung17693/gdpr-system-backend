@@ -28,7 +28,7 @@ namespace Web.Api.Controllers
   [ApiController]
   public class UsersController : ControllerBase
   {
-    //private IUserRepository _userRepository;
+    private IUserRepository _userRepository;
     private ManageUserUseCase _userUseCase;
     private ResourcePresenter<ReadUserResponse> _readUserPresenter;
     private ResourcePresenter<CreateUserResponse> _createUserPresenter;
@@ -36,6 +36,7 @@ namespace Web.Api.Controllers
     private ResourcePresenter<UpdateUserResponse> _updateUserPresenter;
     private IMapper _mapper;
     public UsersController(
+      IUserRepository userRepository,
       ManageUserUseCase userUseCase,
       ResourcePresenter<ReadUserResponse> readUserPresenter,
       ResourcePresenter<CreateUserResponse> createUserPresenter,
@@ -43,6 +44,7 @@ namespace Web.Api.Controllers
       ResourcePresenter<ChangeUsersStatusResponse> changeUsersStatusPresenter,
       IMapper mapper)
     {
+      _userRepository = userRepository;  
       _userUseCase = userUseCase;
       _readUserPresenter = readUserPresenter;
       _createUserPresenter = createUserPresenter;
@@ -157,13 +159,30 @@ namespace Web.Api.Controllers
     }
 
      //Khoa
+     [HttpGet("avatar/id={id}")]
+     public async Task<Object> GetAvatar(string id)
+     {
+        return await _userRepository.GetAvatar(id);
+     }
+
      [HttpPost("avatar")]
      public async Task<ActionResult> UploadFirstAvatar([FromBody] UploadAvatarRequest request)
-        {
-            if (!ModelState.IsValid)
-            { // re-render the view when validation failed.
-                return BadRequest(ModelState);
-            }
+     {
+     if (!ModelState.IsValid)
+        { // re-render the view when validation failed.
+            return BadRequest(ModelState);
         }
+        return Ok(await _userRepository.UploadFirstAvatar(request));
+     }  
+        
+     [HttpPut("avatar")]
+     public async Task<ActionResult> ChangeAvatar([FromBody] UploadAvatarRequest request)
+     {
+     if (!ModelState.IsValid)
+        { // re-render the view when validation failed.
+            return BadRequest(ModelState);
+        }
+        return Ok(await _userRepository.ChangeAvatar(request));
+     }  
   }
 }

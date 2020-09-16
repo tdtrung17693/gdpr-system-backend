@@ -20,6 +20,7 @@ using Web.Api.Core.Domain.Event;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Web.Api.Core.Dto.UseCaseRequests;
+using System.IO;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -258,12 +259,59 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       return new UpdateUserResponse(true);
     }
 
-    //Cho nay cua em nha a Trung :D
+        //Cho nay cua em nha a Trung :D
+     public async Task<Object> GetAvatar(string id)
+        {
+            var fileInfo = await _context.FileInstance.AsNoTracking()
+               .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
+            Byte[] fileBytes = File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));
+            String content = Convert.ToBase64String(fileBytes);
+            return new
+            {
+                id = fileInfo.Id,
+                fileName = fileInfo.FileName,
+                fileExtension = fileInfo.Extension,
+                content,
+            };   
+     }
+
      public async Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request)
      {
-        var fileId = Guid.NewGuid();
-        await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension, "Some path" ));
-        await _context.UserFileInstance.AddAsync(new UserFileInstance(request.Id, fileId));
+        byte[] imageBytes = Convert.FromBase64String(request.Content);
+
+        //Save the Byte Array as Image File.
+        string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
+        string fileDirectory = Path.Combine(path, "Web.Api\\FileInstance");
+        string filePath = Path.Combine(fileDirectory, request.FileName + "." +  request.FileExtension);
+        File.WriteAllBytes(filePath, imageBytes);
+        Guid fileId = Guid.NewGuid();
+
+        //Save to database
+        await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension, fileDirectory));
+        await _context.UserFileInstance.AddAsync(new UserFileInstance(request.UserId, fileId));
+        var success = await _context.SaveChangesAsync();
+        return new UploadAvatarUserResponse(fileId, success > 0, null);       
+     }   
+
+     public async Task<UploadAvatarUserResponse> ChangeAvatar(UploadAvatarRequest request)
+     {
+        byte[] imageBytes = Convert.FromBase64String(request.Content);
+
+        //Save the Byte Array as Image File.
+        string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
+        string fileDirectory = Path.Combine(path, "Web.Api\\FileInstance");
+        string filePath = Path.Combine(fileDirectory, request.FileName + "." +  request.FileExtension);
+        File.WriteAllBytes(filePath, imageBytes);
+
+        var fileId = request.FileId;
+        //await _context.FileInstance.AddAsync(new FileInstance((Guid)fileId, request.FileName, request.FileExtension, "Some path" ));
+        var updatedFileInstance = await _context.FileInstance.FirstOrDefaultAsync(i => i.Id == fileId);
+            if (updatedFileInstance != null)
+            {
+                _context.Attach(updatedFileInstance);
+                updatedFileInstance.FileName = request.FileName;
+                updatedFileInstance.Extension = request.FileExtension;
+            }
         var success = await _context.SaveChangesAsync();
         return new UploadAvatarUserResponse(success > 0, null);       
      }   

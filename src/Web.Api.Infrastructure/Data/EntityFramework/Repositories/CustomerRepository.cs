@@ -10,7 +10,7 @@ using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 using Web.Api.Core.Dto.UseCaseResponses;
 using System.Data.SqlClient;
 using System.Data;

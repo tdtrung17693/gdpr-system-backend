@@ -4,7 +4,7 @@ using System.Text;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 
-namespace Web.Api.Core.Dto.UseCaseRequests
+namespace Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest
 {
     public class ExportCustomerRequest : IUseCaseRequest<ExportCustomerResponse>
     {

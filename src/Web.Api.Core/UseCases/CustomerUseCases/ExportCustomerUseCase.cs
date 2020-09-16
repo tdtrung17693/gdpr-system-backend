@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
 
-namespace Web.Api.Core.UseCases
+namespace Web.Api.Core.UseCases.CustomerUseCases
 {
     public sealed class ExportCustomerUseCase: IExportCustomerUseCase
     {
