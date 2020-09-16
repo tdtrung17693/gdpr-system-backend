@@ -90,4 +90,7 @@
   <ItemGroup>
     <EmbeddedResource Include="EmailTemplate\InviteEmail.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

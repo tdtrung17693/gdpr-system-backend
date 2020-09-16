@@ -12,6 +12,7 @@ using Web.Api.Presenters;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using System.Web.Http.Cors;
+using Web.Api.Core.UseCases;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Api.Controllers
@@ -24,18 +25,22 @@ namespace Web.Api.Controllers
         private readonly ICustomerRepository _repository;
         private readonly ICRUDCustomerUseCase _getCustomerUseCase;
         private readonly IExportCustomerUseCase _exportCustomerUseCase;
+        private readonly IManageServerUseCase _manageServerUseCase;
         private readonly CustomerPresenter _customerPresenter;
         private readonly ExportCustomerPresenter _exportPresenter;
+        private readonly ManageServerPresenter _serverPresenter;
 
-        public CustomerController(IMapper mapper, ICustomerRepository repository, ICRUDCustomerUseCase getCustomerUseCase,
-            IExportCustomerUseCase exportCustomerUseCase, CustomerPresenter customerPresenter, ExportCustomerPresenter exportPresenter)
+        public CustomerController(IMapper mapper, ICustomerRepository repository, ICRUDCustomerUseCase getCustomerUseCase, IExportCustomerUseCase exportCustomerUseCase, 
+            IManageServerUseCase manageServerUseCase, CustomerPresenter customerPresenter, ExportCustomerPresenter exportPresenter, ManageServerPresenter serverPresenter)
         {
             _mapper = mapper;
             _repository = repository;
             _getCustomerUseCase = getCustomerUseCase;
             _exportCustomerUseCase = exportCustomerUseCase;
+            _manageServerUseCase = manageServerUseCase;
             _customerPresenter = customerPresenter;
             _exportPresenter = exportPresenter;
+            _serverPresenter = serverPresenter;
         }
 
         
@@ -47,13 +52,6 @@ namespace Web.Api.Controllers
             //return Ok(_mapper.Map<IEnumerable<ModelRequest.CustomerRequest>>(CustomerItems));
             return await _repository.GetCustomerList();
         }
-
-        // GET api/<UsersController>/5
-        /*[HttpGet("{id}")]
-        public async Task<Customer> Get(string id)
-        {
-            return await _repository.FindById(id);
-        }*/
 
         [HttpGet("{keyword}")]
         public async Task<IEnumerable<Object>> Filter(string keyword)
@@ -111,13 +109,35 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, 
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, 
                 request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
 
+        [HttpPost("server")]
+        public async Task<ActionResult> Post(ManageServerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
+            return _serverPresenter.ContentResult;
+        }
+
+        [HttpDelete("server")]
+        public async Task<ActionResult> Delete([FromBody] ManageServerRequest request)
+        {
+            if (!ModelState.IsValid)
+            { // re-render the view when validation failed.
+                return BadRequest(ModelState);
+            }
+            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
+            return _serverPresenter.ContentResult;
+        }
+
         [HttpPut]
-        public async Task<ActionResult> Put([FromBody] Models.Request.CustomerRequest request)
+        public async Task<ActionResult> Put([FromBody] UseCaseRequest.CustomerRequest request)
         {
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.
@@ -126,7 +146,7 @@ namespace Web.Api.Controllers
             /*Customer newCustomer = new Customer(request.Name, req
              * uest.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description);
             return Ok(await _repository.Update(newCustomer));*/
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description, request.Status, 
+            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, request.Description, request.Status, 
                 request.Id), _customerPresenter);
             return _customerPresenter.ContentResult;
         }

@@ -16,6 +16,7 @@ using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Core.Domain.Event;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Web.Api.Core.Dto.UseCaseRequests;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -248,7 +249,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
       }
 
-            return new UpdateUserResponse(true);
-        }
+      return new UpdateUserResponse(true);
     }
+
+    //Cho nay cua em nha a Trung :D
+     public async Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request)
+     {
+        var fileId = Guid.NewGuid();
+        await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension, "Some path" ));
+        await _context.UserFileInstance.AddAsync(new UserFileInstance(request.Id, fileId));
+        var success = await _context.SaveChangesAsync();
+        return new UploadAvatarUserResponse(success > 0, null);       
+     }   
+  }
 }
