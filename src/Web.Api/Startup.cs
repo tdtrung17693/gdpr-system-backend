@@ -62,39 +62,31 @@ namespace Web.Api
 
     public IConfiguration Configuration { get; }
 
-    // This method gets called by the runtime. Use this method to add services to the container.
-    public IServiceProvider ConfigureServices(IServiceCollection services)
-    {
-
-      //Config CORS
-      services.AddCors(options =>
-      {
-        options.AddPolicy(name: MyAllowSpecificOrigins, build =>
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-          build.WithOrigins(
-              "http://localhost:3000",
-              "http://localhost:3000/servers"
-            )
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-        });
-      });
-
-      // Add framework services.
-      var connectionString = Configuration.GetConnectionString("Default");
-      services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString, b => b.MigrationsAssembly("Web.Api.Infrastructure")));
-      services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
-      services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
-      services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
-      services.AddScoped<IExportUseCase, ExportUseCase>();
-      services.AddScoped<IManageRequestUseCase, ManageRequestUseCase>();
-      services.AddScoped<IGetEachRequestUseCase, GetEachRequestUseCase>();
-      // jwt wire up
-      // Get options from app settings
-      var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+            //Config CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("request", build =>
+                {
+                    build.WithOrigins("http://localhost:3000",
+                                        "http://localhost:3000/requests").AllowAnyOrigin().AllowAnyHeader()
+                                                      .AllowAnyMethod();
+                });
+            });
+            // Add framework services.
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+            services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
+            services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
+            services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
+            services.AddScoped<IExportUseCase, ExportUseCase>();
+            services.AddScoped<IManageRequestUseCase, ManageRequestUseCase>();
+            services.AddScoped<IGetEachRequestUseCase, GetEachRequestUseCase>();
+            //services.AddScoped<ICustomerRepository>();
+            // jwt wire up
+            // Get options from app settings
+            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
       // Configure JwtIssuerOptions
       services.Configure<JwtIssuerOptions>(options =>

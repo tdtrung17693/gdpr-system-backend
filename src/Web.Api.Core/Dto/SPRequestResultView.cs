@@ -19,6 +19,7 @@ namespace Web.Api.Core.Domain.Entities
             ApprovedBy = approvedBy;
             Id = id;
             CreatedAt = createdAt;
+            CreatedBy = createdBy;
             UpdatedBy = updatedBy;
             UpdatedAt = updatedAt;
             UpdatedBy = updatedBy;
