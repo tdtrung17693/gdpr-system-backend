@@ -55,5 +55,22 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return dt;
             }
         }
+
+        public async Task<DataTable> GetListLogOfRequest(Guid requestId)
+        {
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                var _requestId = new SqlParameter("@requestId", requestId);
+           
+                // var commandText = "exec getListServerFilter @filterKey";
+                command.CommandText = "GetHistoryLog";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(_requestId);
+                DataTable dt = new DataTable();
+                _context.Database.OpenConnection();
+                dt.Load(command.ExecuteReader());
+                return dt;
+            }
+        }
     }
 }

@@ -81,13 +81,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerName = (string)requestReader["ServerName"],
                     };
                     await _eventBus.Trigger(requestCreatedEvent);
-                    _eventBus.Trigger(new RequestNotiToAdmin(
+                    /*_eventBus.Trigger(new RequestNotiToAdmin(
                         Convert.ToString(requestReader["RequesterFullName"]),
                         (string)requestReader["ServerName"],
                         (Guid)requestReader["RequestId"],
                         (Guid)requestReader["ServerId"],
                         Convert.ToDateTime(requestReader["CreatedAt"]))
-                      );
+                      );*/
                     _eventBus.Trigger(new CreateLog((Guid)requestReader["RequestId"], "", "Created", "", "", (Guid)requestReader["RequesterId"])); 
                     command.Connection.Close();
                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
@@ -116,7 +116,18 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
                 _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
                 var success = await _context.SaveChangesAsync();
-                _eventBus.Trigger(new CreateLog(request.Id, "", request.RequestStatus,"", "", Guid.Empty));
+                
+                var command = _context.Database.GetDbConnection().CreateCommand();
+
+                if (success == 0)
+                {
+                }
+                if (command.Connection.State == ConnectionState.Closed) await command.Connection.OpenAsync();
+
+                _eventBus.Trigger(new CreateLog(request.Id, "", request.RequestStatus,"", "", request.UpdatedBy));
+
+                command.Connection.Close();
+
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
