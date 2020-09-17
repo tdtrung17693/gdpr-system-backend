@@ -25,14 +25,15 @@ namespace Web.Api.Infrastructure.Data.Mapping
                 String.Format("{0:F}", res.UpdatedAt),
                 null,
                 null,
-                res.ServerName ,
+                res.ServerName,
                 res.ServerIP,
-                (res.CreatedByFName !=null && res.CreatedByLName !=null) ? res.CreatedByFName + " " + res.CreatedByLName : "-",
+                (res.CreatedByFName != null && res.CreatedByLName != null) ? res.CreatedByFName + " " + res.CreatedByLName : "-",
                 res.CreatedByEmail,
+                (res.CreatedByFName != null && res.CreatedByLName != null) ? res.CreatedByFName + " " + res.CreatedByLName + " - " + res.CreatedByEmail : "God",
                 (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedByFName + " " + res.UpdatedByLName : "-",
                 res.UpdatedByEmail,
-                (res.CreatedByFName != null && res.CreatedByLName != null) ?  res.CreatedByFName + " " + res.CreatedByLName + " - " + res.CreatedByEmail: "God",
-                (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedByFName + " " + res.UpdatedByLName + " - " + res.UpdatedByEmail : "-"
+                (res.UpdatedByFName != null && res.UpdatedByLName != null) ? res.UpdatedByFName + " " + res.UpdatedByLName + " - " + res.UpdatedByEmail : "-",
+                res.RoleName
                 ));
 
             CreateMap<SPRequestResultExportView, ExportRequestDetail>().ConstructUsing(res => new ExportRequestDetail(

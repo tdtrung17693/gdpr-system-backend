@@ -105,7 +105,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(Guid Uid, int PageNo, int PageSize, string Keyword, string FilterStatus/*,
+            public async Task<IList<RequestDetail>> GetRequest(Guid? Uid, int PageNo, int PageSize, string Keyword, string FilterStatus/*,
                                                                 DateTime? FromDateExport = null, DateTime? ToDateExport = null*/)
             {
                 var parameters = new List<SqlParameter>();
@@ -153,13 +153,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             //    return result;
             //}
 
-            public RequestDetail getEachRequest(string requestId)
+            public RequestDetail getEachRequest(string requestId, string role)
             {
                 var parameters = new List<SqlParameter>();
                 var rId = new SqlParameter("@rId", requestId);
                 parameters.Add(rId);
                 var sqlQuery = "EXEC GetEachRequest @IdRequest=@rId";
                 List<SPRequestResultView> resultEachRequest = _context.SPRequestResultView.FromSql(sqlQuery, parameters.ToArray()).ToList();
+                resultEachRequest[0].RoleName = role;
                 if (resultEachRequest != null) return _mapper.Map<RequestDetail>(resultEachRequest[0]);
                 return null;
             }

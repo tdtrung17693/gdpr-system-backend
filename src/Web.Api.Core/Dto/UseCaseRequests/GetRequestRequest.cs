@@ -9,7 +9,7 @@ namespace Web.Api.Core.Dto.UseCaseRequests
 {
     public class GetRequestRequest : IUseCaseRequest<GetRequestResponse>
     {
-        public GetRequestRequest(Guid uid,int pageNo, int pageSize, string keyword, string filterStatus, /*DateTime? fromDateExport , DateTime? toDateExport, */string type)
+        public GetRequestRequest(Guid? uid,int pageNo, int pageSize, string keyword, string filterStatus, /*DateTime? fromDateExport , DateTime? toDateExport, */string type)
         {
             FilterStatus = filterStatus;
             PageNo = pageNo;
@@ -28,6 +28,6 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public string Type { get; set; }
         public DateTime? FromDateExport { get; set; }
         public DateTime? ToDateExport { get; set; }
-        public Guid Uid { get; set; }
+        public Guid? Uid { get; set; }
     }
 }
