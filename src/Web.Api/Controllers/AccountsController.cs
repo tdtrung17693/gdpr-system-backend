@@ -1,17 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using AutoMapper;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Core.Domain.Entities;
-using Web.Api.Core.Dto.UseCaseRequests;
-using Web.Api.Core.Dto.UseCaseResponses.Account;
-using Web.Api.Core.Dto.UseCaseResponses.User;
-using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
-using Web.Api.Core.Interfaces.UseCases;
+using Microsoft.AspNetCore.Authorization;
 using Web.Api.Core.Interfaces.UseCases.Account;
-using Web.Api.Models.Request;
+using Web.Api.Core.Dto.UseCaseResponses.Account;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Presenters;
 using Web.Api.Serialization;
 using ChangePasswordRequest = Web.Api.Core.Dto.UseCaseRequests.Account.ChangePasswordRequest;
@@ -56,7 +50,6 @@ namespace Web.Api.Controllers
       var user = _authService.GetCurrentUser();
       var notifications = await _notiRepo.GetNotificationOf((System.Guid) user.Id, 1);
       var totalUnreadNotifications = await _notiRepo.CountAllUnreadNotificationsOf((System.Guid) user.Id);
-
       return new
       {
         user.Id,
@@ -96,7 +89,7 @@ namespace Web.Api.Controllers
       _changePasswordPresenter.HandleResource = r => r.Success ? "" : JsonSerializer.SerializeObject(new {r.Errors});
 
       var response = await _changePasswordUseCase.Handle(
-        new Core.Dto.UseCaseRequests.Account.ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
+        new ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
         _changePasswordPresenter
       );
       

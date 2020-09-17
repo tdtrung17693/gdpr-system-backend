@@ -79,14 +79,26 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       return true;
     }
 
-    public async Task<IEnumerable<Notification>> GetNotificationOf(Guid userId, int page, int pageSize = 5)
+    public async Task<Pagination<Notification>> GetNotificationOf(Guid userId, int page, int pageSize = 5)
     {
-      return await _context.Notification
-          .Where(u => u.ToUserId == userId)
-          .OrderByDescending(n => n.CreatedAt)
-          .Skip(page * pageSize)
-          .Take(pageSize)
-          .ToListAsync();
+      var query = _context.Set<Notification>();
+      var data = await query
+        .Where(u => u.ToUserId == userId)
+        .OrderByDescending(n => n.CreatedAt)
+        .Select(n => n)
+        .Skip(page * pageSize)
+        .Take(pageSize)
+        .GroupBy(noti => new {Total = query.Count()})
+        .FirstOrDefaultAsync();
+
+      
+      return new Pagination<Notification>()
+      {
+        Items = data.Select(n => n).ToList(),
+        TotalItems = data.Key.Total,
+        TotalPages = (int)Math.Ceiling( data.Key.Total * 1.0 / pageSize),
+        Page = page
+      };
     }
 
     public async Task<int> CountAllUnreadNotificationsOf(Guid userId)

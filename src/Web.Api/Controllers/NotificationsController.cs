@@ -31,7 +31,7 @@ namespace Web.Api.Controllers
 
     [HttpGet("more")]
     [Authorize()]
-    public async Task<IEnumerable<Notification>> GetNotifications([FromQuery] GetNotificationsRequest request)
+    public async Task<Pagination<Notification>> GetNotifications([FromQuery] GetNotificationsRequest request)
     {
       if (request.Page < 0)
       {
