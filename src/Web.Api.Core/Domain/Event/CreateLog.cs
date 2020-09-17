@@ -5,12 +5,12 @@ namespace Web.Api.Core.Domain.Event
 {
     public class CreateLog : IEvent
     {
-        public Guid? RequestId { get; }
-        public string UpdatedField { get; }
-        public string UpdatedState { get; }
-        public string PreviousState { get; }
-        public string Message { get; }
-        public Guid? CreatedBy { get; }
+        public Guid? RequestId { get; set; }
+        public string UpdatedField { get; set; }
+        public string UpdatedState { get; set; }
+        public string PreviousState { get; set; }
+        public string Message { get; set; }
+        public Guid? CreatedBy { get; set; }
 
         public CreateLog(Guid? requestId, string updatedField, string updatedState, string previousState, string message, Guid? createdBy)
         {

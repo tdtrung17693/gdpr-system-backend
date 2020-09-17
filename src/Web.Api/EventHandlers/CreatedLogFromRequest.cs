@@ -22,6 +22,8 @@ namespace Web.Api.EventHandlers
         public async Task HandleAsync(CreateLog ev)
         {
             var creator = await _context.User.Where(user => user.Id == ev.CreatedBy).ToListAsync();
+            var role = await _context.Role.Where(role => role.Id == creator[0].RoleId).ToListAsync();
+            ev.UpdatedField = role[0].Name;
             await _logRepo.Create(ev, creator[0]);
 
         }
