@@ -56,7 +56,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 command.Parameters.Add(toDate);
                 command.Parameters.Add(server);
                 command.Parameters.Add(description);
-                
+
+    
+
                 var success = await _context.SaveChangesAsync();
 
                 if (success == 0)
@@ -79,6 +81,28 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerName = (string)requestReader["ServerName"],
                     };
                     await _eventBus.Trigger(requestCreatedEvent);
+
+                    // send email to admin
+
+                    /*var commandEmail = _context.Database.GetDbConnection().CreateCommand();
+                    commandEmail.CommandText = "GetAdminEmailListToSendEmail";
+                    commandEmail.CommandType = CommandType.StoredProcedure;
+
+                    await commandEmail.Connection.OpenAsync();
+                    DataTable dt = new DataTable();
+                    var requestReadEmail = await commandEmail.ExecuteReaderAsync();
+                    dt.Load(requestReadEmail);
+                    dt.Rows.OfType<DataRow>().Select(dt => dt.Field<string>("Email"))
+                    commandEmail.Connection.Close();*/
+                    await _eventBus.Trigger(new RequestNotiToAdmin(
+                        Convert.ToString(requestReader["RequesterFullName"]),
+                        (string)requestReader["ServerName"],
+                        (Guid)requestReader["RequestId"],
+                        (Guid)requestReader["ServerId"],
+                        Convert.ToDateTime(requestReader["CreatedAt"]))
+                      );
+
+                    command.Connection.Close();
                     return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
                 }
                 catch (SqlException e)

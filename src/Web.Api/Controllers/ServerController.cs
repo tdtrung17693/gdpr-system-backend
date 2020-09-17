@@ -148,6 +148,28 @@ namespace Web.Api.Controllers
             return dt;
         }
 
+        [HttpGet("count")]
+        public ActionResult<DataTable> CountServers()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.CountServers();
+            return dt;
+        }
+
+        [HttpPost("paging")]
+        public ActionResult<DataTable> Paging([FromBody] PagedServerRequest paged)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.Paging(paged.page, paged.pageSize, paged.sortedBy, paged.sortOrder, paged.filterBy);
+            return dt;
+        }
+
         //UPDATE
         [HttpPut]
         public async Task<ActionResult> UpdateServer([FromBody] ServerUpdateRequest server)
