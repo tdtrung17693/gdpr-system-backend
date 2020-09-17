@@ -138,21 +138,24 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         //export
         public async Task<ExportCSVByCustomerResponse> GetExportServers(ExportServerRequest request)
         {
+            var response =
+                            (from c in _context.Customer
+                             join cusser in _context.CustomerServer
+                 on c.Id equals cusser.CustomerId into newcs
+                             from ncs in newcs.DefaultIfEmpty()
+                             join s in _context.Server
+                 on ncs.ServerId equals s.Id
+                             where s.StartDate >= request.FromDate && s.EndDate <= request.ToDate
+                             select new
+                             {
+                                 cusName = c.Name,
+                                 Name = s.Name,
+                                 IpAddress = s.IpAddress,
+                                 StartDate = s.StartDate,
+                                 EndDate = s.EndDate,
+                             }
+                              ).GroupBy(c => c.Name).ToList();
 
-            var response = (from u in _context.User
-                            join s in _context.Server
-                            on u.Id equals s.CreatedBy
-                            where s.StartDate >= request.FromDate && s.EndDate <= request.ToDate 
-                            select new
-                            {
-                                FirstName = u.FirstName,
-                                LastName = u.LastName,
-                                Name = s.Name,
-                                IpAddress = s.IpAddress,
-                                StartDate = s.StartDate,
-                                EndDate = s.EndDate,
-                            }
-                            ).GroupBy(u => u.FirstName).ToList();
             return new ExportCSVByCustomerResponse(response, true, null);
         }
 
