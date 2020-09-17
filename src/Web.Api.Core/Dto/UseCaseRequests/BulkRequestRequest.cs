@@ -11,11 +11,11 @@ namespace Web.Api.Core.Dto.UseCaseRequests
     public class BulkRequestRequest: IUseCaseRequest<BulkRequestResponse>
     {
         public DataTable IdList { get; set; }
-        public bool Status { get; set; }
+        public string Status { get; set; }
         public Guid Updator { get; set; }
 
 
-        public BulkRequestRequest(DataTable idList, bool status, Guid updator)
+        public BulkRequestRequest(DataTable idList, string status, Guid updator)
         {
             IdList = idList;
             Status = status;

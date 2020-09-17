@@ -8,13 +8,9 @@ using FluentEmail.Core.Interfaces;
 using FluentEmail.Razor;
 using FluentEmail.Smtp;
 using System.Net.Mail;
-using Web.Api.Infrastructure.Event;
-using Web.Api.Core.Interfaces.Services.Event;
-using Microsoft.AspNetCore.Http;
-using Web.Api.Core.Domain.Event;
-using Web.Api.Domain.Event;
 using Web.Api.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
+using Web.Api.Infrastructure.Data.EntityFramework.Repositories.Web.Api.Infrastructure.Data.EntityFramework.Repositories;
 
 namespace Web.Api.Infrastructure
 {
@@ -29,24 +25,14 @@ namespace Web.Api.Infrastructure
       builder.RegisterType<ServerRepository>().As<IServerRepository>().InstancePerLifetimeScope();
       builder.RegisterType<CustomerRepository>().As<ICustomerRepository>().InstancePerLifetimeScope();
       builder.RegisterType<RequestRepository>().As<IRequestRepository>().InstancePerLifetimeScope();
+      builder.RegisterType<CommentRepository>().As<ICommentRepository>().InstancePerLifetimeScope();
+      builder.RegisterType<NotificationRepository>().As<INotificationRepository>().InstancePerLifetimeScope();
 
       // Services
       builder.RegisterType<JwtFactory>().As<IJwtFactory>().SingleInstance();
       builder.RegisterType<AuthService>().As<IAuthService>().InstancePerLifetimeScope();
       builder.RegisterType<MailService>().As<IMailService>().InstancePerLifetimeScope();
 
-      builder.Register(c =>
-      {
-        var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
-        eventBus.AddEventHandler<UserCreated, SendInviteMail>();
-        return eventBus;
-      }).As<IDomainEventBus>().SingleInstance();
-
-      builder.Register(c =>
-      {
-        var handler = new SendInviteMail(c.Resolve<IMailService>());
-        return handler;
-      }).As<SendInviteMail>().SingleInstance();
 
       // FluentEmail
       builder.Register(c =>
@@ -68,9 +54,12 @@ namespace Web.Api.Infrastructure
 
         return new SmtpSender(() =>
         {
-          var client = new SmtpClient(smtpServer, smtpPort);
-          client.Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword);
-          client.EnableSsl = true;
+          var client = new SmtpClient(smtpServer, smtpPort)
+          {
+            Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword),
+            EnableSsl = config.GetValue<bool>("Mail:EnableSsl"),
+            DeliveryMethod = config.GetValue<SmtpDeliveryMethod>("Mail:DeliveryMethod")
+          };
           return client;
         });
       }).As<ISender>().InstancePerLifetimeScope();

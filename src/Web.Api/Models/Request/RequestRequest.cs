@@ -17,8 +17,8 @@ namespace Web.Api.Models.Request
         public string RequestStatus { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public Guid? ServerId { get; set; }
         public string Response { get; set; }
         public Guid? ApprovedBy { get; set; }

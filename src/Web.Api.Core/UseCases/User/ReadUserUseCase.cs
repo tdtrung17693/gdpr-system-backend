@@ -6,6 +6,7 @@ using Web.Api.Core.Dto.UseCaseRequests.User;
 using Web.Api.Core.Dto.UseCaseResponses.User;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases.User;
 using DomainEntities = Web.Api.Core.Domain.Entities;
 
@@ -14,9 +15,14 @@ namespace Web.Api.Core.UseCases.User
   public sealed class ReadUserUseCase : IReadUserUseCase
   {
     private IUserRepository _userRepository;
-    public ReadUserUseCase(IUserRepository userRepository)
+    private Core.Domain.Entities.User _currentUser;
+    public ReadUserUseCase(IUserRepository userRepository, IAuthService authService)
     {
       _userRepository = userRepository;
+      // Inject authservice here to get the current logged in user, so that 
+      // their id could be accessed. 
+      // The Id is used in the query to exclude f
+      _currentUser = authService.GetCurrentUser();
     }
 
     public async Task<bool> Handle(ReadUserRequest message, IOutputPort<ReadUserResponse> outputPort)
@@ -50,6 +56,7 @@ namespace Web.Api.Core.UseCases.User
         {
           users.FilterBy(u => u.FirstName.Contains(filterStr) || u.LastName.Contains(filterStr) || u.Email.Contains(filterStr) || u.Account.Username.Contains(filterStr));
         }
+        users.FilterBy(u => u.Id != _currentUser.Id);
         if (message.SortedBy == "Username")
         {
           users.SortBy(u => u.Account.Username, message.SortOrder);

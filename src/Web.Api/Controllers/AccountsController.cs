@@ -3,12 +3,13 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.Account;
 using Web.Api.Core.Dto.UseCaseResponses.Account;
 using Web.Api.Core.Dto.UseCaseResponses.User;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.UseCases.Account;
-using Web.Api.Models.Request;
 using Web.Api.Presenters;
 using Web.Api.Serialization;
 
@@ -22,6 +23,7 @@ namespace Web.Api.Controllers
     private readonly IChangePasswordUseCase _changePasswordUseCase;
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;
+    private readonly INotificationRepository _notiRepo;
     private readonly ResourcePresenter<UpdateProfileInfoResponse> _updateProfileInfoPresenter;
     private readonly ResourcePresenter<ChangePasswordResponse> _changePasswordPresenter;
 
@@ -31,8 +33,8 @@ namespace Web.Api.Controllers
       IAuthService authService,
       IMapper mapper,
       ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter,
-      ResourcePresenter<ChangePasswordResponse> changePasswordPresenter
-    )
+      ResourcePresenter<ChangePasswordResponse> changePasswordPresenter,
+      INotificationRepository notiRepo)
     {
       _authService = authService;
       _mapper = mapper;
@@ -40,13 +42,15 @@ namespace Web.Api.Controllers
       _updateProfileInfoPresenter = updateProfileInfoPresenter;
       _changePasswordUseCase = changePasswordUseCase;
       _changePasswordPresenter = changePasswordPresenter;
+      _notiRepo = notiRepo;
     }
 
     [HttpGet("me")]
     [Authorize()]
-    public ActionResult<object> CurrentUser()
+    public async Task<ActionResult<object>> CurrentUser()
     {
       var user = _authService.GetCurrentUser();
+      var notifications = await _notiRepo.GetNotificationOf((System.Guid)user.Id);
 
       return new
       {
@@ -57,7 +61,8 @@ namespace Web.Api.Controllers
         user.RoleId,
         user.Email,
         Role = user.Role.Name,
-        Permissions = _authService.GetAllPermissions()
+        Permissions = _authService.GetAllPermissions(),
+        Notifications = notifications
       };
     }
 

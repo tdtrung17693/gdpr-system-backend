@@ -172,7 +172,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 .Select(s => new {
                     Request = s.Request
                 .Where(r => r.ApprovedBy != null)
-                .Select(r => new { s.Id, s.Name, s.IpAddress, r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email })
+                .Select(r => new {s.Name, s.IpAddress, r.Title, startDate = string.Format("{0:dd/MM/yyyy}", r.StartDate),
+                    endDate = string.Format("{0:dd/MM/yyyy}", r.EndDate), Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email })
                 })
                 .ToListAsync();
             return new ExportCSVByCustomerResponse(response, true, null);

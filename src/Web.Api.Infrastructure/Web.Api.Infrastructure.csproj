@@ -34,10 +34,13 @@
     <Compile Remove="Migrations\20200831041031_initial.Designer.cs" />
     <Compile Remove="Migrations\20200831085636_AddInversedNavigationToUser.cs" />
     <Compile Remove="Migrations\20200831085636_AddInversedNavigationToUser.Designer.cs" />
+    <Compile Remove="Migrations\20200915074337_sp-CreateNotifications.cs" />
+    <Compile Remove="Migrations\20200915074337_sp-CreateNotifications.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="automapper" Version="7.0.1" />
+    <PackageReference Include="AutoMapper.Data" Version="2.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.0" />
     <PackageReference Include="FluentEmail.Razor" Version="2.3.2" />
     <PackageReference Include="FluentEmail.Smtp" Version="2.8.0" />

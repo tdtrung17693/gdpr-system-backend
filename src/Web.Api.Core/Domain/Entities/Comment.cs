@@ -23,5 +23,6 @@ namespace Web.Api.Core.Domain.Entities
         public virtual Comment Parent { get; set; }
         public virtual Request Request { get; set; }
         public virtual ICollection<Comment> InverseParent { get; set; }
+        public virtual User Author { get; set; }
     }
 }
