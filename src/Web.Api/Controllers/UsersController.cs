@@ -161,7 +161,7 @@ namespace Web.Api.Controllers
         }
 
      //Khoa
-     [HttpGet("avatar/id={id}")]
+     [HttpGet("avatar/{id}")]
      public async Task<Object> GetAvatar(string id)
      {
         return await _userRepository.GetAvatar(id);

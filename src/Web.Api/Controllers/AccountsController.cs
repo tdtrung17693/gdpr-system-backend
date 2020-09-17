@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Interfaces.Services;
@@ -50,6 +51,7 @@ namespace Web.Api.Controllers
       var user = _authService.GetCurrentUser();
       var notifications = await _notiRepo.GetNotificationOf((System.Guid) user.Id, 1);
       var totalUnreadNotifications = await _notiRepo.CountAllUnreadNotificationsOf((System.Guid) user.Id);
+      
       return new
       {
         user.Id,
