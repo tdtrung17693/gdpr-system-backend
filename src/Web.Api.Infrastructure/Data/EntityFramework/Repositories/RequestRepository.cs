@@ -177,12 +177,23 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
             {
+                var sql = "";
                 var parameters = new List<SqlParameter>();
                 var fromDate = new SqlParameter("@FromDateInput", request.fromDate);
                 parameters.Add(fromDate);
                 var toDate = new SqlParameter("@ToDateInput", request.toDate);
                 parameters.Add(toDate);
-                var sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
+                if (fromDate == null || toDate == null) { sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput"; }
+                else
+                {
+                    var nparameters = new List<SqlParameter>();
+                    var _requestIdList = new SqlParameter("@RequestIds", request.guids);
+                    _requestIdList.SqlDbType = SqlDbType.Structured;
+                    _requestIdList.TypeName = "dbo.IdList";
+                    nparameters.Add(_requestIdList);
+                    sql = "EXEC dbo.GetMutilRequestExport @RequestIds";
+                }
+
                 List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
                 if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
                 return null;

@@ -121,6 +121,7 @@ namespace Web.Api.Controllers
             string filterStatus = Constants.DefaultValues.filterStatus /*, 
                             DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
         {
+            var role = this.User.Claims.First(i => i.Type == "id").Value;
             await _getRequestUseCase.Handle(
                 new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
                     "getAll"), _getRequestPresenter);
@@ -140,12 +141,6 @@ namespace Web.Api.Controllers
             return _getEachRequestPresenter.ContentResult;
         }
 
-        //[HttpGet("search/{keyword}")]
-        //public ActionResult<IEnumerable<RequestJoined>> GetRequestFilter(string keyword, int pageNo = Constants.DefaultValues.Paging.PageNo, int pageSize = Constants.DefaultValues.Paging.PageSize)
-        //{
-        //    var requestItems = _repository.GetRequestFilter(keyword, pageNo, pageSize);
-        //    return Ok(_mapper.Map<IEnumerable<RequestJoined>>(requestItems));
-        //}
 
 
         //UPDATE
