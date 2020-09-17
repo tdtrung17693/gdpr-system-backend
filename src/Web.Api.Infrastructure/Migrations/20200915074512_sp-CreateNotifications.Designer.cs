@@ -10,13 +10,8 @@ using Web.Api.Infrastructure.Data.EntityFramework;
 namespace Web.Api.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200915074512_sp-CreateNotifications.Designer.cs
     [Migration("20200915074512_sp-CreateNotifications")]
     partial class spCreateNotifications
-=======
-    [Migration("20200914072323_AddNotification")]
-    partial class AddNotification
->>>>>>> 9546c9e40d75c5c147a3a4ec2b88b1d7b91490d5:src/Web.Api.Infrastructure/Migrations/20200914072323_AddNotification.Designer.cs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -392,7 +387,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid>("Id");
+                    b.Property<Guid?>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -623,12 +618,8 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")
                         .HasForeignKey("ServerId")
-<<<<<<< HEAD:src/Web.Api.Infrastructure/Migrations/20200915074512_sp-CreateNotifications.Designer.cs
                         .HasConstraintName("fk_Request_serverId")
                         .OnDelete(DeleteBehavior.Cascade);
-=======
-                        .HasConstraintName("fk_Request_serverId");
->>>>>>> 9546c9e40d75c5c147a3a4ec2b88b1d7b91490d5:src/Web.Api.Infrastructure/Migrations/20200914072323_AddNotification.Designer.cs
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>

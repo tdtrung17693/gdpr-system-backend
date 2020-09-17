@@ -34,6 +34,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         public virtual DbSet<UserLog> UserLog { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
         public DbQuery<SPRequestResultView> SPRequestResultView { get; set; }
+        
+        public DbQuery<SPRequestResultExportView> SPRequestResultExportView { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
