@@ -105,10 +105,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(int PageNo, int PageSize, string Keyword, string FilterStatus/*,
+            public async Task<IList<RequestDetail>> GetRequest(Guid Uid, int PageNo, int PageSize, string Keyword, string FilterStatus/*,
                                                                 DateTime? FromDateExport = null, DateTime? ToDateExport = null*/)
             {
                 var parameters = new List<SqlParameter>();
+                var uid = new SqlParameter("@uid",Uid);
+                parameters.Add(uid);
                 var pageNo = new SqlParameter("@PageNumber", PageNo);
                 parameters.Add(pageNo);
                 var pageSize = new SqlParameter("@RowsOfPage", PageSize);
@@ -120,13 +122,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     parameters.Add(keyword);
                     var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
                     parameters.Add(filterStatus);
-                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                    sql = "EXEC GetRequestPagination @uId=@uid, @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 }
                 else
                 {
                     var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
                     parameters.Add(filterStatus);
-                    sql = "EXEC GetRequestPagination @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
+                    sql = "EXEC GetRequestPagination @uId=@uid, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 }
                 /*if (FromDateExport is null || ToDateExport is null)
                 {
