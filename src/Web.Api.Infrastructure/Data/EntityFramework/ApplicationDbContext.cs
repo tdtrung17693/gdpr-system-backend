@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Web.Api.Core.Domain.Entities;
+using Web.Api.Core.Interfaces.Services;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework
 {
-    public class ApplicationDbContext : DbContext
+  public class ApplicationDbContext : DbContext
+  {
+    private IHttpContextAccessor _httpContext;
+    public ApplicationDbContext() { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-        }
+      _httpContext = httpContextAccessor;
+    }
 
         public virtual DbSet<Account> Account { get; set; }
         public virtual DbSet<Comment> Comment { get; set; }
@@ -27,276 +32,272 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserFileInstance> UserFileInstance { get; set; }
         public virtual DbSet<UserLog> UserLog { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
         public DbQuery<SPRequestResultView> SPRequestResultView { get; set; }
         public DbQuery<SPRequestResultExportView> SPRequestResultExportView { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+      {
+        // Use the entity name instead of the Context.DbSet<T> name
+        // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
+        // modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+      }
 
-            //modelBuilder.Ignore<SPRequestResultView>();
+      modelBuilder.Entity<Account>(entity =>
+      {
+        entity.HasIndex(e => e.Username)
+                  .HasName("UQ__Account__536C85E4D807EB86")
+                  .IsUnique();
 
-            //foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            //{
-            //    // Use the entity name instead of the Context.DbSet<T> name
-            //    // refs https://docs.microsoft.com/en-us/ef/core/modeling/entity-types?tabs=fluent-api#table-name
-            //    modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
-            //}
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-            
+        entity.Property(e => e.HashedPassword)
+                  .IsRequired()
+                  .HasMaxLength(256);
 
-            modelBuilder.Entity<Account>(entity =>
-            {
-                entity.HasIndex(e => e.Username)
-                    .HasName("UQ__Account__536C85E4D807EB86")
-                    .IsUnique();
+        entity.Property(e => e.Salt)
+                  .IsRequired()
+                  .HasMaxLength(20);
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+        entity.Property(e => e.Username).HasMaxLength(20);
 
-                entity.Property(e => e.HashedPassword)
-                    .IsRequired()
-                    .HasMaxLength(256);
+        entity.HasOne(d => d.User)
+                  .WithOne(p => p.Account)
+                  .HasConstraintName("fk_Account_userId");
+      });
 
-                entity.Property(e => e.Salt)
-                    .IsRequired()
-                    .HasMaxLength(20);
+      modelBuilder.Entity<Comment>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Username).HasMaxLength(20);
+        entity.Property(e => e.Content)
+                  .IsRequired()
+                  .HasMaxLength(300);
 
-                entity.HasOne(d => d.User)
-                    .WithOne(p => p.Account)
-                    .HasConstraintName("fk_Account_userId");
+        entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime")
+                  .HasDefaultValueSql("(getutcdate())");
+
+        entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+
+        entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
+
+        entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+
+        entity.HasOne(d => d.Author)
+          .WithMany(p => p.CommentCreatedByNavigation)
+          .HasForeignKey(d => d.CreatedBy)
+          .HasConstraintName("fk_Comment_createdBy");
+
+              // entity.HasOne(d => d.DeletedByNavigation)
+              //     .WithMany(p => p.CommentDeletedByNavigation)
+              //     .HasForeignKey(d => d.DeletedBy)
+              //     .HasConstraintName("fk_Comment_deletedBy");
+
+              entity.HasOne(d => d.Parent)
+                  .WithMany(p => p.InverseParent)
+                  .HasForeignKey(d => d.ParentId)
+                  .HasConstraintName("fk_Comment_parentId");
+
+        entity.HasOne(d => d.Request)
+                  .WithMany(p => p.Comment)
+                  .HasForeignKey(d => d.RequestId)
+                  .HasConstraintName("fk_Comment_requestId");
+
+              // entity.HasOne(d => d.UpdatedByNavigation)
+              //     .WithMany(p => p.CommentUpdatedByNavigation)
+              //     .HasForeignKey(d => d.UpdatedBy)
+              //     .HasConstraintName("fk_Comment_updatedBy");
             });
 
-            modelBuilder.Entity<Comment>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+      modelBuilder.Entity<Customer>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Content)
-                    .IsRequired()
-                    .HasMaxLength(300);
+        entity.Property(e => e.ContractBeginDate).HasColumnType("date");
 
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
+        entity.Property(e => e.ContractEndDate).HasColumnType("date");
 
-                entity.Property(e => e.DeletedAt).HasColumnType("datetime");
+        entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime")
+                  .HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
+        entity.Property(e => e.Description).HasMaxLength(200);
 
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        entity.Property(e => e.Name)
+                  .IsRequired()
+                  .HasMaxLength(50);
 
-                // entity.HasOne(d => d.CreatedByNavigation)
-                //     .WithMany(p => p.CommentCreatedByNavigation)
-                //     .HasForeignKey(d => d.CreatedBy)
-                //     .HasConstraintName("fk_Comment_createdBy");
+        entity.Property(e => e.Status).HasDefaultValueSql("((1))");
 
-                // entity.HasOne(d => d.DeletedByNavigation)
-                //     .WithMany(p => p.CommentDeletedByNavigation)
-                //     .HasForeignKey(d => d.DeletedBy)
-                //     .HasConstraintName("fk_Comment_deletedBy");
+        entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        entity.HasOne(d => d.ContactPointNavigation)
+             .WithMany(p => p.CustomerContactPointNavigation)
+             .HasForeignKey(d => d.ContactPoint)
+             .HasConstraintName("fk_Customer_contactPoint");
 
-                entity.HasOne(d => d.Parent)
-                    .WithMany(p => p.InverseParent)
-                    .HasForeignKey(d => d.ParentId)
-                    .HasConstraintName("fk_Comment_parentId");
+        // entity.HasOne(d => d.CreatedByNavigation)
+        //     .WithMany(p => p.CustomerCreatedByNavigation)
+        //     .HasForeignKey(d => d.CreatedBy)
+        //     .HasConstraintName("fk_Customer_createdBy");
 
-                entity.HasOne(d => d.Request)
-                    .WithMany(p => p.Comment)
-                    .HasForeignKey(d => d.RequestId)
-                    .HasConstraintName("fk_Comment_requestId");
+        // entity.HasOne(d => d.UpdatedByNavigation)
+        //     .WithMany(p => p.CustomerUpdatedByNavigation)
+        //     .HasForeignKey(d => d.UpdatedBy)
+        //     .HasConstraintName("fk_Customer_updatedBy");
+      });
 
-                // entity.HasOne(d => d.UpdatedByNavigation)
-                //     .WithMany(p => p.CommentUpdatedByNavigation)
-                //     .HasForeignKey(d => d.UpdatedBy)
-                //     .HasConstraintName("fk_Comment_updatedBy");
-            });
+      modelBuilder.Entity<CustomerServer>(entity =>
+      {
+        entity.HasKey(e => new { e.CustomerId, e.ServerId })
+                  .HasName("PK__Customer__D8F8C856E0763940");
 
-            modelBuilder.Entity<Customer>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+        entity.HasOne(d => d.Customer)
+                  .WithMany(p => p.CustomerServer)
+                  .HasForeignKey(d => d.CustomerId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("fk_CustomerServer_CustomerId");
 
-                entity.Property(e => e.ContractBeginDate).HasColumnType("date");
+        entity.HasOne(d => d.Server)
+                  .WithMany(p => p.CustomerServer)
+                  .HasForeignKey(d => d.ServerId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("fk_CustomerServer_ServerId");
+      });
 
-                entity.Property(e => e.ContractEndDate).HasColumnType("date");
+      modelBuilder.Entity<EmailLog>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
+        entity.Property(e => e.Content).HasMaxLength(300);
 
-                entity.Property(e => e.Description).HasMaxLength(200);
+        entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime")
+                  .HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
+        entity.Property(e => e.Receiver).HasMaxLength(256);
 
-                entity.Property(e => e.Status).HasDefaultValueSql("((1))");
+        entity.Property(e => e.Status).HasMaxLength(50);
 
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        entity.Property(e => e.Subject).HasMaxLength(300);
+      });
 
-                // entity.HasOne(d => d.CreatedByNavigation)
-                //     .WithMany(p => p.CustomerCreatedByNavigation)
-                //     .HasForeignKey(d => d.CreatedBy)
-                //     .HasConstraintName("fk_Customer_createdBy");
+      modelBuilder.Entity<FileInstance>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                // entity.HasOne(d => d.UpdatedByNavigation)
-                //     .WithMany(p => p.CustomerUpdatedByNavigation)
-                //     .HasForeignKey(d => d.UpdatedBy)
-                //     .HasConstraintName("fk_Customer_updatedBy");
-            });
+        entity.Property(e => e.Extension)
+                  .IsRequired()
+                  .HasMaxLength(5);
 
-            modelBuilder.Entity<CustomerServer>(entity =>
-            {
-                entity.HasKey(e => new { e.CustomerId, e.ServerId })
-                    .HasName("PK__Customer__D8F8C856E0763940");
+        entity.Property(e => e.FileName)
+                  .IsRequired()
+                  .HasMaxLength(20);
 
-                entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.CustomerServer)
-                    .HasForeignKey(d => d.CustomerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_CustomerServer_CustomerId");
+        entity.Property(e => e.Path)
+                  .IsRequired()
+                  .HasMaxLength(200);
+      });
 
-                entity.HasOne(d => d.Server)
-                    .WithMany(p => p.CustomerServer)
-                    .HasForeignKey(d => d.ServerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_CustomerServer_ServerId");
-            });
+      modelBuilder.Entity<HistoryLog>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<EmailLog>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+        entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime")
+                  .HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.Content).HasMaxLength(300);
+        entity.Property(e => e.Message)
+                  .IsRequired()
+                  .HasMaxLength(100);
 
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
+        entity.Property(e => e.PreviousState)
+                  .IsRequired()
+                  .HasMaxLength(50);
 
-                entity.Property(e => e.Receiver).HasMaxLength(256);
+        entity.Property(e => e.UpdatedField)
+                  .IsRequired()
+                  .HasMaxLength(50);
 
-                entity.Property(e => e.Status).HasMaxLength(50);
+        entity.Property(e => e.UpdatedState)
+                  .IsRequired()
+                  .HasMaxLength(50);
 
-                entity.Property(e => e.Subject).HasMaxLength(300);
-            });
+        entity.HasOne(d => d.Request)
+                  .WithMany(p => p.HistoryLog)
+                  .HasForeignKey(d => d.RequestId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("fk_HistoryLog_requestId");
+      });
 
-            modelBuilder.Entity<FileInstance>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+      modelBuilder.Entity<Permission>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Extension)
-                    .IsRequired()
-                    .HasMaxLength(5);
+        entity.Property(e => e.PermissionName).HasMaxLength(20);
+      });
 
-                entity.Property(e => e.FileName)
-                    .IsRequired()
-                    .HasMaxLength(20);
+      modelBuilder.Entity<PermissionRole>(entity =>
+      {
+        entity.HasKey(e => new { e.RoleId, e.PermissionId })
+                  .HasName("PK__Permissi__6400A1A8B1FCF168");
 
-                entity.Property(e => e.Path)
-                    .IsRequired()
-                    .HasMaxLength(200);
-            });
+        entity.HasOne(d => d.Permission)
+                  .WithMany(p => p.PermissionRole)
+                  .HasForeignKey(d => d.PermissionId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("fk_PermissionRole_permission");
 
-            modelBuilder.Entity<HistoryLog>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+        entity.HasOne(d => d.Role)
+                  .WithMany(p => p.PermissionRole)
+                  .HasForeignKey(d => d.RoleId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("fk_PermissionRole_role");
+      });
 
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
+      modelBuilder.Entity<Request>(entity =>
+      {
+        entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Message)
-                    .IsRequired()
-                    .HasMaxLength(100);
+        entity.Property(e => e.CreatedAt)
+                  .HasColumnType("datetime")
+                  .HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.PreviousState)
-                    .IsRequired()
-                    .HasMaxLength(50);
+        entity.Property(e => e.DeletedAt).HasColumnType("datetime");
 
-                entity.Property(e => e.UpdatedField)
-                    .IsRequired()
-                    .HasMaxLength(50);
+        entity.Property(e => e.Description).HasMaxLength(100);
 
-                entity.Property(e => e.UpdatedState)
-                    .IsRequired()
-                    .HasMaxLength(50);
+        entity.Property(e => e.EndDate).HasColumnType("datetime");
 
-                entity.HasOne(d => d.Request)
-                    .WithMany(p => p.HistoryLog)
-                    .HasForeignKey(d => d.RequestId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_HistoryLog_requestId");
-            });
+        entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
 
-            modelBuilder.Entity<Permission>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+        entity.Property(e => e.Response).HasMaxLength(200);
 
-                entity.Property(e => e.PermissionName).HasMaxLength(20);
-            });
+        entity.Property(e => e.StartDate).HasColumnType("datetime");
 
-            modelBuilder.Entity<PermissionRole>(entity =>
-            {
-                entity.HasKey(e => new { e.RoleId, e.PermissionId })
-                    .HasName("PK__Permissi__6400A1A8B1FCF168");
-
-                entity.HasOne(d => d.Permission)
-                    .WithMany(p => p.PermissionRole)
-                    .HasForeignKey(d => d.PermissionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_PermissionRole_permission");
-
-                entity.HasOne(d => d.Role)
-                    .WithMany(p => p.PermissionRole)
-                    .HasForeignKey(d => d.RoleId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_PermissionRole_role");
-            });
-
-            modelBuilder.Entity<Request>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
-
-                entity.Property(e => e.DeletedAt).HasColumnType("datetime");
-
-                entity.Property(e => e.Description).HasMaxLength(100);
-
-                entity.Property(e => e.EndDate).HasColumnType("datetime");
-
-                entity.Property(e => e.IsDeleted).HasDefaultValueSql("((0))");
-
-                entity.Property(e => e.Response).HasMaxLength(200);
-
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
-
+        entity.Property(e => e.Status).HasMaxLength(50);
                 entity.Property(e => e.RequestStatus).HasMaxLength(50);
 
-                entity.Property(e => e.Title).HasMaxLength(50);
+        entity.Property(e => e.Title).HasMaxLength(50);
 
-                entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
+        entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
-                // entity.HasOne(d => d.ApprovedByNavigation)
-                //     .WithMany(p => p.RequestApprovedByNavigation)
-                //     .HasForeignKey(d => d.ApprovedBy)
-                //     .HasConstraintName("fk_Request_approvedBy");
+        entity.HasOne(d => d.ApprovedByNavigation)
+            .WithMany(p => p.RequestApprovedByNavigation)
+            .HasForeignKey(d => d.ApprovedBy)
+            .HasConstraintName("fk_Request_approvedBy");
 
-                // entity.HasOne(d => d.CreatedByNavigation)
-                //     .WithMany(p => p.RequestCreatedByNavigation)
-                //     .HasForeignKey(d => d.CreatedBy)
-                //     .HasConstraintName("fk_Request_createdBy");
+        entity.HasOne(d => d.CreatedByNavigation)
+            .WithMany(p => p.RequestCreatedByNavigation)
+            .HasForeignKey(d => d.CreatedBy)
+            .HasConstraintName("fk_Request_createdBy");
 
-                // entity.HasOne(d => d.DeletedByNavigation)
-                //     .WithMany(p => p.RequestDeletedByNavigation)
-                //     .HasForeignKey(d => d.DeletedBy)
-                //     .HasConstraintName("fk_Request_deletedBy");
-
-                entity.HasOne(d => d.Server)
-                    .WithMany(p => p.Request)
-                    .HasForeignKey(d => d.ServerId)
-                    .HasConstraintName("fk_Request_serverId");
+        entity.HasOne(d => d.Server)
+            .WithMany(p => p.Request)
+            .HasForeignKey(d => d.ServerId)
+            .HasConstraintName("fk_Request_serverId");
 
                 // entity.HasOne(d => d.UpdatedByNavigation)
                 //     .WithMany(p => p.RequestUpdatedByNavigation)
@@ -432,17 +433,24 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
             return await base.SaveChangesAsync();
         }
 
-        private void AddAuitInfo()
+    private void AddAuitInfo()
+    {
+      var entries = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+      var authService = (IAuthService)_httpContext.HttpContext.RequestServices.GetService(typeof(IAuthService));
+      var currentUser = authService.GetCurrentUser();
+
+      foreach (var entry in entries)
+      {
+        if (entry.State == EntityState.Added)
         {
-            var entries = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-            foreach (var entry in entries)
-            {
-                if (entry.State == EntityState.Added)
-                {
-                    ((BaseEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
-                }
-                ((BaseEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
-            }
+          ((BaseEntity)entry.Entity).CreatedAt = DateTime.UtcNow;
+          ((BaseEntity)entry.Entity).CreatedBy = currentUser.Id;
         }
+        ((BaseEntity)entry.Entity).UpdatedAt = DateTime.UtcNow;
+        ((BaseEntity)entry.Entity).UpdatedBy = currentUser.Id;
+
+        ((BaseEntity)entry.Entity).Status = ((BaseEntity)entry.Entity).Status == null ? false : ((BaseEntity)entry.Entity).Status;
+      }
     }
+  }
 }

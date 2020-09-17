@@ -7,7 +7,7 @@ namespace Web.Api.Core.Domain.Entities
 {
     public partial class Request : BaseEntity
     {
-        public Request(string title, DateTime? startDate, DateTime? endDate, Guid serverId, string description, string requestStatus, string response, Guid? approvedBy, Guid id, Guid createdBy, DateTime createdAt,  Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt)
+        public Request(string title, DateTime? startDate, DateTime? endDate, Guid serverId, string description, string requestStatus, string response, Guid? approvedBy, Guid? id, Guid? createdBy, DateTime? createdAt,  Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt)
             : base(id, createdAt, createdBy, updatedAt, updatedBy, deletedAt, deletedBy)
         {
             Title = title;
@@ -28,7 +28,8 @@ namespace Web.Api.Core.Domain.Entities
         public Guid ServerId { get; set; }
         public string Response { get; set; }
         public Guid? ApprovedBy { get; set; }
-        //public virtual User ApprovedByNavigation { get; set; }
+        public virtual User ApprovedByNavigation { get; set; }
+        public virtual User CreatedByNavigation { get; set; }
         public virtual Server Server { get; set; }
         public virtual ICollection<Comment> Comment { get; set; }
         public virtual ICollection<HistoryLog> HistoryLog { get; set; }

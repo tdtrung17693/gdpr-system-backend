@@ -12,7 +12,7 @@ namespace Web.Api.Infrastructure.Helpers
             {
                 public const string Rol = "rol", Id = "id";
 
-                public static string Username = "uname";
+                public const string Username = "uname";
             }
 
             public static class JwtClaims
@@ -32,5 +32,6 @@ namespace Web.Api.Infrastructure.Helpers
             public const string keyword = "";
             public const string filterStatus = "";
         }
+
     }
 }

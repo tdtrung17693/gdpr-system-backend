@@ -31,7 +31,7 @@ namespace Web.Api.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20);
 
-                    b.Property<Guid?>("UserId");
+                    b.Property<Guid>("UserId");
 
                     b.Property<string>("Username")
                         .HasMaxLength(20);
@@ -39,8 +39,7 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("Username")
                         .IsUnique()
@@ -89,13 +88,9 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("DeletedBy");
-
                     b.HasIndex("ParentId");
 
                     b.HasIndex("RequestId");
-
-                    b.HasIndex("UpdatedBy");
 
                     b.ToTable("Comment");
                 });
@@ -123,8 +118,6 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("DeletedBy");
 
-                    b.Property<Guid?>("DeletedByNavigationId");
-
                     b.Property<string>("Description")
                         .HasMaxLength(200);
 
@@ -143,13 +136,13 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("UpdatedBy");
 
+                    b.Property<Guid?>("UserId");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("ContactPoint");
 
-                    b.HasIndex("DeletedByNavigationId");
-
-                    b.HasIndex("UpdatedBy");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Customer");
                 });
@@ -251,6 +244,46 @@ namespace Web.Api.Infrastructure.Migrations
                     b.ToTable("HistoryLog");
                 });
 
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime?>("CreatedAt");
+
+                    b.Property<Guid?>("CreatedBy");
+
+                    b.Property<string>("Data");
+
+                    b.Property<DateTime?>("DeletedAt");
+
+                    b.Property<Guid?>("DeletedBy");
+
+                    b.Property<Guid?>("FromUserId");
+
+                    b.Property<bool?>("IsDeleted");
+
+                    b.Property<bool>("IsRead");
+
+                    b.Property<string>("NotificationType");
+
+                    b.Property<bool?>("Status");
+
+                    b.Property<Guid>("ToUserId");
+
+                    b.Property<DateTime?>("UpdatedAt");
+
+                    b.Property<Guid?>("UpdatedBy");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("Notification");
+                });
+
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Permission", b =>
                 {
                     b.Property<Guid>("Id");
@@ -298,21 +331,22 @@ namespace Web.Api.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(100);
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValueSql("((0))");
 
-                    b.Property<string>("RequestStatus");
+                    b.Property<string>("RequestStatus")
+                        .HasMaxLength(50);
 
                     b.Property<string>("Response")
                         .HasMaxLength(200);
 
-                    b.Property<Guid?>("ServerId");
+                    b.Property<Guid>("ServerId");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime");
 
                     b.Property<bool?>("Status")
@@ -332,11 +366,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("DeletedBy");
-
                     b.HasIndex("ServerId");
-
-                    b.HasIndex("UpdatedBy");
 
                     b.ToTable("Request");
                 });
@@ -364,14 +394,10 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("CreatedBy");
 
-                    b.Property<Guid?>("CreatedByNavigationId");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime");
 
                     b.Property<Guid?>("DeletedBy");
-
-                    b.Property<Guid?>("DeletedByNavigationId");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("date");
@@ -398,15 +424,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<Guid?>("UpdatedBy");
 
-                    b.Property<Guid?>("UpdatedByNavigationId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedByNavigationId");
-
-                    b.HasIndex("DeletedByNavigationId");
-
-                    b.HasIndex("UpdatedByNavigationId");
 
                     b.ToTable("Server");
                 });
@@ -451,18 +469,12 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("DeletedBy");
-
                     b.HasIndex("Email")
                         .IsUnique()
                         .HasName("UQ__User__A9D10534550C08B5")
                         .HasFilter("[Email] IS NOT NULL");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("UpdatedBy");
 
                     b.ToTable("User");
                 });
@@ -508,20 +520,16 @@ namespace Web.Api.Infrastructure.Migrations
                     b.HasOne("Web.Api.Core.Domain.Entities.User", "User")
                         .WithOne("Account")
                         .HasForeignKey("Web.Api.Core.Domain.Entities.Account", "UserId")
-                        .HasConstraintName("fk_Account_userId");
+                        .HasConstraintName("fk_Account_userId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Comment", b =>
                 {
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "Author")
                         .WithMany("CommentCreatedByNavigation")
                         .HasForeignKey("CreatedBy")
                         .HasConstraintName("fk_Comment_createdBy");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
-                        .WithMany("CommentDeletedByNavigation")
-                        .HasForeignKey("DeletedBy")
-                        .HasConstraintName("fk_Comment_deletedBy");
 
                     b.HasOne("Web.Api.Core.Domain.Entities.Comment", "Parent")
                         .WithMany("InverseParent")
@@ -533,28 +541,18 @@ namespace Web.Api.Infrastructure.Migrations
                         .HasForeignKey("RequestId")
                         .HasConstraintName("fk_Comment_requestId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
-                        .WithMany("CommentUpdatedByNavigation")
-                        .HasForeignKey("UpdatedBy")
-                        .HasConstraintName("fk_Comment_updatedBy");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Customer", b =>
                 {
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
-                        .WithMany("CustomerCreatedByNavigation")
-                        .HasForeignKey("CreatedBy")
-                        .HasConstraintName("fk_Customer_createdBy");
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ContactPointNavigation")
+                        .WithMany("CustomerContactPointNavigation")
+                        .HasForeignKey("ContactPoint")
+                        .HasConstraintName("fk_Customer_contactPoint");
 
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
-                        .WithMany()
-                        .HasForeignKey("DeletedByNavigationId");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
-                        .WithMany("CustomerUpdatedByNavigation")
-                        .HasForeignKey("UpdatedBy")
-                        .HasConstraintName("fk_Customer_updatedBy");
+                    b.HasOne("Web.Api.Core.Domain.Entities.User")
+                        .WithMany("Customers")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.CustomerServer", b =>
@@ -576,6 +574,18 @@ namespace Web.Api.Infrastructure.Migrations
                         .WithMany("HistoryLog")
                         .HasForeignKey("RequestId")
                         .HasConstraintName("fk_HistoryLog_requestId");
+                });
+
+            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "FromUser")
+                        .WithMany()
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("Web.Api.Core.Domain.Entities.User", "ToUser")
+                        .WithMany()
+                        .HasForeignKey("ToUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.PermissionRole", b =>
@@ -603,59 +613,20 @@ namespace Web.Api.Infrastructure.Migrations
                         .HasForeignKey("CreatedBy")
                         .HasConstraintName("fk_Request_createdBy");
 
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
-                        .WithMany("RequestDeletedByNavigation")
-                        .HasForeignKey("DeletedBy")
-                        .HasConstraintName("fk_Request_deletedBy");
-
                     b.HasOne("Web.Api.Core.Domain.Entities.Server", "Server")
                         .WithMany("Request")
                         .HasForeignKey("ServerId")
-                        .HasConstraintName("fk_Request_serverId");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
-                        .WithMany("RequestUpdatedByNavigation")
-                        .HasForeignKey("UpdatedBy")
-                        .HasConstraintName("fk_Request_updatedBy");
-                });
-
-            modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
-                {
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
-                        .WithMany()
-                        .HasForeignKey("CreatedByNavigationId");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
-                        .WithMany()
-                        .HasForeignKey("DeletedByNavigationId");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
-                        .WithMany()
-                        .HasForeignKey("UpdatedByNavigationId");
+                        .HasConstraintName("fk_Request_serverId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.User", b =>
                 {
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "CreatedByNavigation")
-                        .WithMany("InverseCreatedByNavigation")
-                        .HasForeignKey("CreatedBy")
-                        .HasConstraintName("fk_User_createdBy");
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "DeletedByNavigation")
-                        .WithMany("InverseDeletedByNavigation")
-                        .HasForeignKey("DeletedBy")
-                        .HasConstraintName("fk_User_deletedBy");
-
                     b.HasOne("Web.Api.Core.Domain.Entities.Role", "Role")
                         .WithMany("User")
                         .HasForeignKey("RoleId")
                         .HasConstraintName("fk_User_roleId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Web.Api.Core.Domain.Entities.User", "UpdatedByNavigation")
-                        .WithMany("InverseUpdatedByNavigation")
-                        .HasForeignKey("UpdatedBy")
-                        .HasConstraintName("fk_User_updatedBy");
                 });
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.UserFileInstance", b =>

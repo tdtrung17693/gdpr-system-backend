@@ -17,6 +17,8 @@ using Web.Api.Core.UseCases;
 using Web.Api.Core.Dto.UseCaseResponses;
 using CreateRequestResponse = Web.Api.Core.Dto.GatewayResponses.Repositories.CreateRequestResponse;
 using UpdateRequestResponse = Web.Api.Core.Dto.GatewayResponses.Repositories.UpdateRequestResponse;
+using Web.Api.Core.Interfaces.Services.Event;
+using Web.Api.Core.Domain.Event;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -26,19 +28,66 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         internal sealed class RequestRepository : IRequestRepository
         {
             public readonly IMapper _mapper;
+            private readonly IDomainEventBus _eventBus;
             private ApplicationDbContext _context;
+            
+            public RequestRepository(IMapper mapper, ApplicationDbContext context, IDomainEventBus eventBus)
+            {
+                _mapper = mapper;
+                _context = context;
+                _eventBus = eventBus;
+            }
 
             public async Task<CreateRequestResponse> CreateRequest(Request request)
             {
-                var tempCreatedBy = new SqlParameter("@CreatedBy", request.CreatedBy);
+                var createdBy = new SqlParameter("@CreatedBy", request.CreatedBy);
                 var title = new SqlParameter("@Title",request.Title);
                 var fromDate = new SqlParameter("@FromDate", request.StartDate);
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", tempCreatedBy, title, fromDate, toDate, server, description);
+                
+                var command = _context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = "CreateRequest";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(createdBy);
+                command.Parameters.Add(title);
+                command.Parameters.Add(fromDate);
+                command.Parameters.Add(toDate);
+                command.Parameters.Add(server);
+                command.Parameters.Add(description);
+                
                 var success = await _context.SaveChangesAsync();
-                return new CreateRequestResponse(request.Id, success > 0, null);
+
+                if (success == 0)
+                {
+                }
+                if (command.Connection.State == ConnectionState.Closed)
+                    await command.Connection.OpenAsync();
+                try
+                {
+                    var requestReader = await command.ExecuteReaderAsync();
+                    await requestReader.ReadAsync();
+                    var requestCreatedEvent = new RequestCreated()
+                    {
+                        RequesterId = (Guid)requestReader["RequesterId"],
+                        CreatedAt = Convert.ToDateTime(requestReader["CreatedAt"]),
+                        RequesterFullName = Convert.ToString(requestReader["RequesterFullName"]),
+                        RequesterUsername = Convert.ToString(requestReader["RequesterUsername"]),
+                        RequestId = (Guid)requestReader["RequestId"],
+                        ServerId = (Guid)requestReader["ServerId"],
+                        ServerName = (string)requestReader["ServerName"],
+                    };
+                    await _eventBus.Trigger(requestCreatedEvent);
+                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
+                }
+                catch (SqlException e)
+                {
+                    // Unique constraint violation code number
+                    Console.Error.WriteLine(e);
+                    return new CreateRequestResponse(Guid.Empty, false, new[]
+                        {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+                }
             }
 
             public async Task<UpdateRequestResponse> UpdateRequest(Request request)
@@ -49,12 +98,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var toDate = new SqlParameter("@EndDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                var requestStatus = new SqlParameter("@RequestStatus", request.RequestStatus);
-                var response = new SqlParameter("@Response", request.Response);
-                var approvedBy = new SqlParameter("@ApprovedBy", request.ApprovedBy);
                 var updateBy = new SqlParameter("@UpdateBy", request.UpdatedBy);
                 var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
+                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, updateBy, updateAt);
                 var success = await _context.SaveChangesAsync();
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
@@ -148,8 +194,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
                 var rId = new SqlParameter("@rId", message.RequestId);
                 parameters.Add(rId);
-                string mockUserID = "B2895635-180A-4AB3-B8A8-430BEA69301F";
-                var uId = new SqlParameter("@uId", /*message.UserId*/ mockUserID);
+                var uId = new SqlParameter("@uId", message.UserId);
                 parameters.Add(uId);
                 var response = new SqlParameter("@response", message.Answer);
                 parameters.Add(response);
@@ -185,8 +230,9 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", createdBy, title, fromDate, toDate, server, description);
+                await _context.Database.ExecuteSqlCommandAsync(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", createdBy, title, fromDate, toDate, server, description);
                 var success = await _context.SaveChangesAsync();
+                
                 return new CRUDRequestResponse(request.Id, success > 0, null);
             }
 
