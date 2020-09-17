@@ -81,13 +81,13 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerName = (string)requestReader["ServerName"],
                     };
                     await _eventBus.Trigger(requestCreatedEvent);
-                    /*_eventBus.Trigger(new RequestNotiToAdmin(
+                    _eventBus.Trigger(new RequestNotiToAdmin(
                         Convert.ToString(requestReader["RequesterFullName"]),
                         (string)requestReader["ServerName"],
                         (Guid)requestReader["RequestId"],
                         (Guid)requestReader["ServerId"],
                         Convert.ToDateTime(requestReader["CreatedAt"]))
-                      );*/
+                      );
                     _eventBus.Trigger(new CreateLog((Guid)requestReader["RequestId"], "", "Created", "", "", (Guid)requestReader["RequesterId"])); 
                     command.Connection.Close();
                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
