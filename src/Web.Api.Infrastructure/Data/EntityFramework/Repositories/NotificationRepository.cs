@@ -81,29 +81,33 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
     public async Task<Pagination<Notification>> GetNotificationOf(Guid userId, int page, int pageSize = 5)
     {
-      var query = _context.Set<Notification>();
+      var query = _context.Notification;
       var data = await query
-        .Where(u => u.ToUserId == userId)
-        .OrderByDescending(n => n.CreatedAt)
         .Select(n => n)
-        .Skip(page * pageSize)
+        .Where(n => n.ToUserId == userId && (n.IsDeleted == false || n.IsDeleted == null))
+        .OrderByDescending(n => n.CreatedAt)
+        .Skip((page - 1) * pageSize)
         .Take(pageSize)
-        .GroupBy(noti => new {Total = query.Count()})
-        .FirstOrDefaultAsync();
+        .ToListAsync();
+      var count = await query
+        .Select(n => n)
+        .Where(n => n.ToUserId == userId && (n.IsDeleted == false || n.IsDeleted == null))
+        .CountAsync();
 
       
       return new Pagination<Notification>()
       {
-        Items = data.Select(n => n).ToList(),
-        TotalItems = data.Key.Total,
-        TotalPages = (int)Math.Ceiling( data.Key.Total * 1.0 / pageSize),
+        Items = data,
+        TotalItems = count,
+        TotalPages = (int) Math.Ceiling( count * 1.0 / pageSize),
         Page = page
       };
     }
 
     public async Task<int> CountAllUnreadNotificationsOf(Guid userId)
     {
-      return await _context.Notification.Where(u => u.ToUserId == userId && u.IsRead == false)
+      return await _context.Notification
+        .Where(n => n.ToUserId == userId && n.IsRead == false && (n.IsDeleted == false || n.IsDeleted == null))
         .CountAsync();
     }
 
@@ -120,7 +124,35 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
     public async Task<UpdateNotificationResponse> MarkAllNotificationsOfUserAsRead(Guid userId)
     {
-      return default(UpdateNotificationResponse);
+      var command = _context.Database.GetDbConnection().CreateCommand();
+      command.CommandText = "MarkAllAsRead";
+      command.CommandType = CommandType.StoredProcedure;
+      command.Parameters.Add(new SqlParameter("@UserId", userId));
+
+      if (command.Connection.State == ConnectionState.Closed)
+          await command.Connection.OpenAsync();
+      try
+      {
+        await command.ExecuteNonQueryAsync();
+        return new UpdateNotificationResponse();
+      }
+      catch (Exception e)
+      {
+        Console.Error.WriteLine(e);
+        return new UpdateNotificationResponse(new [] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+      }
+    }
+
+    public async Task<UpdateNotificationResponse> Delete(Guid id)
+    {
+      var notification = _context.Notification.FirstOrDefault(n => n.Id == id);
+      if (notification == null) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND) });
+      if (_currentUser.Id != notification.ToUserId) return new UpdateNotificationResponse(new[] { new Error(Error.Codes.UNAUTHORIZED_ACCESS, Error.Messages.UNAUTHORIZED_ACCESS) });
+
+      notification.IsDeleted = true;
+      notification.IsRead = true;
+      await _context.SaveChangesAsync();
+      return new UpdateNotificationResponse();
     }
   }
 }

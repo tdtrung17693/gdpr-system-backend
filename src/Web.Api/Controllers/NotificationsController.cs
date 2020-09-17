@@ -61,5 +61,36 @@ namespace Web.Api.Controllers
 
       return BadRequest();
     }
+    
+    [HttpPut("mark-read-all")]
+    [Authorize()]
+    public async Task<IActionResult> MarkAllAsRead()
+    {
+      var response = await _notificationRepository.MarkAllNotificationsOfUserAsRead((Guid) _currentUser.Id);
+
+      if (response.Success) return Ok();
+
+      return BadRequest(response.Errors);
+    }
+    
+    [HttpDelete("{id}")]
+    [Authorize()]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+      var response = await _notificationRepository.Delete(id);
+
+      if (response.Success) return Ok();
+      var firstError = response.Errors.First();
+
+      switch (firstError.Code)
+      {
+        case Error.Codes.ENTITY_NOT_FOUND:
+          return NotFound(firstError.Description);
+        case Error.Codes.UNAUTHORIZED_ACCESS:
+          return  StatusCode((int)HttpStatusCode.Unauthorized, firstError.Description);
+      }
+
+      return BadRequest();
+    }
   }
 }
