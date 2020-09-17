@@ -81,29 +81,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerName = (string)requestReader["ServerName"],
                     };
                     await _eventBus.Trigger(requestCreatedEvent);
-
-                    // send email to admin
-
-                    /*var commandEmail = _context.Database.GetDbConnection().CreateCommand();
-                    commandEmail.CommandText = "GetAdminEmailListToSendEmail";
-                    commandEmail.CommandType = CommandType.StoredProcedure;
-
-                    await commandEmail.Connection.OpenAsync();
-                    DataTable dt = new DataTable();
-                    var requestReadEmail = await commandEmail.ExecuteReaderAsync();
-                    dt.Load(requestReadEmail);
-                    dt.Rows.OfType<DataRow>().Select(dt => dt.Field<string>("Email"))
-                    commandEmail.Connection.Close();*/
-                    await _eventBus.Trigger(new RequestNotiToAdmin(
+                    _eventBus.Trigger(new RequestNotiToAdmin(
                         Convert.ToString(requestReader["RequesterFullName"]),
                         (string)requestReader["ServerName"],
                         (Guid)requestReader["RequestId"],
                         (Guid)requestReader["ServerId"],
                         Convert.ToDateTime(requestReader["CreatedAt"]))
                       );
-
+                    _eventBus.Trigger(new CreateLog((Guid)requestReader["RequestId"], "", "Created", "", "", (Guid)requestReader["RequesterId"])); 
                     command.Connection.Close();
-                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
+                   return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
                 }
                 catch (SqlException e)
                 {
@@ -129,6 +116,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
                 _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
                 var success = await _context.SaveChangesAsync();
+                _eventBus.Trigger(new CreateLog(request.Id, "", request.RequestStatus,"", "", Guid.Empty));
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 

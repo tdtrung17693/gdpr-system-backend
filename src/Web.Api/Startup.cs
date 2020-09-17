@@ -46,6 +46,7 @@ using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.Services.Event;
 
 using Web.Api.Infrastructure.Event;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 
 namespace Web.Api
 {
@@ -191,8 +192,15 @@ namespace Web.Api
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
         eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
         eventBus.AddEventHandler<RequestNotiToAdmin, SendCreateRequestToAmin>();
+        eventBus.AddEventHandler<CreateLog, CreatedLogFromRequest>();
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
+
+      builder.Register(c =>
+      {
+        var handler = new CreatedLogFromRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        return handler;
+      }).As<CreatedLogFromRequest>().SingleInstance();      
 
       builder.Register(c =>
       {

@@ -21,6 +21,7 @@ using System.IO;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Models.Request.Server;
 
 namespace Web.Api.Controllers
 {
@@ -148,14 +149,14 @@ namespace Web.Api.Controllers
             return dt;
         }
 
-        [HttpGet("count")]
-        public ActionResult<DataTable> CountServers()
+        [HttpPost("count")]
+        public ActionResult<DataTable> CountServers([FromBody]CountServerRequest filter)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var dt = _repository.CountServers();
+            var dt = _repository.CountServers(filter.filterString);
             return dt;
         }
 

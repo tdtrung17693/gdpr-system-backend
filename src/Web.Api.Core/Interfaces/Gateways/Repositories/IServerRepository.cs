@@ -45,7 +45,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         IPagedCollection<Server> FindAll();
 
         //Todo: Count Servers
-        public DataTable CountServers();
+        public DataTable CountServers(string filterBy);
 
         //Todo: Paging
         public DataTable Paging(int Page, int PageSize, string SortBy, bool SortOrder, string FilterBy);

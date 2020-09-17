@@ -174,13 +174,15 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 _context.Server.AsQueryable()
             );
         }
-        public DataTable CountServers()
+        public DataTable CountServers(string FilterBy)
         {
             using (var command = _context.Database.GetDbConnection().CreateCommand())
             {
                 // var commandText = "exec getListServerFilter @filterKey";
+                var filterBy = new SqlParameter("@FilterBy", FilterBy);
                 command.CommandText = "GetServerCount";
                 command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(filterBy);
                 DataTable dt = new DataTable();
                 _context.Database.OpenConnection();
                 dt.Load(command.ExecuteReader());
