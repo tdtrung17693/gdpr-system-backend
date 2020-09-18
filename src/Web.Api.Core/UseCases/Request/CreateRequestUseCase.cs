@@ -8,6 +8,7 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 

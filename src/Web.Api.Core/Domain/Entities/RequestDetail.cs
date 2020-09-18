@@ -5,8 +5,9 @@ namespace Web.Api.Core.Domain.Entities
     public class RequestDetail 
     {
         public RequestDetail(string title, string startDate, string endDate, Guid serverId, string description, string requestStatus, string response, Guid? approvedBy, Guid id, Guid createdBy, string createdAt, Guid? updatedBy, string updatedAt, Guid? deletedBy, string deletedAt,
-                              string serverName, string serverIP, string createdByName, string createdByEmail, string createdByNameEmail, string updatedByName, string updatedByEmail, string updatedByNameEmail)
-            
+                              string serverName, string serverIP, string createdByName, string createdByEmail, string createdByNameEmail, string updatedByName, string updatedByEmail, string updatedByNameEmail,
+                              string roleName)
+
         {
             Title = title;
             StartDate = startDate;
@@ -23,7 +24,7 @@ namespace Web.Api.Core.Domain.Entities
             UpdatedBy = updatedBy;
             DeletedAt = deletedAt;
             DeletedBy = deletedBy;
-            
+
             ServerName = serverName;
             ServerIP = serverIP;
             CreatedByName = createdByName;
@@ -32,7 +33,9 @@ namespace Web.Api.Core.Domain.Entities
             UpdatedByEmail = updatedByEmail;
             CreatedByNameEmail = createdByNameEmail;
             UpdatedByNameEmail = updatedByNameEmail;
+            RoleName = roleName;
         }
+            
 
         public Guid Id { get; set; }
         public string CreatedAt { get; set; }
@@ -68,6 +71,8 @@ namespace Web.Api.Core.Domain.Entities
         public string UpdatedByName { get; set; }
         public string UpdatedByEmail { get; set; }
         public string UpdatedByNameEmail { get; set; }
+
+        public string RoleName { get; set; }
 
     }
 }

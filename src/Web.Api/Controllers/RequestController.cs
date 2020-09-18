@@ -115,15 +115,14 @@ namespace Web.Api.Controllers
 
         //READ 
         [HttpGet]
-        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
+        public async Task<ActionResult> GetRequestPaging(Guid? uid ,int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,
             string keyword = Constants.DefaultValues.keyword,
             string filterStatus = Constants.DefaultValues.filterStatus /*, 
                             DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
         {
-            var role = this.User.Claims.First(i => i.Type == "id").Value;
             await _getRequestUseCase.Handle(
-                new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
+                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
                     "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
