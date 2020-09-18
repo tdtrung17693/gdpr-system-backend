@@ -79,7 +79,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerName = (string)requestReader["ServerName"],
                     };
                     _eventBus.Trigger(requestCreatedEvent);
-                    return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
+                    _eventBus.Trigger(new RequestNotiToAdmin(
+                        Convert.ToString(requestReader["RequesterFullName"]),
+                        (string)requestReader["ServerName"],
+                        (Guid)requestReader["RequestId"],
+                        (Guid)requestReader["ServerId"],
+                        Convert.ToDateTime(requestReader["CreatedAt"]))
+                      );
+                    _eventBus.Trigger(new CreateLog((Guid)requestReader["RequestId"], "", "Created", "", "", (Guid)requestReader["RequesterId"])); 
+                    command.Connection.Close();
+                   return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
                 }
                 catch (SqlException e)
                 {
@@ -98,10 +107,25 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var toDate = new SqlParameter("@EndDate", request.EndDate);
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
+                var requestStatus = new SqlParameter("@RequestStatus", request.RequestStatus);
+                var response = new SqlParameter("@Response", request.Response);
+                var approvedBy = new SqlParameter("@ApprovedBy", request.ApprovedBy);
                 var updateBy = new SqlParameter("@UpdateBy", request.UpdatedBy);
                 var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, updateBy, updateAt);
+                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
                 var success = await _context.SaveChangesAsync();
+                
+                var command = _context.Database.GetDbConnection().CreateCommand();
+
+                if (success == 0)
+                {
+                }
+                if (command.Connection.State == ConnectionState.Closed) await command.Connection.OpenAsync();
+
+                _eventBus.Trigger(new CreateLog(request.Id, "", request.RequestStatus,"", "", request.UpdatedBy));
+
+                command.Connection.Close();
+
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
@@ -113,21 +137,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 parameters.Add(pageNo);
                 var pageSize = new SqlParameter("@RowsOfPage", PageSize);
                 parameters.Add(pageSize);
-                var sql = "";
-                if (Keyword != null)
-                {
-                    var keyword = new SqlParameter("@Keyword", Keyword);
-                    parameters.Add(keyword);
-                    var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
-                    parameters.Add(filterStatus);
-                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
-                }
-                else
-                {
-                    var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
-                    parameters.Add(filterStatus);
-                    sql = "EXEC GetRequestPagination @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
-                }
+                var keyword = new SqlParameter("@Keyword", Keyword);
+                parameters.Add(keyword);
+                var filterStatus = new SqlParameter("@FilterStatus", FilterStatus);
+                parameters.Add(filterStatus);
+                var sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 /*if (FromDateExport is null || ToDateExport is null)
                 {
                     var fromDateExport = new SqlParameter("@FromDateExport", FromDateExport);
@@ -177,25 +191,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
             {
-                var sql = "";
                 var parameters = new List<SqlParameter>();
                 var fromDate = new SqlParameter("@FromDateInput", request.fromDate);
                 parameters.Add(fromDate);
                 var toDate = new SqlParameter("@ToDateInput", request.toDate);
                 parameters.Add(toDate);
-                if (fromDate == null || toDate == null) { sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput"; }
-                else
-                {
-                    var nparameters = new List<SqlParameter>();
-                    var _requestIdList = new SqlParameter("@RequestIds", request.guids);
-                    _requestIdList.SqlDbType = SqlDbType.Structured;
-                    _requestIdList.TypeName = "dbo.IdList";
-                    nparameters.Add(_requestIdList);
-                    sql = "EXEC dbo.GetMutilRequestExport @RequestIds";
-                }
-
-                List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
-                if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
+                var sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
+                List<SPRequestResultView> result = await _context.SPRequestResultView.FromSql(sql, parameters.ToArray()).ToListAsync();
+                if (result != null) return _mapper.Map<List<SPRequestResultView>, IList<ExportRequestDetail>>(result);
                 return null;
             }
 
@@ -205,7 +208,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
                 var rId = new SqlParameter("@rId", message.RequestId);
                 parameters.Add(rId);
-                var uId = new SqlParameter("@uId", message.UserId);
+                string mockUserID = "B2895635-180A-4AB3-B8A8-430BEA69301F";
+                var uId = new SqlParameter("@uId", /*message.UserId*/ mockUserID);
                 parameters.Add(uId);
                 var response = new SqlParameter("@response", message.Answer);
                 parameters.Add(response);
