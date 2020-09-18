@@ -103,13 +103,10 @@ namespace Web.Api.Controllers
         public async Task<ActionResult> GetRequestForExport(ExportRequestModel message)
         {
             if (!ModelState.IsValid)
-            {
-                // re-render the view when validation failed.
+            { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-
-            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids),
-                _exportPresenter);
+            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids), _exportPresenter);
             return _exportPresenter.ContentResult;
         }
 

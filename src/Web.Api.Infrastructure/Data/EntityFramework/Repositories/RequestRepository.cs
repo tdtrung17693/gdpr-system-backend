@@ -168,10 +168,28 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     parameters.Add(filterStatus);
                     sql = "EXEC GetRequestPagination @uId=@uid, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 }
+                /*if (FromDateExport is null || ToDateExport is null)
+                {
+                    var fromDateExport = new SqlParameter("@FromDateExport", FromDateExport);
+                    parameters.Add(fromDateExport);
+                    var toDateExport = new SqlParameter("@ToDateExport", ToDateExport);
+                    parameters.Add(toDateExport);
+                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus, @FromDate=@FromDateExport, @ToDate=@ToDateExport";
+                } */
                 List<SPRequestResultView> resultRequestPaging = await _context.SPRequestResultView .FromSql(sql, parameters.ToArray()).ToListAsync();
+                //Console.WriteLine(resultRequestPaging.ToString());
                 if (resultRequestPaging != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(resultRequestPaging);
                 return null;
             }
+
+            //public IList<Request> GetRequestFilter(string _keyword, int _pageNo, int _pageSize)
+            //{
+            //    var keyword = new SqlParameter("@Keyword", _keyword);
+            //    var pageNo = new SqlParameter("@PageNumber", _pageNo);
+            //    var pageSize = new SqlParameter("@RowsOfPage", _pageSize);
+            //    var result = _context.Request.FromSql("EXEC GetRequestPaginationFilter @Keyword, @PageNumber, @RowsOfPage", keyword, pageNo, pageSize).ToList();
+            //    return result;
+            //}
 
             public RequestDetail getEachRequest(string requestId, string role)
             {
@@ -200,26 +218,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
             {
-                var sql = "";
                 var parameters = new List<SqlParameter>();
                 var fromDate = new SqlParameter("@FromDateInput", request.fromDate);
                 parameters.Add(fromDate);
                 var toDate = new SqlParameter("@ToDateInput", request.toDate);
                 parameters.Add(toDate);
-                if (fromDate == null || toDate == null)
-                {
-                    sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
-                }
-                else
-                {
-                    var nparameters = new List<SqlParameter>();
-                    var _requestIdList = new SqlParameter("@RequestIds", request.guids);
-                    _requestIdList.SqlDbType = SqlDbType.Structured;
-                    _requestIdList.TypeName = "dbo.IdList";
-                    nparameters.Add(_requestIdList);
-                    sql = "EXEC dbo.GetMutilRequestExport @RequestIds";
-                }
-
+                var  sql = "EXEC GetRequestExport @FromDate=@FromDateInput, @ToDate=@ToDateInput";
                 List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
                 if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
                 return null;
