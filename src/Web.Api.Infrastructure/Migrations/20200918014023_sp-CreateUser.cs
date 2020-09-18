@@ -2,12 +2,12 @@
 
 namespace Web.Api.Infrastructure.Migrations
 {
-  public partial class spCreateuser : Migration
-  {
-    protected override void Up(MigrationBuilder migrationBuilder)
+    public partial class spCreateUser : Migration
     {
-      var sp = @"
-        create or alter proc CreateUser
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql(@"
+create or alter proc CreateUser
         (
           @FirstName NVARCHAR(20),
           @LastName NVARCHAR(20),
@@ -28,16 +28,12 @@ namespace Web.Api.Infrastructure.Migrations
             insert into dbo.[Account] (Id, Username, HashedPassword, Salt, UserId) VALUES (NEWID(), @Username, @HashedPassword, @Salt, @newId);
             select @newId as Id;
           commit;
-        end
-        ";
+        end");
+        }
 
-      migrationBuilder.Sql(sp);
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql("drop proc CreateUser");
+        }
     }
-
-    protected override void Down(MigrationBuilder migrationBuilder)
-    {
-      var sp = @"drop procedure CreateUser;";
-      migrationBuilder.Sql(sp);
-    }
-  }
 }
