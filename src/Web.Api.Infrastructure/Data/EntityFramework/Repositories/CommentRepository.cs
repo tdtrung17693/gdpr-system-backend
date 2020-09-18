@@ -64,10 +64,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)
                 });
             }
-            finally
-            {
-                command.Connection.Close();
-            }
 
         }
         public async Task<CreateCommentResponse> CreateCommentOfRequest(Guid requestId, string content, User author,
@@ -107,10 +103,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 {
                     new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)
                 });
-            }
-            finally
-            {
-                command.Connection.Close();
             }
         }
     }

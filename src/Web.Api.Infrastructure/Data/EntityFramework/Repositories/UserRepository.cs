@@ -68,10 +68,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     return new CreateUserResponse(new[]
                         {new Error(Error.Codes.UNIQUE_CONSTRAINT_VIOLATED, Error.Messages.UNIQUE_CONSTRAINT_VIOLATED)});
             }
-            finally
-            {
-                command.Connection.Close();
-            }
 
             return new CreateUserResponse(new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN),});
         }

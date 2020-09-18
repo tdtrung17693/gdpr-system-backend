@@ -14,6 +14,11 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     public interface ILogRepository
     {
         public Task<DataTable> Create(CreateLog logMessage, User creator);
+        public Task<DataTable> LogNewRequest(Guid requestId, User creator);
+
+        public Task LogUpdateRequest(Guid requestId, Dictionary<string, List<string>> updatedFields,
+            User updator);
+        public Task LogAcceptRejectRequest(Guid requestId, User updator, string newRequestStatus);
 
         public Task<DataTable> GetListLogOfRequest(Guid requestId);
 

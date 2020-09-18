@@ -44,9 +44,8 @@ using Web.Api.Core.UseCases.Request;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.Services.Event;
-
-using Web.Api.Infrastructure.Event;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Infrastructure.Services.Event;
 
 namespace Web.Api
 {
@@ -189,11 +188,16 @@ namespace Web.Api
 
         eventBus.AddEventHandler<UserCreated, SendInviteMail>();
         eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
+        
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
         eventBus.AddEventHandler<RequestCreated, NewRequestSlackNotification>();
+        eventBus.AddEventHandler<RequestCreated, LogNewRequest>();
+        eventBus.AddEventHandler<RequestCreated, SendCreateRequestToAmin>();
+        
+        eventBus.AddEventHandler<RequestUpdated, LogRequestUpdated>();
+        eventBus.AddEventHandler<RequestAcceptedRejected, LogAcceptedRejectedRequest>();
+        
         eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
-        eventBus.AddEventHandler<CreateLog, CreatedLogFromRequest>();
-        eventBus.AddEventHandler<RequestNotiToAdmin, SendCreateRequestToAmin>();
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
 
@@ -216,7 +220,23 @@ namespace Web.Api
 
       // This handler depends on the auth service, so its lifetime must be the same as the auth service
       builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
+      builder.RegisterType<NewRequestSlackNotification>().As<NewRequestSlackNotification>().InstancePerLifetimeScope();
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
+      builder.Register(c =>
+      {
+        var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        return handler;
+      }).As<LogNewRequest>().SingleInstance();
+      builder.Register(c =>
+      {
+        var handler = new LogRequestUpdated(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        return handler;
+      }).As<LogRequestUpdated>().SingleInstance();
+      builder.Register(c =>
+      {
+        var handler = new LogAcceptedRejectedRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        return handler;
+      }).As<LogAcceptedRejectedRequest>().SingleInstance();
 
       builder.Register(c =>
       {
