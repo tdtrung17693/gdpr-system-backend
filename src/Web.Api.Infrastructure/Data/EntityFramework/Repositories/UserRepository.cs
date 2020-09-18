@@ -57,7 +57,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             try
             {
                 var result = (Guid) await command.ExecuteScalarAsync();
-                await _eventBus.Trigger(new UserCreated(userInfo.FirstName, userInfo.LastName, rawPassword,
+                _eventBus.Trigger(new UserCreated(userInfo.FirstName, userInfo.LastName, rawPassword,
                     userInfo.Email, userName));
                 return new CreateUserResponse(result.ToString(), true);
             }
@@ -67,10 +67,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 if (e.Number == 2627)
                     return new CreateUserResponse(new[]
                         {new Error(Error.Codes.UNIQUE_CONSTRAINT_VIOLATED, Error.Messages.UNIQUE_CONSTRAINT_VIOLATED)});
-            }
-            finally
-            {
-                command.Connection.Close();
             }
 
             return new CreateUserResponse(new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN),});
@@ -256,8 +252,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         //Cho nay cua em nha a Trung :D
      public async Task<Object> GetAvatar(string id)
         {
+            Console.WriteLine(id);
             var fileInfo = await _context.FileInstance.AsNoTracking()
                .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
+            
+            if (fileInfo == null) return null;
             Byte[] fileBytes = File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));
             String content = Convert.ToBase64String(fileBytes);
             return new

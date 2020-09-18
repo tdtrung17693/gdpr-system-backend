@@ -9,10 +9,6 @@ using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
 using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
-using Web.Api.Core.Dto.UseCaseRequests;
-using Web.Api.Core.Dto.UseCaseResponses;
-using System.Web.Http.Cors;
-using Web.Api.Core.UseCases.CustomerUseCases;
 using Microsoft.AspNetCore.Authorization;
 using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 

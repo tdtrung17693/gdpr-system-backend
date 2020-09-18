@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EmailTemplate\InviteEmail.cshtml" />
+	  <EmbeddedResource Include="EmailTemplate\SendRequestToAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />

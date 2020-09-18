@@ -7,7 +7,7 @@ namespace Web.Api.Core.Domain.Entities
     public partial class SPRequestResultView
     {
         public SPRequestResultView(string title, DateTime? startDate, DateTime? endDate, Guid serverId, string description, string requestStatus, string response, Guid? approvedBy, Guid id, Guid createdBy, DateTime createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt,
-                              string serverName, string serverIP, string createdByFName, string createdByLName, string createdByEmail, string updatedByFName, string updatedByLName, string updatedByEmail)
+                              string serverName, string serverIP, string createdByFName, string createdByLName, string createdByEmail, string updatedByFName, string updatedByLName, string updatedByEmail, string roleName)
         {
             Title = title;
             StartDate = startDate;
@@ -19,6 +19,7 @@ namespace Web.Api.Core.Domain.Entities
             ApprovedBy = approvedBy;
             Id = id;
             CreatedAt = createdAt;
+            CreatedBy = createdBy;
             UpdatedBy = updatedBy;
             UpdatedAt = updatedAt;
             UpdatedBy = updatedBy;
@@ -33,6 +34,7 @@ namespace Web.Api.Core.Domain.Entities
             UpdatedByFName = updatedByFName;
             UpdatedByLName = updatedByLName;
             UpdatedByEmail = updatedByEmail;
+            RoleName = roleName;
         }
 
         public Guid Id { get; set; }
@@ -65,5 +67,6 @@ namespace Web.Api.Core.Domain.Entities
         public string UpdatedByFName { get; set; }
         public string UpdatedByLName { get; set; }
         public string UpdatedByEmail { get; set; }
+        public string RoleName { get; set; }
     }
 }

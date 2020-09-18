@@ -37,5 +37,24 @@ namespace Web.Api.Infrastructure.Services
       var response = await email.SendAsync();
       return response.Successful;
     }
+
+    public async Task<bool> SendCreatedRequestToAdmin(List<User> adminList ,string requesterFullname, string servername, Guid requestId, Guid serverId, DateTime cretaeAt)
+    {
+            foreach (User admin in adminList)
+            {
+                var emailAddress = admin.Email;
+                var senderName = _configuration["Mail:Name"];
+                var email = _fluentEmail
+                .To(emailAddress)
+                .Subject("GDPR System -New Request")
+                .UsingTemplateFromEmbedded(
+                    "Web.Api.Infrastructure.EmailTemplate.SendRequestToAdmin.cshtml",
+                    new { Requester = requesterFullname, ServerName = servername, RequestId = requestId, ServerId = serverId, CreateAt = cretaeAt, SenderName = senderName},
+                    this.GetType().GetTypeInfo().Assembly);
+
+            var response = await email.SendAsync();
+        }
+        return true;
+    }
   }
 }

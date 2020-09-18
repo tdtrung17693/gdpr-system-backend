@@ -8,6 +8,7 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 
@@ -28,6 +29,9 @@ namespace Web.Api.Core.UseCases
                 new Core.Domain.Entities.Request(message.Title, message.StartDate, message.EndDate, message.ServerId, message.Description,
                 "New", "", null, Guid.NewGuid(), message.CreatedBy, DateTime.UtcNow ,null,null,null,null));
 
+            //ADD
+            outputPort.Handle(response.Success ? new CreateRequestResponse(response.Id, true) : new CreateRequestResponse(response.Errors.Select(e => e.Description)));
+            
             return response.Success;
         }
         

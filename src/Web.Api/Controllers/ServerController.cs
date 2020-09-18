@@ -20,8 +20,9 @@ using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using System.IO;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
-using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
+using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Models.Request.Server;
 
 namespace Web.Api.Controllers
 {
@@ -146,6 +147,28 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
             }
             var dt = _repository.GetListServerByFilter(filterKey);
+            return dt;
+        }
+
+        [HttpPost("count")]
+        public ActionResult<DataTable> CountServers([FromBody]CountServerRequest filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.CountServers(filter.filterString);
+            return dt;
+        }
+
+        [HttpPost("paging")]
+        public ActionResult<DataTable> Paging([FromBody] PagedServerRequest paged)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var dt = _repository.Paging(paged.page, paged.pageSize, paged.sortedBy, paged.sortOrder, paged.filterBy);
             return dt;
         }
 
