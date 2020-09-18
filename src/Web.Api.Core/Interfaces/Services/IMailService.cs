@@ -9,7 +9,8 @@ namespace Web.Api.Core.Interfaces.Services
   public interface IMailService
   {
     Task<bool> SendInvitedNotification(string emailAddress, string username, string rawPassword, string firstName, string lastName);
-    // TODO: Add later
-    //bool SendAdminNotification(Request request);
+        // TODO: Add later
+        //bool SendAdminNotification(Request request);
+    Task<bool> SendCreatedRequestToAdmin(List<User> adminList, string requesterFullname, string servername, Guid requestId, Guid serverId, DateTime cretaeAt);
   }
 }

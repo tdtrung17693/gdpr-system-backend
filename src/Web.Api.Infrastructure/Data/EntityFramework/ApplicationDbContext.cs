@@ -34,6 +34,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
         public virtual DbSet<UserLog> UserLog { get; set; }
         public virtual DbSet<Notification> Notification { get; set; }
         public DbQuery<SPRequestResultView> SPRequestResultView { get; set; }
+        
+        public DbQuery<SPRequestResultExportView> SPRequestResultExportView { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -193,7 +195,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework
 
         entity.Property(e => e.FileName)
                   .IsRequired()
-                  .HasMaxLength(20);
+                  .HasMaxLength(100);
 
         entity.Property(e => e.Path)
                   .IsRequired()

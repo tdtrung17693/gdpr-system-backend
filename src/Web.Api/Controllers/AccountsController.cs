@@ -1,17 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Core.Dto.UseCaseRequests;
-using Web.Api.Core.Dto.UseCaseRequests.Account;
-using Web.Api.Core.Dto.UseCaseResponses.Account;
-using Web.Api.Core.Dto.UseCaseResponses.User;
-using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
-using Web.Api.Core.Interfaces.UseCases;
+using Microsoft.AspNetCore.Authorization;
 using Web.Api.Core.Interfaces.UseCases.Account;
+using Web.Api.Core.Dto.UseCaseResponses.Account;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Presenters;
 using Web.Api.Serialization;
+using ChangePasswordRequest = Web.Api.Core.Dto.UseCaseRequests.Account.ChangePasswordRequest;
+using UpdateProfileInfoRequest = Web.Api.Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest;
 
 namespace Web.Api.Controllers
 {
@@ -50,8 +49,9 @@ namespace Web.Api.Controllers
     public async Task<ActionResult<object>> CurrentUser()
     {
       var user = _authService.GetCurrentUser();
-      var notifications = await _notiRepo.GetNotificationOf((System.Guid)user.Id);
-
+      var notifications = await _notiRepo.GetNotificationOf((System.Guid) user.Id, 1);
+      var totalUnreadNotifications = await _notiRepo.CountAllUnreadNotificationsOf((System.Guid) user.Id);
+      
       return new
       {
         user.Id,
@@ -62,7 +62,8 @@ namespace Web.Api.Controllers
         user.Email,
         Role = user.Role.Name,
         Permissions = _authService.GetAllPermissions(),
-        Notifications = notifications
+        Notifications = notifications,
+        TotalUnreadNotifications = totalUnreadNotifications
       };
     }
 
@@ -76,7 +77,7 @@ namespace Web.Api.Controllers
       };
       var user = _authService.GetCurrentUser();
       await _updateProfileInfoUseCase.Handle(
-        new Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest(user, request.FirstName, request.LastName),
+        new UpdateProfileInfoRequest(user, request.FirstName, request.LastName),
         _updateProfileInfoPresenter);
 
       return _updateProfileInfoPresenter.ContentResult;
@@ -90,7 +91,7 @@ namespace Web.Api.Controllers
       _changePasswordPresenter.HandleResource = r => r.Success ? "" : JsonSerializer.SerializeObject(new {r.Errors});
 
       var response = await _changePasswordUseCase.Handle(
-        new Core.Dto.UseCaseRequests.Account.ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
+        new ChangePasswordRequest(user, request.CurrentPassword, request.NewPassword),
         _changePasswordPresenter
       );
       

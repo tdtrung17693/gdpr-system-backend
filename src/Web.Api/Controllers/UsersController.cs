@@ -21,33 +21,35 @@ using Web.Api.Core.Dto.UseCaseRequests;
 
 namespace Web.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+  [Route("api/[controller]")]
+  [ApiController]
+  public class UsersController : ControllerBase
+  {
+    private IUserRepository _userRepository;
+    private ManageUserUseCase _userUseCase;
+    private ResourcePresenter<ReadUserResponse> _readUserPresenter;
+    private ResourcePresenter<CreateUserResponse> _createUserPresenter;
+    private ResourcePresenter<ChangeUsersStatusResponse> _changeUsersStatusPresenter;
+    private ResourcePresenter<UpdateUserResponse> _updateUserPresenter;
+    private IMapper _mapper;
+    public UsersController(
+      IUserRepository userRepository,
+      ManageUserUseCase userUseCase,
+      ResourcePresenter<ReadUserResponse> readUserPresenter,
+      ResourcePresenter<CreateUserResponse> createUserPresenter,
+      ResourcePresenter<UpdateUserResponse> updateUserPresenter,
+      ResourcePresenter<ChangeUsersStatusResponse> changeUsersStatusPresenter,
+      IMapper mapper)
     {
-        //private IUserRepository _userRepository;
-        private ManageUserUseCase _userUseCase;
-        private ResourcePresenter<ReadUserResponse> _readUserPresenter;
-        private ResourcePresenter<CreateUserResponse> _createUserPresenter;
-        private ResourcePresenter<ChangeUsersStatusResponse> _changeUsersStatusPresenter;
-        private ResourcePresenter<UpdateUserResponse> _updateUserPresenter;
-        private IMapper _mapper;
-
-        public UsersController(
-            ManageUserUseCase userUseCase,
-            ResourcePresenter<ReadUserResponse> readUserPresenter,
-            ResourcePresenter<CreateUserResponse> createUserPresenter,
-            ResourcePresenter<UpdateUserResponse> updateUserPresenter,
-            ResourcePresenter<ChangeUsersStatusResponse> changeUsersStatusPresenter,
-            IMapper mapper)
-        {
-            _userUseCase = userUseCase;
-            _readUserPresenter = readUserPresenter;
-            _createUserPresenter = createUserPresenter;
-            _changeUsersStatusPresenter = changeUsersStatusPresenter;
-            _updateUserPresenter = updateUserPresenter;
-            _mapper = mapper;
-        }
+      _userRepository = userRepository;  
+      _userUseCase = userUseCase;
+      _readUserPresenter = readUserPresenter;
+      _createUserPresenter = createUserPresenter;
+      _changeUsersStatusPresenter = changeUsersStatusPresenter;
+      _updateUserPresenter = updateUserPresenter;
+      _mapper = mapper;
+    }
+    // GET: api/<UsersController>
 
         // GET: api/<UsersController>
         [Authorize("CanViewUser")]
@@ -158,25 +160,31 @@ namespace Web.Api.Controllers
         {
         }
 
-        [HttpPost("testevent")]
-        public async Task TestEvent([FromServices] IDomainEventBus eventBus, [FromServices] IUserRepository repo)
-        {
-            var user = await repo.FindById(Guid.Parse("61662330-eb32-47d7-a680-5f2c47a5ca60"));
-            await eventBus.Trigger(new UserCreated(user.FirstName, user.LastName, "ABC", user.Email,
-                user.Account.Username));
-        }
+     //Khoa
+     [HttpGet("avatar/{id}")]
+     public async Task<Object> GetAvatar(string id)
+     {
+        return await _userRepository.GetAvatar(id);
+     }
 
-        //Khoa
-        [HttpPost("avatar")]
-        public async Task<ActionResult> UploadFirstAvatar([FromBody] UploadAvatarRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                // re-render the view when validation failed.
-                return BadRequest(ModelState);
-            }
-
-            return Ok();
+     [HttpPost("avatar")]
+     public async Task<ActionResult> UploadFirstAvatar([FromBody] UploadAvatarRequest request)
+     {
+     if (!ModelState.IsValid)
+        { // re-render the view when validation failed.
+            return BadRequest(ModelState);
         }
-    }
+        return Ok(await _userRepository.UploadFirstAvatar(request));
+     }  
+        
+     [HttpPut("avatar")]
+     public async Task<ActionResult> ChangeAvatar([FromBody] UploadAvatarRequest request)
+     {
+     if (!ModelState.IsValid)
+        { // re-render the view when validation failed.
+            return BadRequest(ModelState);
+        }
+        return Ok(await _userRepository.ChangeAvatar(request));
+     }  
+  }
 }

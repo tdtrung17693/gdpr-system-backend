@@ -10,7 +10,7 @@ using Web.Api.Core.Dto;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 using Web.Api.Core.Dto.UseCaseResponses;
 using System.Data.SqlClient;
 using System.Data;
@@ -128,21 +128,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 null);
         }
 
-        /*public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
+        public async Task<CRUDCustomerResponse> CreateFromImport(CustomerRequest request)
         {
-            var customerId = new SqlParameter("@CustomerId", request.CustomerId);
-            var serverIds = new SqlParameter("@ServerIds", request.ServerIds);
-            serverIds.SqlDbType = SqlDbType.Structured;
-            serverIds.TypeName = "dbo.IdList";
-            //Console.WriteLine(request.ServerIds);
-            *//*_context.Database.ExecuteSqlCommand("DECLARE @si IdList INSERT @si VALUES('390EA8C0-1714-415F-B4AD-00447E8A7F2D')" +
-               "EXEC[gdpr_system].[dbo].[AssignCustomerToServers] @CustomerId, @ServerIds = @si", customerId);*//*
-            _context.Database.ExecuteSqlCommand("EXEC dbo.AssignCustomerToServers @CustomerId, @ServerIds", customerId, serverIds);
-
+            var matchedId = await _context.User.FirstOrDefaultAsync(u => u.Email == request.ContactPoint);
+            await _context.Customer.AddAsync(new Customer(request.Name, request.ContractBeginDate, request.ContractEndDate,
+                        matchedId.Id, request.Description, request.Status, Guid.NewGuid()));
             var success = await _context.SaveChangesAsync();
-            return new ManageServerCustomerResponse(success > 0,
+            
+            return new CRUDCustomerResponse(request.Id, success > 0,
                 null);
-        }*/
+        }
+
         public async Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request)
         {
             foreach (var serverId in request.ServerIds)
@@ -175,7 +171,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 .Select(s => new {
                     Request = s.Request
                 .Where(r => r.ApprovedBy != null)
-                .Select(r => new { s.Id, s.Name, s.IpAddress, r.Title, r.StartDate, r.EndDate, Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email })
+                .Select(r => new {s.Name, s.IpAddress, r.Title, startDate = string.Format("{0:dd/MM/yyyy}", r.StartDate),
+                    endDate = string.Format("{0:dd/MM/yyyy}", r.EndDate), Requester = r.CreatedByNavigation.Email, Approver = r.ApprovedByNavigation.Email })
                 })
                 .ToListAsync();
             return new ExportCSVByCustomerResponse(response, true, null);

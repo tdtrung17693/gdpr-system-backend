@@ -22,6 +22,8 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     Task<UpdateUserResponse> ChangePassword(User user, string newPassword);
 
         //Khoa
+    Task<Object> GetAvatar(string id);
     Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request);
+    Task<UploadAvatarUserResponse> ChangeAvatar(UploadAvatarRequest request);
   }
 }

@@ -17,6 +17,8 @@ using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases.Comment;
 using Web.Api.Models.Request.Comment;
 using Web.Api.Serialization;
+using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
+using Web.Api.Presenters.Request;
 
 namespace Web.Api.Controllers
 {
@@ -34,18 +36,21 @@ namespace Web.Api.Controllers
         private readonly IGetEachRequestUseCase _getEachRequestUseCase;
         private readonly IExportUseCase _exportUseCase;
         private readonly IManageRequestUseCase _manageRequestUseCase;
+        private readonly IBulkExportUseCase _bulkExportUseCase;
         private readonly CreateRequestPresenter _createRequestPresenter;
         private readonly UpdateRequestPresenter _updateRequestPresenter;
         private readonly GetRequestPresenter _getRequestPresenter;
         private readonly GetEachRequestPresenter _getEachRequestPresenter;
         private readonly ExportPresenter _exportPresenter;
         private readonly ManageRequestPresenter _manageRequestPresenter;
+        private readonly BulkExportPresenter _bulkExportPresenter;
         private readonly ResourcePresenter<CreateCommentResponse> _createCommentPresenter;
         private readonly ResourcePresenter<DeleteCommentResponse> _deleteCommentPresenter;
 
         public RequestController(
             IExportUseCase exportUseCase, ExportPresenter exportPresenter,
             IManageRequestUseCase manageRequestUseCase, ManageRequestPresenter manageRequestPresenter,
+            IBulkExportUseCase bulkExportUseCase, BulkExportPresenter bulkExportPresenter,
             IGetEachRequestUseCase getEachRequestUseCase, GetEachRequestPresenter getEachRequestPresenter,
             IAuthService authService,
             ICommentRepository commentRepository,
@@ -75,7 +80,8 @@ namespace Web.Api.Controllers
             _exportPresenter = exportPresenter;
             _manageRequestUseCase = manageRequestUseCase;
             _manageRequestPresenter = manageRequestPresenter;
-
+            _bulkExportUseCase = bulkExportUseCase;
+            _bulkExportPresenter = bulkExportPresenter;
             _createCommentPresenter = createCommentPresenter;
             _deleteCommentPresenter = deleteCommentPresenter;
             _deleteCommentUseCase = deleteCommentUseCase;
@@ -103,33 +109,29 @@ namespace Web.Api.Controllers
         public async Task<ActionResult> GetRequestForExport(ExportRequestModel message)
         {
             if (!ModelState.IsValid)
-            {
-                // re-render the view when validation failed.
+            { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-
-            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids),
-                _exportPresenter);
+            await _exportUseCase.Handle(new ExportRequest(message.fromDate, message.toDate, message.guids), _exportPresenter);
             return _exportPresenter.ContentResult;
         }
 
         //READ 
         [HttpGet]
-        public async Task<ActionResult> GetRequestPaging(int _pageNo = Constants.DefaultValues.Paging.PageNo,
+        public async Task<ActionResult> GetRequestPaging(Guid? uid ,int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,
             string keyword = Constants.DefaultValues.keyword,
             string filterStatus = Constants.DefaultValues.filterStatus /*, 
                             DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
         {
             await _getRequestUseCase.Handle(
-                new GetRequestRequest(_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
+                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
                     "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
         }
 
-        [EnableCors("request")]
-        [HttpGet("request/{requestId}")]
+        [HttpGet("{requestId}")]
         public async Task<ActionResult> GetEachRequest(string requestId)
         {
             if (!ModelState.IsValid)
@@ -141,12 +143,6 @@ namespace Web.Api.Controllers
             return _getEachRequestPresenter.ContentResult;
         }
 
-        //[HttpGet("search/{keyword}")]
-        //public ActionResult<IEnumerable<RequestJoined>> GetRequestFilter(string keyword, int pageNo = Constants.DefaultValues.Paging.PageNo, int pageSize = Constants.DefaultValues.Paging.PageSize)
-        //{
-        //    var requestItems = _repository.GetRequestFilter(keyword, pageNo, pageSize);
-        //    return Ok(_mapper.Map<IEnumerable<RequestJoined>>(requestItems));
-        //}
 
 
         //UPDATE
@@ -235,6 +231,17 @@ namespace Web.Api.Controllers
                 new ManageRequestRequest(manageRequestRequest.userId, manageRequestRequest.answer,
                     manageRequestRequest.status, manageRequestRequest.requestId), _manageRequestPresenter);
             return _manageRequestPresenter.ContentResult;
+        }
+
+        [HttpPost("bulkExport")]
+        public async Task<ActionResult> BulkExportAction(string id, [FromBody] Models.Request.BulkExportRequest message)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            await _bulkExportUseCase.Handle(new Core.Dto.UseCaseRequests.BulkExportRequest(message.IdList), _bulkExportPresenter);
+            return _bulkExportPresenter.ContentResult;
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Web.Api.Core.Interfaces.Services.Event;
 
-namespace Web.Api.Infrastructure.Event
+namespace Web.Api.Infrastructure.Services.Event
 {
   public class EventBus : IDomainEventBus
   {
@@ -22,7 +22,7 @@ namespace Web.Api.Infrastructure.Event
       var eventType = typeof(TEvent);
       if (_eventHandlers.ContainsKey(eventType))
       {
-        foreach (var handler in _eventHandlers.Where(pair => pair.Key == eventType).First().Value)
+        foreach (var handler in _eventHandlers.First(pair => pair.Key == eventType).Value)
         {
           await ((IEventHandler<TEvent>)_context.HttpContext.RequestServices.GetService(handler)).HandleAsync(ev);
         }

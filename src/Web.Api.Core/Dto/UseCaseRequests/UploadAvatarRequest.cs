@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Web.Api.Core.Dto.UseCaseRequests
-{
+namespace Web.Api.Core.Dto.UseCaseRequests { 
     public class UploadAvatarRequest
     {
-        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public Guid? FileId { get; set; }
         public string FileName { get; set; }
         public string FileExtension { get; set; }
-        public byte[] Content { get; set; }
-        public UploadAvatarRequest(Guid id, string fileName, string fileExtension, byte[] content)
+        public string Content { get; set; }
+        public UploadAvatarRequest(Guid userId, string fileName, string fileExtension, string content, Guid? fileId)
         {
-            Id = id;
+            UserId = userId;
             FileName = fileName;
             FileExtension = fileExtension;
             Content = content;
+            FileId = fileId;
         }
     }
 }

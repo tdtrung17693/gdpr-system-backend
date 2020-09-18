@@ -197,7 +197,7 @@ namespace Web.Api.Infrastructure.Migrations
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(20);
+                        .HasMaxLength(100);
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -385,7 +385,7 @@ namespace Web.Api.Infrastructure.Migrations
 
             modelBuilder.Entity("Web.Api.Core.Domain.Entities.Server", b =>
                 {
-                    b.Property<Guid?>("Id");
+                    b.Property<Guid>("Id");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()

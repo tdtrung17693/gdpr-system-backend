@@ -6,22 +6,25 @@ using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Dto.UseCaseResponses;
 using Web.Api.Core.Interfaces;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Domain.Entities;
 
 namespace Web.Api.Core.UseCases.Request
 {
     public class GetRequestUseCase : IGetRequestUseCase
     {
         private readonly IRequestRepository _requestRepository;
-
-        public GetRequestUseCase(IRequestRepository requestRepository)
+        private Domain.Entities.User _currentUser;
+        public GetRequestUseCase(IRequestRepository requestRepository, IAuthService authService)
         {
             _requestRepository = requestRepository;
+            _currentUser = authService.GetCurrentUser();
         }
 
         public async Task<bool> Handle(GetRequestRequest message, IOutputPort<GetRequestResponse> outputPort)
         {
-                var listRequests = await _requestRepository.GetRequest(message.PageNo, message.PageSize, message.Keyword, message.FilterStatus);
+                var listRequests = await _requestRepository.GetRequest(_currentUser.Id, message.PageNo, message.PageSize, message.Keyword, message.FilterStatus);
                 var noPages = await _requestRepository.getNoPages(message.PageSize);
                 outputPort.Handle(new GetRequestResponse(noPages, listRequests, true));
                 return true;

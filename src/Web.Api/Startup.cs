@@ -44,8 +44,10 @@ using Web.Api.Core.UseCases.Request;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.Services.Event;
+using Web.Api.Core.Interfaces.Gateways.Repositories;
+using Web.Api.Infrastructure.Services.Event;
 
-using Web.Api.Infrastructure.Event;
+using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
 
 namespace Web.Api
 {
@@ -73,7 +75,8 @@ namespace Web.Api
         {
           build.WithOrigins(
               "http://localhost:3000",
-              "http://localhost:3000/servers"
+              "http://localhost:3000/servers",
+              "http://localhost:3000/requests"
             )
             .AllowAnyOrigin()
             .AllowAnyHeader()

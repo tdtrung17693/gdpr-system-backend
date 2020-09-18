@@ -6,14 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Domain.Entities;
 using UseCaseRequest = Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Core.Interfaces.UseCases;
+using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
 using ModelRequest = Web.Api.Models.Request;
 using Web.Api.Presenters;
-using Web.Api.Core.Dto.UseCaseRequests;
-using Web.Api.Core.Dto.UseCaseResponses;
-using System.Web.Http.Cors;
-using Web.Api.Core.UseCases;
 using Microsoft.AspNetCore.Authorization;
+using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 
 namespace Web.Api.Controllers
 {
@@ -97,19 +94,19 @@ namespace Web.Api.Controllers
                 return BadRequest(ModelState);
             }
             await _exportCustomerUseCase.Handle(new
-                UseCaseRequest.ExportCustomerRequest(request.FromDate, request.ToDate, request.Guids), _exportPresenter);
+                ExportCustomerRequest(request.FromDate, request.ToDate, request.Guids), _exportPresenter);
             return _exportPresenter.ContentResult;
         }
 
         [HttpPost]
         [Authorize("CanCreateCustomer")]
-        public async Task<ActionResult> Post([FromBody] UseCaseRequest.CustomerRequest request)
+        public async Task<ActionResult> Post([FromBody] CustomerRequest request)
         {
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, 
+            await _getCustomerUseCase.Handle(new CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, 
                 request.Description, request.Status), _customerPresenter);
             return _customerPresenter.ContentResult;
         }
@@ -121,7 +118,7 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
+            await _manageServerUseCase.Handle(new ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
             return _serverPresenter.ContentResult;
         }
 
@@ -132,12 +129,12 @@ namespace Web.Api.Controllers
             { // re-render the view when validation failed.
                 return BadRequest(ModelState);
             }
-            await _manageServerUseCase.Handle(new UseCaseRequest.ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
+            await _manageServerUseCase.Handle(new ManageServerRequest(request.CustomerId, request.ServerIds, request.Action), _serverPresenter);
             return _serverPresenter.ContentResult;
         }
 
         [HttpPut]
-        public async Task<ActionResult> Put([FromBody] UseCaseRequest.CustomerRequest request)
+        public async Task<ActionResult> Put([FromBody] CustomerRequest request)
         {
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.
@@ -146,7 +143,7 @@ namespace Web.Api.Controllers
             /*Customer newCustomer = new Customer(request.Name, req
              * uest.ContractBeginDate, request.ContractBeginDate, request.ContactPoint, request.Description);
             return Ok(await _repository.Update(newCustomer));*/
-            await _getCustomerUseCase.Handle(new UseCaseRequest.CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, request.Description, request.Status, 
+            await _getCustomerUseCase.Handle(new CustomerRequest(request.Name, request.ContractBeginDate, request.ContractEndDate, request.ContactPoint, request.Description, request.Status, 
                 request.Id), _customerPresenter);
             return _customerPresenter.ContentResult;
         }

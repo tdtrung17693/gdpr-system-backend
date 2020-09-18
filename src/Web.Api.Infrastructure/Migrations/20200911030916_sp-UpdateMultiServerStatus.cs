@@ -11,19 +11,18 @@ namespace Web.Api.Infrastructure.Migrations
 
             sp = @"
             CREATE OR ALTER PROCEDURE UpdateMutilServerStatus(
-              @ServerIds IdList READONLY,
-              @Status BIT,
-              @Updator UNIQUEIDENTIFIER
-            )
-            AS 
-            BEGIN
-              UPDATE [dbo].[Server]
-              SET 
-                [Status] = @Status,
-                UpdatedAt = GETUTCDATE(),
-                UpdatedBy = @Updator
-              WHERE Id IN (SELECT Id FROM @ServerIds)
-            END;
+				@ServerIds IdList READONLY,
+				@Updator UNIQUEIDENTIFIER
+			)
+			AS
+			BEGIN
+				UPDATE [dbo].[Server]
+				SET
+					[Status] = ~[Status],
+					UpdatedAt = GETUTCDATE(),
+					UpdatedBy = @Updator
+				WHERE Id IN (SELECT Id FROM @ServerIds)
+			END;
             ";
 
             migrationBuilder.Sql(sp);

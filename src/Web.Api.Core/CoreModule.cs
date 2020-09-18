@@ -2,13 +2,17 @@
 using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.UseCases.Account;
 using Web.Api.Core.Interfaces.UseCases.Comment;
-using Web.Api.Core.Interfaces.UseCases.RequestInterface;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Core.Interfaces.UseCases.User;
+using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
+using Web.Api.Core.UseCases.CustomerUseCases;
 using Web.Api.Core.UseCases;
 using Web.Api.Core.UseCases.Account;
 using Web.Api.Core.UseCases.Comment;
 using Web.Api.Core.UseCases.User;
+using CRUDCustomerUseCase = Web.Api.Core.UseCases.CustomerUseCases.CRUDCustomerUseCase;
+using ExportCustomerUseCase = Web.Api.Core.UseCases.CustomerUseCases.ExportCustomerUseCase;
+using ManageServerUseCase = Web.Api.Core.UseCases.CustomerUseCases.ManageServerUseCase;
 
 namespace Web.Api.Core
 {

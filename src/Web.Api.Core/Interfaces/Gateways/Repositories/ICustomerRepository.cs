@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Dto.GatewayResponses.Repositories;
-using Web.Api.Core.Dto.UseCaseRequests;
+using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
 using Web.Api.Core.Dto.UseCaseResponses;
 
 namespace Web.Api.Core.Interfaces.Gateways.Repositories
@@ -21,7 +21,8 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         public Task<IEnumerable<Object>> GetAllContactPoint();
 
         public Task<ExportCSVByCustomerResponse> GetByCustomers(ExportCustomerRequest request);
-        public Task<CRUDCustomerResponse> Create(Customer customer);
+        public Task<CRUDCustomerResponse> CreateFromImport(CustomerRequest request);
+        public Task<CRUDCustomerResponse> Create(Customer request);
         public Task<ManageServerCustomerResponse> AddServerOwner(ManageServerRequest request);
         public Task<ManageServerCustomerResponse> RemoveServerOwner(ManageServerRequest request);
 
