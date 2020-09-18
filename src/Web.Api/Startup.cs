@@ -46,6 +46,7 @@ using Web.Api.Core.Interfaces.UseCases;
 using Web.Api.Core.Interfaces.Services.Event;
 
 using Web.Api.Infrastructure.Event;
+using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
 
 namespace Web.Api
 {
@@ -93,6 +94,7 @@ namespace Web.Api
       services.AddScoped<IExportUseCase, ExportUseCase>();
       services.AddScoped<IManageRequestUseCase, ManageRequestUseCase>();
       services.AddScoped<IGetEachRequestUseCase, GetEachRequestUseCase>();
+      services.AddScoped<IBulkExportUseCase, BulkExportUseCase>();
       // jwt wire up
       // Get options from app settings
       var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
