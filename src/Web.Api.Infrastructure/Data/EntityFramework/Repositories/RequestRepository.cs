@@ -78,7 +78,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                         ServerId = (Guid)requestReader["ServerId"],
                         ServerName = (string)requestReader["ServerName"],
                     };
-                    await _eventBus.Trigger(requestCreatedEvent);
+                    _eventBus.Trigger(requestCreatedEvent);
                     return new CreateRequestResponse(requestCreatedEvent.RequestId, true);
                 }
                 catch (SqlException e)

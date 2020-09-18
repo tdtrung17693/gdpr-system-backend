@@ -6,7 +6,7 @@ namespace Web.Api.Infrastructure.Migrations
   {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-      var sp = @"GO
+      var sp = @"
         create or alter proc CreateUser
         (
           @FirstName NVARCHAR(20),
@@ -29,7 +29,7 @@ namespace Web.Api.Infrastructure.Migrations
             select @newId as Id;
           commit;
         end
-        GO";
+        ";
 
       migrationBuilder.Sql(sp);
     }

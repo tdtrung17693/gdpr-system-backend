@@ -57,7 +57,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             try
             {
                 var result = (Guid) await command.ExecuteScalarAsync();
-                await _eventBus.Trigger(new UserCreated(userInfo.FirstName, userInfo.LastName, rawPassword,
+                _eventBus.Trigger(new UserCreated(userInfo.FirstName, userInfo.LastName, rawPassword,
                     userInfo.Email, userName));
                 return new CreateUserResponse(result.ToString(), true);
             }

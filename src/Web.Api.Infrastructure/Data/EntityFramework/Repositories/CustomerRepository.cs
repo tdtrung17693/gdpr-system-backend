@@ -134,8 +134,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             await _context.Customer.AddAsync(new Customer(request.Name, request.ContractBeginDate, request.ContractEndDate,
                         matchedId.Id, request.Description, request.Status, Guid.NewGuid()));
             var success = await _context.SaveChangesAsync();
-            /*return new CreateCustomerResponse(newCustomer.Id, success > 0, 
-                success > 0 ? null : new IdentityError(){Description = $"Could not add user {customer.Id}."});*/
+            
             return new CRUDCustomerResponse(request.Id, success > 0,
                 null);
         }
