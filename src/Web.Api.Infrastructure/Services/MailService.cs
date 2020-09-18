@@ -38,7 +38,7 @@ namespace Web.Api.Infrastructure.Services
       return response.Successful;
     }
 
-    public async Task<bool> SendCreatedRequestToAdmin(List<User> adminList ,string requesterFullname, string servername, Guid requestId, Guid serverId, DateTime cretaeAt)
+    public async Task<bool> SendCreatedRequestToAdmin(List<User> adminList ,string requesterFullname, string servername, Guid requestId, Guid serverId, DateTime createdAt)
     {
             foreach (User admin in adminList)
             {
@@ -49,7 +49,7 @@ namespace Web.Api.Infrastructure.Services
                 .Subject("GDPR System -New Request")
                 .UsingTemplateFromEmbedded(
                     "Web.Api.Infrastructure.EmailTemplate.SendRequestToAdmin.cshtml",
-                    new { Requester = requesterFullname, ServerName = servername, RequestId = requestId, ServerId = serverId, CreateAt = cretaeAt, SenderName = senderName},
+                    new { Requester = requesterFullname, ServerName = servername, RequestId = requestId, ServerId = serverId, CreateAt = createdAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"), SenderName = senderName},
                     this.GetType().GetTypeInfo().Assembly);
 
             var response = await email.SendAsync();
