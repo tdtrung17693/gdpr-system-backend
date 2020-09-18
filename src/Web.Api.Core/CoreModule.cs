@@ -5,10 +5,12 @@ using Web.Api.Core.Interfaces.UseCases.Comment;
 using Web.Api.Core.Interfaces.UseCases.ServerInterface;
 using Web.Api.Core.Interfaces.UseCases.User;
 using Web.Api.Core.Interfaces.UseCases.ICustomerUseCases;
+using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
 using Web.Api.Core.UseCases.CustomerUseCases;
 using Web.Api.Core.UseCases;
 using Web.Api.Core.UseCases.Account;
 using Web.Api.Core.UseCases.Comment;
+using Web.Api.Core.UseCases.Request;
 using Web.Api.Core.UseCases.User;
 using CRUDCustomerUseCase = Web.Api.Core.UseCases.CustomerUseCases.CRUDCustomerUseCase;
 using ExportCustomerUseCase = Web.Api.Core.UseCases.CustomerUseCases.ExportCustomerUseCase;
@@ -44,10 +46,10 @@ namespace Web.Api.Core
       builder.RegisterType<UpdateServerUseCase>().As<IUpdateServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<BulkServerUseCase>().As<IBulkServerUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ExportServerUseCase>().As<IExportServerUseCase>().InstancePerLifetimeScope();
-      
 
       builder.RegisterType<CreateRequestUseCase>().As<ICreateRequestUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<UpdateRequestUseCase>().As<IUpdateRequestUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<BulkExportUseCase>().As<IBulkExportUseCase>().InstancePerLifetimeScope();
     }
   }
 }
