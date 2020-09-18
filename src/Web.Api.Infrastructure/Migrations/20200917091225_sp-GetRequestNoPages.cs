@@ -15,7 +15,6 @@ CREATE OR ALTER PROC RequestGetNoPages
 AS
 BEGIN 
 	SET @NoPages = CEILING((SELECT COUNT(id) FROM Request)/@PageSize)
-	--SELECT @NoPages = SCOPE_IDENTITY()
 END");
         }
 

@@ -154,5 +154,18 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       await _context.SaveChangesAsync();
       return new UpdateNotificationResponse();
     }
+
+    public async Task<IEnumerable<Notification>> GetNotificationOfUserToPage(Guid currentUserId, int page, int pageSize = 5)
+    {
+      var query = _context.Notification;
+      var data = await query
+        .Select(n => n)
+        .Where(n => n.ToUserId == currentUserId && (n.IsDeleted == false || n.IsDeleted == null))
+        .OrderByDescending(n => n.CreatedAt)
+        .Take(pageSize * page)
+        .ToListAsync();
+
+      return data;
+    }
   }
 }

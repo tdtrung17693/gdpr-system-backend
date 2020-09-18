@@ -146,7 +146,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 command.Parameters.Add(new SqlParameter("@RequestId ", requestId));
                 command.Parameters.Add(new SqlParameter("@UpdatedField", "RequestStatus"));
                 command.Parameters.Add(new SqlParameter("@UpdatedState", newRequestStatus));
-                command.Parameters.Add(new SqlParameter("@PreviousState", ""));
+                command.Parameters.Add(new SqlParameter("@PreviousState", "New"));
                 command.Parameters.Add(new SqlParameter("@Message", updator.FirstName + ' ' + updator.LastName));
                 command.Parameters.Add(new SqlParameter("@CreatedBy", updator.Id));
                 DataTable dt = new DataTable();

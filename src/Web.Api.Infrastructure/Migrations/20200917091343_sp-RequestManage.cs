@@ -28,24 +28,6 @@ BEGIN
 		SET UpdatedAt = GETDATE(), UpdatedBy = @UserId, Response = @Response, RequestStatus = @Status
 		WHERE Id = @RequestId
 	END
-
-
-	--IF @Status = 3
-	--BEGIN
-	--	INSERT INTO HistoryLog
-	--	VALUES (NEWID(), GETDATE(), @UserId, @RequestId, 'Approved')
-	--END
-	--IF @Status = 4
-	--BEGIN
-	--	INSERT INTO HistoryLog
-	--	VALUES (NEWID(), GETDATE(), @UserId, @RequestId, 'Closed')
-	--END
-	--IF @Status = 5
-	--BEGIN
-	--	INSERT INTO HistoryLog
-	--	VALUES (NEWID(), GETDATE(), @UserId, @RequestId, 'Declined')
-	--END
-
 END");
         }
 
