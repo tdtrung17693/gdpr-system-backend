@@ -97,10 +97,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var title = new SqlParameter("@Title", request.Title);
                 var fromDate = new SqlParameter("@StartDate", request.StartDate);
                 var toDate = new SqlParameter("@EndDate", request.EndDate);
-                var server = new SqlParameter("@Server", request.ServerId);
+                var server = new SqlParameter("@ServerId", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
-                var updateBy = new SqlParameter("@UpdateBy", request.UpdatedBy);
-                var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
+                var updateBy = new SqlParameter("@UpdatedBy", request.UpdatedBy);
+                var updateAt = new SqlParameter("@UpdatedAt", Convert.ToDateTime(DateTime.Now));
                 
                 var command = _context.Database.GetDbConnection().CreateCommand();
                 command.CommandText = "UpdateRequest";
@@ -120,9 +120,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var resultReader = await command.ExecuteReaderAsync();
 
                 var updatedFields = new Dictionary<string, List<string>>();
-                while (resultReader.HasRows)
+                while (resultReader.Read())
                 {
-                    await resultReader.ReadAsync();
                     updatedFields.Add(
                         Convert.ToString(resultReader["UpdatedField"]), 
                         new List<string>

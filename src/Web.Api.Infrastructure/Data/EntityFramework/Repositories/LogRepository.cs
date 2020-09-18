@@ -103,8 +103,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             var newLogTable = new DataTable();
             newLogTable.Columns.Add("UpdatedField", typeof(string));
-            newLogTable.Columns.Add("PreviousState", typeof(Guid));
-            newLogTable.Columns.Add("UpdatedState", typeof(Guid));
+            newLogTable.Columns.Add("PreviousState", typeof(string));
+            newLogTable.Columns.Add("UpdatedState", typeof(string));
             newLogTable.Columns.Add("Message", typeof(string));
 
             foreach (var updatedField in updatedFields)
