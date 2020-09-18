@@ -228,6 +228,17 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
+            public async Task<IList<ExportRequestDetail>> exportBulkRequest(BulkExportRequest message)
+            {
+                var parameters = new List<SqlParameter>();
+                var param3 = new SqlParameter("@RequestList", message.IdList);
+                parameters.Add(param3);
+                var sql = "EXEC GetExportBulkRequest @RequestList";
+                List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
+                if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
+                return null;
+            }
+
             public async Task<bool> ManageRequest(ManageRequestRequest message)
             {
                 var parameters = new List<SqlParameter>();

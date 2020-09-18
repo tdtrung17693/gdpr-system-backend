@@ -19,5 +19,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     Task<UpdateNotificationResponse> MarkAllNotificationsOfUserAsRead(Guid userId);
     //Task<bool> CreateNewRequestNotification(User creator, User[] recipients, string content);
     Task<UpdateNotificationResponse> Delete(Guid id);
+    Task<IEnumerable<Notification>> GetNotificationOfUserToPage(Guid currentUserId, int page, int pageSize = 5);
   }
 }

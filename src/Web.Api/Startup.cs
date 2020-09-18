@@ -47,6 +47,8 @@ using Web.Api.Core.Interfaces.Services.Event;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Infrastructure.Services.Event;
 
+using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
+
 namespace Web.Api
 {
   public class Startup
@@ -73,7 +75,8 @@ namespace Web.Api
         {
           build.WithOrigins(
               "http://localhost:3000",
-              "http://localhost:3000/servers"
+              "http://localhost:3000/servers",
+              "http://localhost:3000/requests"
             )
             .AllowAnyOrigin()
             .AllowAnyHeader()
@@ -188,15 +191,7 @@ namespace Web.Api
 
         eventBus.AddEventHandler<UserCreated, SendInviteMail>();
         eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
-        
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
-        eventBus.AddEventHandler<RequestCreated, NewRequestSlackNotification>();
-        eventBus.AddEventHandler<RequestCreated, LogNewRequest>();
-        eventBus.AddEventHandler<RequestCreated, SendCreateRequestToAmin>();
-        
-        eventBus.AddEventHandler<RequestUpdated, LogRequestUpdated>();
-        eventBus.AddEventHandler<RequestAcceptedRejected, LogAcceptedRejectedRequest>();
-        
         eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
         return eventBus;
       }).As<IDomainEventBus>().SingleInstance();
@@ -212,31 +207,10 @@ namespace Web.Api
         var handler = new BroadcastCreatedComment(c.Resolve<IHubContext<ConversationHub>>());
         return handler;
       }).As<BroadcastCreatedComment>().SingleInstance();
-      builder.Register(c =>
-      {
-        var handler = new SendCreateRequestToAmin(c.Resolve<ApplicationDbContext>() ,c.Resolve<IMailService>());
-        return handler;
-      }).As<SendCreateRequestToAmin>().SingleInstance();
 
       // This handler depends on the auth service, so its lifetime must be the same as the auth service
       builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
-      builder.RegisterType<NewRequestSlackNotification>().As<NewRequestSlackNotification>().InstancePerLifetimeScope();
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
-      builder.Register(c =>
-      {
-        var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
-        return handler;
-      }).As<LogNewRequest>().SingleInstance();
-      builder.Register(c =>
-      {
-        var handler = new LogRequestUpdated(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
-        return handler;
-      }).As<LogRequestUpdated>().SingleInstance();
-      builder.Register(c =>
-      {
-        var handler = new LogAcceptedRejectedRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
-        return handler;
-      }).As<LogAcceptedRejectedRequest>().SingleInstance();
 
       builder.Register(c =>
       {

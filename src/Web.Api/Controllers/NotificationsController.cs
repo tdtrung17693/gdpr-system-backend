@@ -42,6 +42,17 @@ namespace Web.Api.Controllers
       return notifications;
     }
 
+    [HttpGet("refresh")]
+    [Authorize()]
+    public async Task<IEnumerable<Notification>> RefreshNotificationList([FromQuery] int page)
+    {
+      var notifications =
+        await _notificationRepository.GetNotificationOfUserToPage((System.Guid) _currentUser.Id, page);
+
+      return notifications;
+    }
+    
+
     [HttpPut("{id}")]
     [Authorize()]
     public async Task<IActionResult> MarkAsRead(Guid id)

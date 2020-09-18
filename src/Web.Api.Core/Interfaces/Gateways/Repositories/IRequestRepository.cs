@@ -20,6 +20,7 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
         
         Task<CreateRequestResponse> CreateRequest(Request request);
         Task<UpdateRequestResponse> UpdateRequest(Request request);
+        Task<IList<ExportRequestDetail>> exportBulkRequest(BulkExportRequest message);
         Task<IList<RequestDetail>> GetRequest(Guid? uid,int PageNo = 1, int PageSize = 10, string keyword = "", string filterStatus = ""/*, DateTime? FromDateExport = null, DateTime? TSoDateExport = null*/);
         Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request);
         RequestDetail getEachRequest(string requestId, string role);
