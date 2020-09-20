@@ -28,6 +28,7 @@ namespace Web.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ICommentRepository _commentRepository;
+        private readonly IRequestRepository _requestRepository;
         private readonly ICreateCommentUseCase _createCommentUseCase;
         private readonly IDeleteCommentUseCase _deleteCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
@@ -54,6 +55,7 @@ namespace Web.Api.Controllers
             IGetEachRequestUseCase getEachRequestUseCase, GetEachRequestPresenter getEachRequestPresenter,
             IAuthService authService,
             ICommentRepository commentRepository,
+            IRequestRepository requestRepository,
             ICreateCommentUseCase createCommentUseCase,
             ICreateRequestUseCase createRequestUseCase,
             CreateRequestPresenter createRequestPresenter,
@@ -67,6 +69,7 @@ namespace Web.Api.Controllers
         {
             _authService = authService;
             _commentRepository = commentRepository;
+            _requestRepository = requestRepository;
             _createCommentUseCase = createCommentUseCase;
             _createRequestUseCase = createRequestUseCase;
             _createRequestPresenter = createRequestPresenter;
@@ -99,7 +102,7 @@ namespace Web.Api.Controllers
 
             var currentUser = _authService.GetCurrentUser();
             await _createRequestUseCase.Handle(
-                new CreateRequestRequest((Guid) currentUser.Id, message.Title, message.StartDate, message.EndDate,
+                new CreateRequestRequest((Guid)currentUser.Id, message.Title, message.StartDate, message.EndDate,
                     message.ServerId, message.Description), _createRequestPresenter);
             return _createRequestPresenter.ContentResult;
         }
@@ -117,16 +120,20 @@ namespace Web.Api.Controllers
         }
 
         //READ 
+        [HttpGet("totalRows")]
+        public int GetTotalRow()
+        {
+            return _requestRepository.getNoRows();
+        }
+
         [HttpGet]
         public async Task<ActionResult> GetRequestPaging(Guid? uid ,int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,
             string keyword = Constants.DefaultValues.keyword,
-            string filterStatus = Constants.DefaultValues.filterStatus /*, 
-                            DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
+            string filterStatus = Constants.DefaultValues.filterStatus )
         {
             await _getRequestUseCase.Handle(
-                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
-                    "getAll"), _getRequestPresenter);
+                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
         }

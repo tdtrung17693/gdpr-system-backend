@@ -44,6 +44,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var title = new SqlParameter("@Title",request.Title);
                 var fromDate = new SqlParameter("@FromDate", request.StartDate);
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
+                toDate.Value = (object)request.EndDate ?? DBNull.Value;
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
                 
@@ -142,8 +143,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(Guid? Uid, int PageNo, int PageSize, string Keyword, string FilterStatus/*,
-                                                                DateTime? FromDateExport = null, DateTime? ToDateExport = null*/)
+            public async Task<IList<RequestDetail>> GetRequest(Guid? Uid, int PageNo, int PageSize, string Keyword, string FilterStatus)
             {
                 var parameters = new List<SqlParameter>();
                 var uid = new SqlParameter("@uid",Uid);
@@ -202,17 +202,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
-            public async Task<int> getNoPages(int PageSize)
+            public int getNoRows()
             {
-                var parameters = new List<SqlParameter>();
-                var pageSize = new SqlParameter("@PageSize", PageSize);
-                parameters.Add(pageSize);
-                var noPages = new SqlParameter("@NoPage", SqlDbType.Int);
-                noPages.Direction = ParameterDirection.Output;
-                parameters.Add(noPages);
-                var sql = "EXEC RequestGetNoPages @PageSize, @NoPage OUT";
-                await _context.Database.ExecuteSqlCommandAsync(sql, parameters.ToArray());
-                return (int)noPages.Value;
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = "GetRequestCount";
+                    command.CommandType = CommandType.StoredProcedure;
+                    _context.Database.OpenConnection();
+                    return (int)command.ExecuteScalar();
+                    
+                }
             }
 
             public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
