@@ -202,15 +202,19 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
-            public int getNoRows()
+            public DataTable getNoRows(string searchKey)
             {
                 using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
+                    searchKey = searchKey == null ? "" : searchKey;
+                    var filterBy = new SqlParameter("@SearchKey", searchKey);
                     command.CommandText = "GetRequestCount";
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(filterBy);
+                    DataTable dt = new DataTable();
                     _context.Database.OpenConnection();
-                    return (int)command.ExecuteScalar();
-                    
+                    dt.Load(command.ExecuteReader());
+                    return dt;
                 }
             }
 

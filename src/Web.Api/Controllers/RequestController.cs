@@ -19,6 +19,7 @@ using Web.Api.Models.Request.Comment;
 using Web.Api.Serialization;
 using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
 using Web.Api.Presenters.Request;
+using System.Data;
 
 namespace Web.Api.Controllers
 {
@@ -121,9 +122,9 @@ namespace Web.Api.Controllers
 
         //READ 
         [HttpGet("totalRows")]
-        public int GetTotalRow()
+        public ActionResult<DataTable> GetTotalRow(string searchKey = "")
         {
-            return _requestRepository.getNoRows();
+            return _requestRepository.getNoRows(searchKey);
         }
 
         [HttpGet]
