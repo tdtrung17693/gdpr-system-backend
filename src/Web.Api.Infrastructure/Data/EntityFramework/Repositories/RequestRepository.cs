@@ -44,6 +44,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 var title = new SqlParameter("@Title",request.Title);
                 var fromDate = new SqlParameter("@FromDate", request.StartDate);
                 var toDate = new SqlParameter("@ToDate", request.EndDate);
+                toDate.Value = (object)request.EndDate ?? DBNull.Value;
                 var server = new SqlParameter("@Server", request.ServerId);
                 var description = new SqlParameter("@Description", request.Description);
                 
@@ -142,8 +143,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return new UpdateRequestResponse(request.Id.ToString(), success > 0, null);
             }
 
-            public async Task<IList<RequestDetail>> GetRequest(Guid? Uid, int PageNo, int PageSize, string Keyword, string FilterStatus/*,
-                                                                DateTime? FromDateExport = null, DateTime? ToDateExport = null*/)
+            public async Task<IList<RequestDetail>> GetRequest(Guid? Uid, int PageNo, int PageSize, string Keyword, string FilterStatus)
             {
                 var parameters = new List<SqlParameter>();
                 var uid = new SqlParameter("@uid",Uid);
@@ -186,17 +186,20 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
-            public async Task<int> getNoPages(int PageSize)
+            public DataTable getNoRows(string searchKey)
             {
-                var parameters = new List<SqlParameter>();
-                var pageSize = new SqlParameter("@PageSize", PageSize);
-                parameters.Add(pageSize);
-                var noPages = new SqlParameter("@NoPage", SqlDbType.Int);
-                noPages.Direction = ParameterDirection.Output;
-                parameters.Add(noPages);
-                var sql = "EXEC RequestGetNoPages @PageSize, @NoPage OUT";
-                await _context.Database.ExecuteSqlCommandAsync(sql, parameters.ToArray());
-                return (int)noPages.Value;
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    searchKey = searchKey == null ? "" : searchKey;
+                    var filterBy = new SqlParameter("@SearchKey", searchKey);
+                    command.CommandText = "GetRequestCount";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(filterBy);
+                    DataTable dt = new DataTable();
+                    _context.Database.OpenConnection();
+                    dt.Load(command.ExecuteReader());
+                    return dt;
+                }
             }
 
             public async Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request)
@@ -241,11 +244,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 if (command.Connection.State == ConnectionState.Closed)
                     await command.Connection.OpenAsync();
                 
-                /*
-                 *  R.Title, R.RequestStatus, R.CreatedAt,
-        U2.Email as RequesterEmail, CONCAT(U2.FirstName, ' ', U2.LastName) as RequesterFullName,
-        S.Name
-                 */
                 var resultReader = await command.ExecuteReaderAsync();
                 await resultReader.ReadAsync();
 

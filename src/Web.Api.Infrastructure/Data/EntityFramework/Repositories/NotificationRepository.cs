@@ -93,7 +93,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         .Select(n => n)
         .Where(n => n.ToUserId == userId && (n.IsDeleted == false || n.IsDeleted == null))
         .CountAsync();
-
       
       return new Pagination<Notification>()
       {

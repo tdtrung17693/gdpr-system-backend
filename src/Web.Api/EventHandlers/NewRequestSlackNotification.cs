@@ -52,17 +52,14 @@ namespace Web.Api.EventHandlers
                 .AddField("Created At", ev.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))
                 .AddField("", new SlackLink($"http://localhost:3000/requests/editrequest/{ev.RequestId}","View Request").ToString()));
 
-            await Task.Run(async () =>
+            foreach (var adminEmail in admin)
             {
-                foreach (var adminEmail in admin)
-                {
-                    var user = await apiClient.GetUserByEmailAsync(adminEmail);
-                    if (!user.ok) continue;
-                    message.Channel = $"@{user.user.name}";
-                    await client.SendAsync(message);
-                    await Task.Delay(2000);
-                }
-            });
+                var user = await apiClient.GetUserByEmailAsync(adminEmail);
+                if (!user.ok) continue;
+                message.Channel = $"@{user.user.name}";
+                await client.SendAsync(message);
+                await Task.Delay(2000);
+            }
         }
     }
 }

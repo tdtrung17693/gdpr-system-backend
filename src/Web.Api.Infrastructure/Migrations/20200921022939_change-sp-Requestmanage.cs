@@ -37,6 +37,7 @@ BEGIN
     from Request R
     join [User] U2 on U2.Id = R.CreatedBy
     join Server S on R.ServerId = S.Id
+    where R.Id = @RequestId
 END");
         }
 

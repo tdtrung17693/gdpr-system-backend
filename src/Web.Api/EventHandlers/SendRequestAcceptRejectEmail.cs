@@ -5,10 +5,10 @@ using Web.Api.Core.Interfaces.Services.Event;
 
 namespace Web.Api.EventHandlers
 {
-  public class NotifyRequestAcceptedRejected : IEventHandler<RequestAcceptedRejected>
+  public class SendRequestAcceptRejectEmail : IEventHandler<RequestAcceptedRejected>
   {
     private IMailService _mailService;
-    public NotifyRequestAcceptedRejected(IMailService mailService)
+    public SendRequestAcceptRejectEmail(IMailService mailService)
     {
       _mailService = mailService;
     }
