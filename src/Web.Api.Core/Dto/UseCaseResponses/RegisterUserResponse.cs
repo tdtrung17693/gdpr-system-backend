@@ -13,7 +13,7 @@ namespace Web.Api.Core.Dto.UseCaseResponses
             Errors = errors;
         }
 
-        public RegisterUserResponse(string id, bool success = false, string message = null) : base(success, message)
+        public RegisterUserResponse(string id, bool success = true, string message = null) : base(success, message)
         {
             Id = id;
         }
