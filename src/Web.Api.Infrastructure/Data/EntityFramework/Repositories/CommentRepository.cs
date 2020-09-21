@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -28,7 +29,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
         public async Task<IEnumerable<Comment>> FindCommentsOfRequest(Guid requestId, string order)
         {
-            var query = _context.Comment.Include(c => c.Author).Where(c => c.RequestId == requestId);
+            var query = _context.Comment
+              .Include(c => c.Author)
+              .ThenInclude(u => u.UserFileInstance)
+              .ThenInclude(f => f.FileInstance)
+              .Where(c => c.RequestId == requestId);
+            
             if(order == "desc")
             {
                 query = query.OrderByDescending(c => c.CreatedAt);
@@ -92,6 +98,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     content,
                     author.FirstName,
                     author.LastName,
+                    Path.Combine((string) reader["AvatarPath"], $"{reader["AvatarFileName"]}.{reader["AvatarExtension"]}"),
                     createdAt,
                     parentId));
                 return new CreateCommentResponse(newId, createdAt);

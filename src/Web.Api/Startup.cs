@@ -201,6 +201,7 @@ namespace Web.Api
         
         eventBus.AddEventHandler<RequestUpdated, LogRequestUpdated>();
         eventBus.AddEventHandler<RequestAcceptedRejected, LogAcceptedRejectedRequest>();
+        eventBus.AddEventHandler<RequestAcceptedRejected, NotifyRequestAcceptedRejected>();
         
         eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
         return eventBus;
@@ -228,6 +229,7 @@ namespace Web.Api
       builder.RegisterType<NewRequestSlackNotification>().As<NewRequestSlackNotification>().InstancePerLifetimeScope();
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
       builder.RegisterType<SendUserResettedPassword>().As<SendUserResettedPassword>().InstancePerLifetimeScope();
+      builder.RegisterType<NotifyRequestAcceptedRejected>().As<NotifyRequestAcceptedRejected>().InstancePerLifetimeScope();
       builder.Register(c =>
       {
         var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());

@@ -71,7 +71,8 @@ namespace Web.Api.Controllers
         Role = user.Role.Name,
         Permissions = _authService.GetAllPermissions(),
         Notifications = notifications,
-        TotalUnreadNotifications = totalUnreadNotifications
+        TotalUnreadNotifications = totalUnreadNotifications,
+        Avatar = _authService.GetCurrentUserAvatar()
       };
     }
 

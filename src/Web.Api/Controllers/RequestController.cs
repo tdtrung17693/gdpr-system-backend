@@ -1,9 +1,8 @@
 using System;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
@@ -170,18 +169,32 @@ namespace Web.Api.Controllers
         public async Task<string> GetCommentsOfRequest(Guid id, string order)
         {
             var comments = await _commentRepository.FindCommentsOfRequest(id, order);
-            return JsonSerializer.SerializeObject(comments.Select(c =>
+            
+            var result = new Collection<Object>();
+
+            foreach (var comment in comments)
             {
-                return new
-                {
-                    c.Id,
-                    c.Content,
-                    c.ParentId,
-                    c.RequestId,
-                    c.CreatedAt,
-                    Author = new {FirstName = c.Author.FirstName, LastName = c.Author.LastName}
-                };
-            }));
+              var fileInstance = comment.Author.UserFileInstance.FirstOrDefault();
+              var avatarFile = fileInstance?.FileInstance;
+              byte[] bytes = null;
+              string content = "";
+              
+              if (avatarFile != null)
+              {
+                bytes = System.IO.File.ReadAllBytes(Path.Combine(avatarFile.Path, $"{avatarFile.FileName}.{avatarFile.Extension}"));
+                content = Convert.ToBase64String(bytes);
+              }
+              result.Add(new
+              {
+                comment.Id,
+                comment.Content,
+                comment.ParentId,
+                comment.RequestId,
+                comment.CreatedAt,
+                Author = new {comment.Author.FirstName, comment.Author.LastName, Avatar= avatarFile != null ? content : null}
+              });
+            }
+            return JsonSerializer.SerializeObject(result);
         }
 
         [HttpPost("{id}/comments")]
@@ -224,7 +237,7 @@ namespace Web.Api.Controllers
         [HttpPut("manage")]
         [Authorize("CanManageRequest")]
         public async Task<ActionResult> ManageRequest(
-            [FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
+            [FromBody] ManageRequestRequestModel manageRequestRequest)
         {
             if (!ModelState.IsValid)
             {

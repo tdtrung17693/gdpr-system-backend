@@ -11,6 +11,7 @@ namespace Web.Api.Core.Interfaces.Services
     Task<bool> LogIn(Guid userId);
     bool HasPermission(string requiredPermission);
     User GetCurrentUser();
+    Object GetCurrentUserAvatar();
     IEnumerable<string> GetAllPermissions();
   }
 }

@@ -267,7 +267,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
 
             if (fileInfo == null) return null;
-            Byte[] fileBytes =
+            byte[] fileBytes =
                 File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));
             String content = Convert.ToBase64String(fileBytes);
             return new

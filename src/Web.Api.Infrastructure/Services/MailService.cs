@@ -84,5 +84,21 @@ namespace Web.Api.Infrastructure.Services
             var response = await email.SendAsync();
             return response.Successful;
         }
+
+        public async Task<bool> SendRequestStatusToRequester(string requesterEmail, string requesterFullName, Guid requestId,
+          string requestTitle, string requestStatus)
+        {
+            var senderName = _configuration["Mail:Name"];
+            var email = _fluentEmail
+                .To(requesterEmail)
+                .Subject($"GDPR System - Request {requestTitle} status updated")
+                .UsingTemplateFromEmbedded(
+                    "Web.Api.Infrastructure.EmailTemplate.RequestAcceptRejectEmail.cshtml",
+                    new {UserFullName = requesterFullName, RequestId = requestId, RequestTitle = requestTitle, RequestStatus = requestStatus},
+                    this.GetType().GetTypeInfo().Assembly);
+
+            var response = await email.SendAsync();
+            return response.Successful;
+        }
     }
 }
