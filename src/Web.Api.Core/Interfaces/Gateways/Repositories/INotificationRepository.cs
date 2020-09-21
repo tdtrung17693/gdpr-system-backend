@@ -20,5 +20,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     //Task<bool> CreateNewRequestNotification(User creator, User[] recipients, string content);
     Task<UpdateNotificationResponse> Delete(Guid id);
     Task<IEnumerable<Notification>> GetNotificationOfUserToPage(Guid currentUserId, int page, int pageSize = 5);
+    Task<bool> CreateAcceptRejectNotification(Requester requester, string evNewStatus, string evRequestTitle, Guid requestId);
   }
 }

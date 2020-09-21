@@ -265,7 +265,6 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         {
             var fileInfo = await _context.FileInstance.AsNoTracking()
                 .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
-
             if (fileInfo == null) return null;
             byte[] fileBytes =
                 File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));

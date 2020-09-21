@@ -11,7 +11,7 @@ namespace Web.Api.Infrastructure.Migrations
                 [Data] nvarchar(max) NULL,
                 [FromUserId] uniqueidentifier NULL,
                 [ToUserId] uniqueidentifier,
-                [NotificationType] nvarchar(20)
+                [NotificationType] nvarchar(max)
             )
             ";
             migrationBuilder.Sql(sql);

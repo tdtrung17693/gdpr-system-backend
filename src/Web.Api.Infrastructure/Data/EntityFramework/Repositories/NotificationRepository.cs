@@ -167,6 +167,52 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       return data;
     }
 
+    public async Task<bool> CreateAcceptRejectNotification(Requester requester, string evNewStatus, string evRequestTitle, Guid requestId)
+    {
+      var newNotificationTable = new DataTable();
+      newNotificationTable.Columns.Add("Data", typeof(string));
+      newNotificationTable.Columns.Add("FromUserId", typeof(Guid));
+      newNotificationTable.Columns.Add("ToUserId", typeof(Guid));
+      newNotificationTable.Columns.Add("NotificationType", typeof(string));
+
+      var notifiedContent = JsonConvert.SerializeObject(
+        new RequestAcceptRejectNotificationData
+        {
+          RequestTitle = evRequestTitle,
+          NewStatus = evNewStatus,
+          RequestId = requestId
+        },
+        
+        new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+      var newRow = newNotificationTable.NewRow();
+      newRow["Data"] = notifiedContent;
+      newRow["FromUserId"] = requester.UserId;
+      newRow["ToUserId"] = requester.UserId;
+      newRow["NotificationType"] = "request-accept-reject";
+      newNotificationTable.Rows.Add(newRow);
+
+      var command = _context.Database.GetDbConnection().CreateCommand();
+      command.CommandText = "CreateNotifications";
+      command.CommandType = CommandType.StoredProcedure;
+      command.Parameters.Add(new SqlParameter("@Notifications", newNotificationTable));
+
+      if (command.Connection.State == ConnectionState.Closed)
+          await command.Connection.OpenAsync();
+      try
+      {
+        var reader = await command.ExecuteReaderAsync();
+        var createdNotifications = _mapper.Map<IDataReader, List<NotificationDto>>(reader);
+        await _eventBus.Trigger(new NotificationsCreated(_mapper.Map<IEnumerable<NotificationDto>>(createdNotifications)));
+      } catch (Exception e)
+      {
+        // Add log here
+        Console.Error.WriteLine(e);
+        return false;
+      }
+
+      return true;
+    }
+
     public void Dispose()
     {
       _context?.Dispose();

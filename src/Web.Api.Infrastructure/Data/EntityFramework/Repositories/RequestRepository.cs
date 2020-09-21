@@ -249,11 +249,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
                 await _eventBus.Trigger(new RequestAcceptedRejected()
                 {
+                    OldStatus = (string)resultReader["OldStatus"],
                     NewStatus = message.Status,
                     RequestId = Guid.Parse(message.RequestId),
                     UpdatedBy = Guid.Parse(message.UserId),
                     ApproverFullName = (string)resultReader["ApproverFullName"],
                     RequesterFullName = (string)resultReader["RequesterFullName"],
+                    RequesterId = (Guid)resultReader["RequesterId"],
+                    RequesterUsername = (string)resultReader["RequesterUsername"],
                     RequesterEmail = (string)resultReader["RequesterEmail"],
                     RequestTitle = (string)resultReader["Title"]
                 });

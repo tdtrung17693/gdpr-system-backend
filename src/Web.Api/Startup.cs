@@ -202,6 +202,7 @@ namespace Web.Api
         eventBus.AddEventHandler<RequestUpdated, LogRequestUpdated>();
         eventBus.AddEventHandler<RequestAcceptedRejected, LogAcceptedRejectedRequest>();
         eventBus.AddEventHandler<RequestAcceptedRejected, SendRequestAcceptRejectEmail>();
+        eventBus.AddEventHandler<RequestAcceptedRejected, NotifyRequestAcceptRejectStatus>();
         
         eventBus.AddEventHandler<NotificationsCreated, BroadcastNewNotifications>();
         return eventBus;
@@ -230,6 +231,7 @@ namespace Web.Api
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
       builder.RegisterType<SendUserResettedPassword>().As<SendUserResettedPassword>().InstancePerLifetimeScope();
       builder.RegisterType<SendRequestAcceptRejectEmail>().As<SendRequestAcceptRejectEmail>().InstancePerLifetimeScope();
+      builder.RegisterType<NotifyRequestAcceptRejectStatus>().As<NotifyRequestAcceptRejectStatus>().InstancePerLifetimeScope();
       builder.Register(c =>
       {
         var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
