@@ -127,6 +127,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("activate")]
+        [Authorize("CanEditUser")]
         public async Task<ActionResult> ActivateBulk([FromBody] Guid[] ids)
         {
             _changeUsersStatusPresenter.HandleResource = r =>
@@ -162,12 +163,14 @@ namespace Web.Api.Controllers
 
      //Khoa
      [HttpGet("avatar/{id}")]
+     [Authorize()]
      public async Task<Object> GetAvatar(string id)
      {
         return await _userRepository.GetAvatar(id);
      }
 
      [HttpPost("avatar")]
+     [Authorize()]
      public async Task<ActionResult> UploadFirstAvatar([FromBody] UploadAvatarRequest request)
      {
      if (!ModelState.IsValid)
@@ -178,6 +181,7 @@ namespace Web.Api.Controllers
      }  
         
      [HttpPut("avatar")]
+     [Authorize()]
      public async Task<ActionResult> ChangeAvatar([FromBody] UploadAvatarRequest request)
      {
      if (!ModelState.IsValid)

@@ -28,6 +28,8 @@ namespace Web.Api.EventHandlers
         {
             var slackToken = _configuration.GetValue<string>("Slack:Token");
             var slackWebHook = _configuration.GetValue<string>("Slack:WebHook");
+
+            if (string.IsNullOrEmpty(slackToken) || string.IsNullOrEmpty(slackWebHook)) return;
             
             var admin = await _context.User
                 .Include(user => user.Role)

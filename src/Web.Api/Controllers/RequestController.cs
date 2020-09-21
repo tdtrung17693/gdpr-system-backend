@@ -118,6 +118,7 @@ namespace Web.Api.Controllers
 
         //READ 
         [HttpGet]
+        [Authorize("CanViewRequest")]
         public async Task<ActionResult> GetRequestPaging(Guid? uid ,int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,
             string keyword = Constants.DefaultValues.keyword,
@@ -132,6 +133,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpGet("{requestId}")]
+        [Authorize("CanEditRequest")]
         public async Task<ActionResult> GetEachRequest(string requestId)
         {
             if (!ModelState.IsValid)
@@ -147,6 +149,7 @@ namespace Web.Api.Controllers
 
         //UPDATE
         [HttpPut("update/{requestId}")]
+        [Authorize("CanEditRequest")]
         public async Task<ActionResult> UpdateRequest(string requestId, [FromBody] UpdateRequestRequestModel message)
         {
             if (!ModelState.IsValid)
@@ -219,6 +222,7 @@ namespace Web.Api.Controllers
 
 
         [HttpPut("manage")]
+        [Authorize("CanManageRequest")]
         public async Task<ActionResult> ManageRequest(
             [FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
         {
@@ -234,6 +238,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("bulkExport")]
+        [Authorize("CanDataExport")]
         public async Task<ActionResult> BulkExportAction(string id, [FromBody] Models.Request.BulkExportRequest message)
         {
             if (!ModelState.IsValid)

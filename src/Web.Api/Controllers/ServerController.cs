@@ -18,6 +18,7 @@ using Web.Api.Presenters;
 using BulkServerRequest = Web.Api.Core.Dto.UseCaseRequests.ServerUserCaseRequest.BulkServerRequest;
 using Web.Api.Core.Dto.UseCaseResponses.ServerUseCaseResponse;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
 using Microsoft.AspNetCore.Hosting;
 using Web.Api.Core.Dto.UseCaseRequests.CustomerUseCaseRequest;
@@ -64,6 +65,7 @@ namespace Web.Api.Controllers
 
         //CREATE
         [HttpPost("create")]
+        [Authorize("CanCreateServer")]
         public async Task<ActionResult> CreateNewServer([FromBody] ServerRequest server)   
         {
 
@@ -81,6 +83,7 @@ namespace Web.Api.Controllers
 
         //CREATE NEW LIST SERVER
         [HttpPost("importExcel")]
+        [Authorize("CanImportData")]
         public async Task<ActionResult> ImportServerByXLSX([FromBody] IEnumerable<ServerRequest> serverList)//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
             if (!ModelState.IsValid)
@@ -98,37 +101,8 @@ namespace Web.Api.Controllers
             return Ok(serverList);
         }
 
-        //READ
-       /* [HttpGet]
-        public async Task<ActionResult> GetAll([FromQuery] PagedServerRequest request)
-        {
-            _readServerPresenter.HandleResource = r =>
-            {
-                var users = _mapper.Map<Pagination<Server>, Pagination<ServerDTO>>(r.Server);
-
-                return r.Success ? JsonSerializer.SerializeObject(users) : JsonSerializer.SerializeObject(r.Errors);
-            };
-
-            var filterString = request.FilterBy == null ? "" : request.FilterBy;
-            await _readServerUseCase.Handle(
-              new ReadServerRequest(request.Page, request.PageSize, filterString, request.SortedBy, request.SortOrder),
-              _readServerPresenter);
-            return _readServerPresenter.ContentResult;
-        }*/
-
-        /*
-          public ActionResult<IEnumerable<ServerRequest>> GetAllCommands()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var serverItems = _repository.GetAllCommand();
-            return Ok(_mapper.Map<IEnumerable<ServerRequest>>(serverItems));
-        }
-         */
-
         [HttpGet("listServer")]
+        [Authorize("CanListServer")]
         public ActionResult<DataTable> GetListServer()
         {
             if (!ModelState.IsValid)
@@ -140,6 +114,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpGet("filter/{filterKey}")]
+        [Authorize("CanViewServer")]
         public ActionResult<DataTable> GetListServerByFilter(string filterKey)
         {
             if (!ModelState.IsValid)
@@ -151,6 +126,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("count")]
+        [Authorize("CanViewServer")]
         public ActionResult<DataTable> CountServers([FromBody]CountServerRequest filter)
         {
             if (!ModelState.IsValid)
@@ -162,6 +138,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("paging")]
+        [Authorize("CanViewServer")]
         public ActionResult<DataTable> Paging([FromBody] PagedServerRequest paged)
         {
             if (!ModelState.IsValid)
@@ -174,6 +151,7 @@ namespace Web.Api.Controllers
 
         //UPDATE
         [HttpPut]
+        [Authorize("CanEditServer")]
         public async Task<ActionResult> UpdateServer([FromBody] ServerUpdateRequest server)
         {
 
@@ -189,6 +167,7 @@ namespace Web.Api.Controllers
 
         //Get detail a server
         [HttpGet("detail/{id}")]
+        [Authorize("CanEditServer")]
         public ActionResult<ServerRequest> GetServerDetail(Guid id)
         {
             if (!ModelState.IsValid)
@@ -202,6 +181,7 @@ namespace Web.Api.Controllers
 
         //Active/Deactive multi server
         [HttpPut("bulkStatus")]
+        [Authorize("CanEditServer")]
         public async Task<ActionResult> UpdateMultiStatusServer([FromBody] Models.Request.BulkServerRequest bulkServer )//IEnumerable<Guid> serverIdList,bool status, Guid updator
         {
 
@@ -223,6 +203,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("export-csv")]
+        [Authorize("CanExportData")]
         public async Task<ActionResult> GetByCustomers(ExportCustomerRequest request)
         {
             if (!ModelState.IsValid)
@@ -232,6 +213,5 @@ namespace Web.Api.Controllers
             await _exportServerUseCase.Handle(new ExportServerRequest(request.FromDate, request.ToDate, request.Guids), _exportServerPresenter);
             return _exportServerPresenter.ContentResult;
         }
-
     }
 }

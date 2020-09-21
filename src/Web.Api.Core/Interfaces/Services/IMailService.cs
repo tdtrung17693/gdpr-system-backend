@@ -12,5 +12,6 @@ namespace Web.Api.Core.Interfaces.Services
         // TODO: Add later
         //bool SendAdminNotification(Request request);
     Task<bool> SendCreatedRequestToAdmin(List<User> adminList, string requesterFullname, string servername, Guid requestId, Guid serverId, DateTime cretaeAt);
+    Task<bool> SendResettedPassword(string userEmail, string userFullName, string newPassword);
   }
 }

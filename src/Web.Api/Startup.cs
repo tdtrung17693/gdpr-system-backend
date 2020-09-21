@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -86,6 +87,9 @@ namespace Web.Api
       var connectionString = Configuration.GetConnectionString("Default");
       services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString, b => b.MigrationsAssembly("Web.Api.Infrastructure")));
+        
+      services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
+      services.AddHangfireServer();
       services.AddScoped<ICreateRequestUseCase, CreateRequestUseCase>();
       services.AddScoped<IUpdateRequestUseCase, UpdateRequestUseCase>();
       services.AddScoped<IGetRequestUseCase, GetRequestUseCase>();
@@ -182,11 +186,12 @@ namespace Web.Api
 
       builder.Register(c =>
       {
-        var eventBus = new EventBus(c.Resolve<IHttpContextAccessor>());
+        var eventBus = new EventBus(c.Resolve<IServiceProvider>());
         //NEW ADD TOHUB
         eventBus.AddEventHandler<CommentDeleted, EventHandlers.BroadcastDeletedComment>();
 
         eventBus.AddEventHandler<UserCreated, SendInviteMail>();
+        eventBus.AddEventHandler<UserPasswordResetted, SendUserResettedPassword>();
         eventBus.AddEventHandler<CommentCreated, BroadcastCreatedComment>();
         
         eventBus.AddEventHandler<RequestCreated, NewRequestWebNotification>();
@@ -222,6 +227,7 @@ namespace Web.Api
       builder.RegisterType<NewRequestWebNotification>().As<NewRequestWebNotification>().InstancePerLifetimeScope();
       builder.RegisterType<NewRequestSlackNotification>().As<NewRequestSlackNotification>().InstancePerLifetimeScope();
       builder.RegisterType<BroadcastNewNotifications>().As<BroadcastNewNotifications>().InstancePerLifetimeScope();
+      builder.RegisterType<SendUserResettedPassword>().As<SendUserResettedPassword>().InstancePerLifetimeScope();
       builder.Register(c =>
       {
         var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
@@ -297,6 +303,7 @@ namespace Web.Api
 
       // Enable middleware to serve generated Swagger as a JSON endpoint.
       app.UseSwagger();
+      app.UseHangfireDashboard();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
 

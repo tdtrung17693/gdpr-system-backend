@@ -35,6 +35,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpGet("{requestId}")]
+        [Authorize("CanEditRequest")]
         public async Task<DataTable> GetHistoryLog(Guid requestId)
         {
             var result = await _logRepository.GetListLogOfRequest(requestId);
