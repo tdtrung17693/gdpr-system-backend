@@ -112,6 +112,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("server")]
+        [Authorize("CanEditCustomer")]
         public async Task<ActionResult> Post(ManageServerRequest request)
         {
             if (!ModelState.IsValid)
@@ -123,6 +124,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpDelete("server")]
+        [Authorize("CanEditCustomer")]
         public async Task<ActionResult> Delete([FromBody] ManageServerRequest request)
         {
             if (!ModelState.IsValid)
@@ -134,6 +136,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize("CanEditCustomer")]
         public async Task<ActionResult> Put([FromBody] CustomerRequest request)
         {
             if (!ModelState.IsValid)
@@ -149,6 +152,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpDelete]
+        [Authorize("CanDeleteCustomer")]
         public async Task<ActionResult> Delete([FromBody] Models.Request.CustomerRequest request)
         {
             if (!ModelState.IsValid)

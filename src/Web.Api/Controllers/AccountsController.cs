@@ -1,14 +1,15 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Web.Api.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
+
+using Web.Api.Presenters;
+using Web.Api.Serialization;
+using Web.Api.Models.Request;
+using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.UseCases.Account;
 using Web.Api.Core.Dto.UseCaseResponses.Account;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
-using Web.Api.Presenters;
-using Web.Api.Serialization;
 using ChangePasswordRequest = Web.Api.Core.Dto.UseCaseRequests.Account.ChangePasswordRequest;
 using UpdateProfileInfoRequest = Web.Api.Core.Dto.UseCaseRequests.Account.UpdateProfileInfoRequest;
 
@@ -25,22 +26,29 @@ namespace Web.Api.Controllers
     private readonly INotificationRepository _notiRepo;
     private readonly ResourcePresenter<UpdateProfileInfoResponse> _updateProfileInfoPresenter;
     private readonly ResourcePresenter<ChangePasswordResponse> _changePasswordPresenter;
+    private readonly IResetPasswordUseCase _resetPasswordUseCase;
+    private ResourcePresenter<ResetPasswordResponse> _resetPasswordPresenter;
 
     public AccountsController(
       IUpdateProfileInfoUseCase updateProfileInfoUseCase,
       IChangePasswordUseCase changePasswordUseCase,
+      IResetPasswordUseCase resetPasswordUseCase,
       IAuthService authService,
       IMapper mapper,
       ResourcePresenter<UpdateProfileInfoResponse> updateProfileInfoPresenter,
       ResourcePresenter<ChangePasswordResponse> changePasswordPresenter,
-      INotificationRepository notiRepo)
+      ResourcePresenter<ResetPasswordResponse> resetPasswordPresenter,
+      INotificationRepository notiRepo
+      )
     {
       _authService = authService;
       _mapper = mapper;
       _updateProfileInfoUseCase = updateProfileInfoUseCase;
+      _resetPasswordUseCase = resetPasswordUseCase;
       _updateProfileInfoPresenter = updateProfileInfoPresenter;
       _changePasswordUseCase = changePasswordUseCase;
       _changePasswordPresenter = changePasswordPresenter;
+      _resetPasswordPresenter = resetPasswordPresenter;
       _notiRepo = notiRepo;
     }
 
@@ -63,7 +71,8 @@ namespace Web.Api.Controllers
         Role = user.Role.Name,
         Permissions = _authService.GetAllPermissions(),
         Notifications = notifications,
-        TotalUnreadNotifications = totalUnreadNotifications
+        TotalUnreadNotifications = totalUnreadNotifications,
+        Avatar = _authService.GetCurrentUserAvatar()
       };
     }
 
@@ -98,6 +107,22 @@ namespace Web.Api.Controllers
       if (!response) return _changePasswordPresenter.ContentResult;
       
       return _changePasswordPresenter.ContentResult;
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+    {
+      _resetPasswordPresenter.HandleResource = r =>
+        r.Success
+          ? JsonSerializer.SerializeObject(new
+          {
+            Success = true
+          })
+          : JsonSerializer.SerializeObject(new {r.Errors});
+      var response = await _resetPasswordUseCase.Handle(
+          new Core.Dto.UseCaseRequests.Account.ResetPasswordRequest(request.Email), _resetPasswordPresenter);
+
+      return _resetPasswordPresenter.ContentResult;
     }
   } 
 }

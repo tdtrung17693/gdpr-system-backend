@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,8 +9,6 @@ using System.Threading.Tasks;
 using Web.Api.Core.Domain.Entities;
 using Web.Api.Core.Domain.Event;
 using Web.Api.Core.Dto;
-using Web.Api.Core.Dto.GatewayResponses.Repositories;
-using Web.Api.Core.Dto.Requests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
 using Web.Api.Core.Interfaces.Services;
 using Web.Api.Core.Interfaces.Services.Event;
@@ -181,7 +178,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             }
         }
 
-        public async Task<DataTable> GetListLogOfRequest(Guid requestId)
+        public async Task<IEnumerable<HistoryLogDto>> GetListLogOfRequest(Guid requestId)
         {
             using (var command = _context.Database.GetDbConnection().CreateCommand())
             {
@@ -191,10 +188,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 command.CommandText = "GetHistoryLog";
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add(_requestId);
-                DataTable dt = new DataTable();
+                
                 _context.Database.OpenConnection();
-                dt.Load(command.ExecuteReader());
-                return dt;
+                
+                var result = _mapper.Map<IEnumerable<HistoryLogDto>>(command.ExecuteReader());
+                return result;
             }
         }
     }

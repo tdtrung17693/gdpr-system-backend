@@ -68,7 +68,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
       {
         var reader = await command.ExecuteReaderAsync();
         var createdNotifications = _mapper.Map<IDataReader, List<NotificationDto>>(reader);
-        _eventBus.Trigger(new NotificationsCreated(_mapper.Map<IEnumerable<NotificationDto>>(createdNotifications)));
+        await _eventBus.Trigger(new NotificationsCreated(_mapper.Map<IEnumerable<NotificationDto>>(createdNotifications)));
       } catch (Exception e)
       {
         // Add log here
@@ -166,6 +166,11 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         .ToListAsync();
 
       return data;
+    }
+
+    public void Dispose()
+    {
+      _context?.Dispose();
     }
   }
 }

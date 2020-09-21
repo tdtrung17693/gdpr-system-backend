@@ -167,28 +167,12 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     parameters.Add(filterStatus);
                     sql = "EXEC GetRequestPagination @uId=@uid, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus";
                 }
-                /*if (FromDateExport is null || ToDateExport is null)
-                {
-                    var fromDateExport = new SqlParameter("@FromDateExport", FromDateExport);
-                    parameters.Add(fromDateExport);
-                    var toDateExport = new SqlParameter("@ToDateExport", ToDateExport);
-                    parameters.Add(toDateExport);
-                    sql = "EXEC GetRequestPagination @SearchKey=@Keyword, @PageNo=@PageNumber, @PageSize=@RowsOfPage, @FilterStatusString=@FilterStatus, @FromDate=@FromDateExport, @ToDate=@ToDateExport";
-                } */
+                
                 List<SPRequestResultView> resultRequestPaging = await _context.SPRequestResultView .FromSql(sql, parameters.ToArray()).ToListAsync();
-                //Console.WriteLine(resultRequestPaging.ToString());
+                
                 if (resultRequestPaging != null) return _mapper.Map<List<SPRequestResultView>, IList<RequestDetail>>(resultRequestPaging);
                 return null;
             }
-
-            //public IList<Request> GetRequestFilter(string _keyword, int _pageNo, int _pageSize)
-            //{
-            //    var keyword = new SqlParameter("@Keyword", _keyword);
-            //    var pageNo = new SqlParameter("@PageNumber", _pageNo);
-            //    var pageSize = new SqlParameter("@RowsOfPage", _pageSize);
-            //    var result = _context.Request.FromSql("EXEC GetRequestPaginationFilter @Keyword, @PageNumber, @RowsOfPage", keyword, pageNo, pageSize).ToList();
-            //    return result;
-            //}
 
             public RequestDetail getEachRequest(string requestId, string role)
             {
@@ -241,25 +225,39 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 
             public async Task<bool> ManageRequest(ManageRequestRequest message)
             {
-                var parameters = new List<SqlParameter>();
-
-                var rId = new SqlParameter("@rId", message.RequestId);
-                parameters.Add(rId);
-                var uId = new SqlParameter("@uId", message.UserId);
-                parameters.Add(uId);
-                var response = new SqlParameter("@response", message.Answer);
-                parameters.Add(response);
-                var status = new SqlParameter("@status", message.Status);
-                parameters.Add(status);
-
-                var manageQuery = "EXEC RequestManage @rID, @uId, @response, @status";
-                await _context.Database.ExecuteSqlCommandAsync(manageQuery, parameters.ToArray());
+                var rId = new SqlParameter("@RequestId", message.RequestId);
+                var uId = new SqlParameter("@UserId", message.UserId);
+                var response = new SqlParameter("@Response", message.Answer);
+                var status = new SqlParameter("@Status", message.Status);
+                
+                var command = _context.Database.GetDbConnection().CreateCommand();
+                command.CommandText = "RequestManage";
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(rId);
+                command.Parameters.Add(uId);
+                command.Parameters.Add(response);
+                command.Parameters.Add(status);
+                
+                if (command.Connection.State == ConnectionState.Closed)
+                    await command.Connection.OpenAsync();
+                
+                /*
+                 *  R.Title, R.RequestStatus, R.CreatedAt,
+        U2.Email as RequesterEmail, CONCAT(U2.FirstName, ' ', U2.LastName) as RequesterFullName,
+        S.Name
+                 */
+                var resultReader = await command.ExecuteReaderAsync();
+                await resultReader.ReadAsync();
 
                 await _eventBus.Trigger(new RequestAcceptedRejected()
                 {
                     NewStatus = message.Status,
                     RequestId = Guid.Parse(message.RequestId),
-                    UpdatedBy = Guid.Parse(message.UserId)
+                    UpdatedBy = Guid.Parse(message.UserId),
+                    ApproverFullName = (string)resultReader["ApproverFullName"],
+                    RequesterFullName = (string)resultReader["RequesterFullName"],
+                    RequesterEmail = (string)resultReader["RequesterEmail"],
+                    RequestTitle = (string)resultReader["Title"]
                 });
 
                 return true;

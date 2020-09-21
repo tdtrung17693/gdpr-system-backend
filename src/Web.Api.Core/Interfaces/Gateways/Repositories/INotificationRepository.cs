@@ -9,7 +9,7 @@ using Web.Api.Core.Dto.Requests;
 
 namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
-  public interface INotificationRepository
+  public interface INotificationRepository : IDisposable
   {
     Task<bool> CreateNewRequestNotification(Requester requester, IEnumerable<User> recipients, string serverName, Guid serverId, Guid requestId);
     Task<Pagination<Notification>> GetNotificationOf(Guid userId, int page, int pageSize = 5);

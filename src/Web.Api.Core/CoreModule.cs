@@ -25,6 +25,7 @@ namespace Web.Api.Core
       builder.RegisterType<ManageServerUseCase>().As<IManageServerUseCase>().InstancePerLifetimeScope();  
       builder.RegisterType<UpdateProfileInfoUseCase>().As<IUpdateProfileInfoUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<ChangePasswordUseCase>().As<IChangePasswordUseCase>().InstancePerLifetimeScope();
+      builder.RegisterType<ResetPasswordUseCase>().As<IResetPasswordUseCase>().InstancePerLifetimeScope();
       
       builder.RegisterType<ReadUserUseCase>().As<IReadUserUseCase>().InstancePerLifetimeScope();
       builder.RegisterType<CreateUserUseCase>().As<ICreateUserUseCase>().InstancePerLifetimeScope();
