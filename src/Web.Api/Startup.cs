@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using Elmah.Io.AspNetCore;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -169,6 +170,8 @@ namespace Web.Api
         .AddJsonOptions(
           options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
+      services.Configure<ElmahIoOptions>(Configuration.GetSection("ElmahIo")); 
+      services.AddElmahIo();
 
       services.AddSignalR();
       services.AddAutoMapper(cfg => { cfg.AddDataReaderMapping(); });
@@ -310,7 +313,7 @@ namespace Web.Api
       app.UseHangfireDashboard();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
-
+      app.UseElmahIo();
 
       app.UseCors(MyAllowSpecificOrigins);
       app.UseSignalR(e => { e.MapHub<ConversationHub>("/conversation"); });
