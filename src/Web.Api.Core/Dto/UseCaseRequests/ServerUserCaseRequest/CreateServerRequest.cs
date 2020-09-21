@@ -13,7 +13,7 @@ namespace Web.Api.Core.Dto.UseCaseRequests
 
         public Guid? Id { get; set; }
 
-        public Guid CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 
@@ -36,7 +36,7 @@ namespace Web.Api.Core.Dto.UseCaseRequests
         public DateTime? EndDate { get; set; }
 
         public bool? Status { get; set; }
-        public CreateServerRequest(Guid? id, DateTime? createdAt, Guid createdBy, DateTime? deletedAt, Guid? deletedBy
+        public CreateServerRequest(Guid? id, DateTime? createdAt, Guid? createdBy, DateTime? deletedAt, Guid? deletedBy
             , DateTime? endDate, string ipAddress, bool? isDeleted, string name, DateTime? startDate, bool? status, DateTime? updatedAt, Guid? updatedBy)
         {
             Id = id;

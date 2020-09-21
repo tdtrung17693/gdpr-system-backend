@@ -24,11 +24,11 @@ namespace Web.Api.Core.UseCases.CustomerUseCases
         public async Task<bool> Handle(CustomerRequest message, IOutputPort<CustomerResponse> outputPort)
         {
             CRUDCustomerResponse response;
+            Guid x;
+            var isContactPointUID = Guid.TryParse(message.ContactPoint, out x);
 
             if (message.Id == null)
             {
-                Guid x;
-                var isContactPointUID = Guid.TryParse(message.ContactPoint, out x);
                 if (isContactPointUID)
                 {
                     response = await _customerRepository.Create(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate,
@@ -38,15 +38,11 @@ namespace Web.Api.Core.UseCases.CustomerUseCases
                 {
                     response = await _customerRepository.CreateFromImport(message);
                 }
-                //In case able to get Id
-                //response = await _customerRepository.Create(message);
             }
             else
             {
                 response = await _customerRepository.Update(new Customer(message.Name, message.ContractBeginDate, message.ContractEndDate, 
                     Guid.Parse(message.ContactPoint), message.Description, message.Status, message.Id));
-                //In case able to get Id
-                //response = await _customerRepository.Update(message);
             }
             outputPort.Handle(response.Success ? new CustomerResponse(response.Id, true) : new CustomerResponse(response.Errors.Select(e => e.Description)));
             return response.Success;

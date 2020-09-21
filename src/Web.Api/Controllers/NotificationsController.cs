@@ -47,7 +47,7 @@ namespace Web.Api.Controllers
     public async Task<IEnumerable<Notification>> RefreshNotificationList([FromQuery] int page)
     {
       var notifications =
-        await _notificationRepository.GetNotificationOfUserToPage((System.Guid) _currentUser.Id, page);
+        await _notificationRepository.GetNotificationOfUserToPage((Guid) _currentUser.Id, page);
 
       return notifications;
     }

@@ -11,6 +11,7 @@ namespace Web.Api.Infrastructure
   public class AuthService : IAuthService
   {
     private User _user = null;
+    private Object _avatar = null;
     private IEnumerable<string> _permissions;
     private readonly IUserRepository _userRepository;
     private readonly IPermissionRepository _permissionRepository;
@@ -26,6 +27,7 @@ namespace Web.Api.Infrastructure
     {
       _user = await _userRepository.FindById(userId);
       var permissions = await _permissionRepository.GetPermissionsOfRole(_user.RoleId.ToString());
+      _avatar = await _userRepository.GetAvatar(userId.ToString());
       _permissions = permissions.Select(p => p.PermissionName);
       return true;
     }
@@ -38,6 +40,11 @@ namespace Web.Api.Infrastructure
     public User GetCurrentUser()
     {
       return _user;
+    }
+
+    public Object GetCurrentUserAvatar()
+    {
+      return _avatar;
     }
 
     public IEnumerable<string> GetAllPermissions()

@@ -1,9 +1,8 @@
 using System;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Web.Api.Core.Dto.UseCaseRequests;
 using Web.Api.Core.Interfaces.Gateways.Repositories;
@@ -19,6 +18,7 @@ using Web.Api.Models.Request.Comment;
 using Web.Api.Serialization;
 using Web.Api.Core.Interfaces.UseCases.IRequestUseCases;
 using Web.Api.Presenters.Request;
+using System.Data;
 
 namespace Web.Api.Controllers
 {
@@ -28,6 +28,7 @@ namespace Web.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly ICommentRepository _commentRepository;
+        private readonly IRequestRepository _requestRepository;
         private readonly ICreateCommentUseCase _createCommentUseCase;
         private readonly IDeleteCommentUseCase _deleteCommentUseCase;
         private readonly ICreateRequestUseCase _createRequestUseCase;
@@ -54,6 +55,7 @@ namespace Web.Api.Controllers
             IGetEachRequestUseCase getEachRequestUseCase, GetEachRequestPresenter getEachRequestPresenter,
             IAuthService authService,
             ICommentRepository commentRepository,
+            IRequestRepository requestRepository,
             ICreateCommentUseCase createCommentUseCase,
             ICreateRequestUseCase createRequestUseCase,
             CreateRequestPresenter createRequestPresenter,
@@ -67,6 +69,7 @@ namespace Web.Api.Controllers
         {
             _authService = authService;
             _commentRepository = commentRepository;
+            _requestRepository = requestRepository;
             _createCommentUseCase = createCommentUseCase;
             _createRequestUseCase = createRequestUseCase;
             _createRequestPresenter = createRequestPresenter;
@@ -99,7 +102,7 @@ namespace Web.Api.Controllers
 
             var currentUser = _authService.GetCurrentUser();
             await _createRequestUseCase.Handle(
-                new CreateRequestRequest((Guid) currentUser.Id, message.Title, message.StartDate, message.EndDate,
+                new CreateRequestRequest((Guid)currentUser.Id, message.Title, message.StartDate, message.EndDate,
                     message.ServerId, message.Description), _createRequestPresenter);
             return _createRequestPresenter.ContentResult;
         }
@@ -117,21 +120,27 @@ namespace Web.Api.Controllers
         }
 
         //READ 
+        [HttpGet("totalRows")]
+        public ActionResult<DataTable> GetTotalRow(string searchKey = "")
+        {
+            return _requestRepository.getNoRows(searchKey);
+        }
+
         [HttpGet]
+        [Authorize("CanViewRequest")]
         public async Task<ActionResult> GetRequestPaging(Guid? uid ,int _pageNo = Constants.DefaultValues.Paging.PageNo,
             int _pageSize = Constants.DefaultValues.Paging.PageSize,
             string keyword = Constants.DefaultValues.keyword,
-            string filterStatus = Constants.DefaultValues.filterStatus /*, 
-                            DateTime? fromDateExport = null, DateTime? toDateExport = null*/)
+            string filterStatus = Constants.DefaultValues.filterStatus )
         {
             await _getRequestUseCase.Handle(
-                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, /*fromDateExport, toDateExport,*/
-                    "getAll"), _getRequestPresenter);
+                new GetRequestRequest(uid ,_pageNo, _pageSize, keyword, filterStatus, "getAll"), _getRequestPresenter);
 
             return _getRequestPresenter.ContentResult;
         }
 
         [HttpGet("{requestId}")]
+        [Authorize("CanEditRequest")]
         public async Task<ActionResult> GetEachRequest(string requestId)
         {
             if (!ModelState.IsValid)
@@ -147,6 +156,7 @@ namespace Web.Api.Controllers
 
         //UPDATE
         [HttpPut("update/{requestId}")]
+        [Authorize("CanEditRequest")]
         public async Task<ActionResult> UpdateRequest(string requestId, [FromBody] UpdateRequestRequestModel message)
         {
             if (!ModelState.IsValid)
@@ -167,18 +177,32 @@ namespace Web.Api.Controllers
         public async Task<string> GetCommentsOfRequest(Guid id, string order)
         {
             var comments = await _commentRepository.FindCommentsOfRequest(id, order);
-            return JsonSerializer.SerializeObject(comments.Select(c =>
+            
+            var result = new Collection<Object>();
+
+            foreach (var comment in comments)
             {
-                return new
-                {
-                    c.Id,
-                    c.Content,
-                    c.ParentId,
-                    c.RequestId,
-                    c.CreatedAt,
-                    Author = new {FirstName = c.Author.FirstName, LastName = c.Author.LastName}
-                };
-            }));
+              var fileInstance = comment.Author.UserFileInstance.FirstOrDefault();
+              var avatarFile = fileInstance?.FileInstance;
+              byte[] bytes = null;
+              string content = "";
+              
+              if (avatarFile != null)
+              {
+                bytes = System.IO.File.ReadAllBytes(Path.Combine(avatarFile.Path, $"{avatarFile.FileName}.{avatarFile.Extension}"));
+                content = Convert.ToBase64String(bytes);
+              }
+              result.Add(new
+              {
+                comment.Id,
+                comment.Content,
+                comment.ParentId,
+                comment.RequestId,
+                comment.CreatedAt,
+                Author = new {comment.Author.FirstName, comment.Author.LastName, Avatar= avatarFile != null ? content : null}
+              });
+            }
+            return JsonSerializer.SerializeObject(result);
         }
 
         [HttpPost("{id}/comments")]
@@ -219,8 +243,9 @@ namespace Web.Api.Controllers
 
 
         [HttpPut("manage")]
+        [Authorize("CanManageRequest")]
         public async Task<ActionResult> ManageRequest(
-            [FromBody] Models.Request.ManageRequestRequestModel manageRequestRequest)
+            [FromBody] ManageRequestRequestModel manageRequestRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -234,6 +259,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("bulkExport")]
+        [Authorize("CanDataExport")]
         public async Task<ActionResult> BulkExportAction(string id, [FromBody] Models.Request.BulkExportRequest message)
         {
             if (!ModelState.IsValid)

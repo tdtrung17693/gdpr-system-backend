@@ -25,5 +25,6 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
     Task<Object> GetAvatar(string id);
     Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request);
     Task<UploadAvatarUserResponse> ChangeAvatar(UploadAvatarRequest request);
+    Task<UpdateUserResponse> ResetPassword(string userEmail);
   }
 }
