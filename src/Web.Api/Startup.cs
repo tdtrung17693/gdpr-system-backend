@@ -73,10 +73,7 @@ namespace Web.Api
       {
         options.AddPolicy(name: MyAllowSpecificOrigins, build =>
         {
-          build.WithOrigins(
-              "http://localhost:3000",
-              "http://localhost:3000/servers"
-            )
+          build
             .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
