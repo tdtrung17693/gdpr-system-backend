@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Web.Api.Core.Domain.Entities;
@@ -9,7 +9,7 @@ namespace Web.Api.Core.Domain.Event
 {
   public class NotificationsCreated : IEvent
   {
-    public  IEnumerable<NotificationDto> Notifications { get; }
+    public IEnumerable<NotificationDto> Notifications { get; set; }
 
     public NotificationsCreated(IEnumerable<NotificationDto> notifications)
     {

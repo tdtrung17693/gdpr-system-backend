@@ -25,8 +25,8 @@ namespace Web.Api.Core.UseCases.Request
         public async Task<bool> Handle(GetRequestRequest message, IOutputPort<GetRequestResponse> outputPort)
         {
                 var listRequests = await _requestRepository.GetRequest(_currentUser.Id, message.PageNo, message.PageSize, message.Keyword, message.FilterStatus);
-                var noPages = await _requestRepository.getNoPages(message.PageSize);
-                outputPort.Handle(new GetRequestResponse(noPages, listRequests, true));
+                //var noPages = await _requestRepository.getNoPages(message.PageSize);
+                outputPort.Handle(new GetRequestResponse(10, listRequests, true));
                 return true;
         }
     }

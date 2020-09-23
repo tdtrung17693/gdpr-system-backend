@@ -12,6 +12,7 @@ namespace Web.Api.Infrastructure.Migrations
                 SELECT CreatedAt, CreatedBy, UpdatedField, UpdatedState, PreviousState, [Message]
                 FROM dbo.HistoryLog
                 WHERE RequestId = @requestId
+                ORDER BY CreatedAt
             END");
         }
 

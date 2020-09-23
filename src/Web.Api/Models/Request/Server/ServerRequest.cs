@@ -7,7 +7,7 @@ namespace Web.Api.Models.Request
     public class ServerRequest
     {
         public Guid? id { get; set; }
-        public Guid CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }
         public DateTime? CreatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
         public DateTime? UpdatedAt { get; set; }

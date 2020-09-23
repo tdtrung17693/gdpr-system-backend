@@ -18,9 +18,9 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 
         public Task LogUpdateRequest(Guid requestId, Dictionary<string, List<string>> updatedFields,
             User updator);
-        public Task LogAcceptRejectRequest(Guid requestId, User updator, string newRequestStatus);
+        public Task LogAcceptRejectRequest(Guid requestId, User updator, string oldRequestStatus, string newRequestStatus);
 
-        public Task<DataTable> GetListLogOfRequest(Guid requestId);
+        public Task<IEnumerable<HistoryLogDto>> GetListLogOfRequest(Guid requestId);
 
 
     }

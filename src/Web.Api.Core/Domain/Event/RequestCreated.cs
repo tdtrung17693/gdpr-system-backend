@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Web.Api.Core.Domain.Entities;
@@ -22,6 +22,5 @@ namespace Web.Api.Core.Domain.Event
     public Guid ServerId { get; set; }
     public string ServerName { get; set; }
     public Guid RequestId { get; set; }
-
   }
 }

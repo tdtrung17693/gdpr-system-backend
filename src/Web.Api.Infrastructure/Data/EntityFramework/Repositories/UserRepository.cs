@@ -150,113 +150,124 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             );
         }
 
-    public async Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName)
-    {
-      var updatedFields = new Dictionary<string, string>();
-      if (user.FirstName != firstName) {
-        updatedFields.Add("FirstName", firstName);
-        user.FirstName = firstName;
-      }
+        public async Task<UpdateUserResponse> UpdateProfileInfo(User user, string firstName, string lastName)
+        {
+            var updatedFields = new Dictionary<string, string>();
+            if (user.FirstName != firstName)
+            {
+                updatedFields.Add("FirstName", firstName);
+                user.FirstName = firstName;
+            }
 
-      if (user.LastName != lastName) {
-        updatedFields.Add("LastName", lastName);
-        user.LastName = lastName;
-      }
-      if (updatedFields.Any())
-      {
-        try
-        {
-          await _context.SaveChangesAsync();
-        } catch
-        {
-          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
+            if (user.LastName != lastName)
+            {
+                updatedFields.Add("LastName", lastName);
+                user.LastName = lastName;
+            }
+
+            if (updatedFields.Any())
+            {
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch
+                {
+                    return new UpdateUserResponse(false,
+                        new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+                }
+            }
+
+            return new UpdateUserResponse(updatedFields);
         }
-      }
-      return new UpdateUserResponse(updatedFields);
-    }
-    public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
-    {
-      var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
-      var updatedFields = new Dictionary<string, string>();
 
-      if (user == null)
-      {
-        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
-      }
-
-      if (user.RoleId != roleId)
-      {
-        updatedFields.Add("RoleId", roleId.ToString());
-        user.RoleId = roleId;
-      }
-      if (user.Status != status)
-      {
-        updatedFields.Add("Status", status.ToString());
-        user.Status = status;
-      }
-
-      if (updatedFields.Count() > 0)
-      {
-        try
+        public async Task<UpdateUserResponse> Update(Guid id, Guid roleId, bool status)
         {
-          await _context.SaveChangesAsync();
-        }
-        catch
-        {
-          return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
-        }
-      }
+            var user = await _context.User.Where(u => u.Id == id).FirstOrDefaultAsync();
+            var updatedFields = new Dictionary<string, string>();
 
-      return new UpdateUserResponse(updatedFields);
-    }
+            if (user == null)
+            {
+                return new UpdateUserResponse(false,
+                    new[] {new Error(Error.Codes.ENTITY_NOT_FOUND, Error.Messages.ENTITY_NOT_FOUND)});
+            }
+
+            if (user.RoleId != roleId)
+            {
+                updatedFields.Add("RoleId", roleId.ToString());
+                user.RoleId = roleId;
+            }
+
+            if (user.Status != status)
+            {
+                updatedFields.Add("Status", status.ToString());
+                user.Status = status;
+            }
+
+            if (updatedFields.Count() > 0)
+            {
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch
+                {
+                    return new UpdateUserResponse(false,
+                        new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+                }
+            }
+
+            return new UpdateUserResponse(updatedFields);
+        }
 
         public Task<CreateUserResponse> Delete(User user)
         {
             throw new NotImplementedException();
         }
 
-    public async Task<UpdateUserResponse> ChangePassword(User user, string newPassword)
-    {
-      var salt = GenerateSalt(10);
-      var hashPassword = CalculateHash(newPassword, salt);
-      user.Account.HashedPassword = hashPassword;
-      user.Account.Salt = Convert.ToBase64String(salt);
-      
-      try
-      {
-        await _context.SaveChangesAsync();
-      }
-      catch (Exception e)
-      {
-        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
-      }
+        public async Task<UpdateUserResponse> ChangePassword(User user, string newPassword)
+        {
+            var salt = GenerateSalt(10);
+            var hashPassword = CalculateHash(newPassword, salt);
+            user.Account.HashedPassword = hashPassword;
+            user.Account.Salt = Convert.ToBase64String(salt);
 
-      return new UpdateUserResponse(true);
-    }
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                return new UpdateUserResponse(false, new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+            }
 
-    public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
-    {
-      List<User> userList = await _context.User.Where(u => ids.Contains((Guid)u.Id)).ToListAsync();
-      userList.ForEach(u => u.Status = status);
-      try
-      {
-        await _context.SaveChangesAsync();
-      } catch (Exception e)
-      {
-        return new UpdateUserResponse(false, new[] { new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN) });
-      }
+            return new UpdateUserResponse(true);
+        }
 
-      return new UpdateUserResponse(true);
-    }
+        public async Task<UpdateUserResponse> ChangeStatus(ICollection<Guid> ids, bool status)
+        {
+            List<User> userList = await _context.User.Where(u => ids.Contains((Guid) u.Id)).ToListAsync();
+            userList.ForEach(u => u.Status = status);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                return new UpdateUserResponse(false, new[] {new Error(Error.Codes.UNKNOWN, Error.Messages.UNKNOWN)});
+            }
+
+            return new UpdateUserResponse(true);
+        }
 
         //Cho nay cua em nha a Trung :D
-     public async Task<Object> GetAvatar(string id)
+        public async Task<Object> GetAvatar(string id)
         {
             var fileInfo = await _context.FileInstance.AsNoTracking()
-               .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
-
+                .FirstOrDefaultAsync(fi => fi.UserFileInstance.Any(cs => cs.UserId == Guid.Parse(id)));
             if (fileInfo == null) return null;
-            Byte[] fileBytes = File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));
+            byte[] fileBytes =
+                File.ReadAllBytes(Path.Combine(fileInfo.Path, fileInfo.FileName + "." + fileInfo.Extension));
             String content = Convert.ToBase64String(fileBytes);
             return new
             {
@@ -264,48 +275,69 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 fileName = fileInfo.FileName,
                 fileExtension = fileInfo.Extension,
                 content,
-            };   
-     }
+            };
+        }
 
-     public async Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request)
-     {
-        byte[] imageBytes = Convert.FromBase64String(request.Content);
+        public async Task<UploadAvatarUserResponse> UploadFirstAvatar(UploadAvatarRequest request)
+        {
+            byte[] imageBytes = Convert.FromBase64String(request.Content);
 
-        //Save the Byte Array as Image File.
-        string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
-        string fileDirectory = Path.Combine(path, "Web.Api\\FileInstance");
-        string filePath = Path.Combine(fileDirectory, request.FileName + "." +  request.FileExtension);
-        File.WriteAllBytes(filePath, imageBytes);
-        Guid fileId = Guid.NewGuid();
+            //Save the Byte Array as Image File.
+            string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
+            string fileDirectory = Path.Combine(path, "Web.Api", "FileInstance");
+            string filePath = Path.Combine(fileDirectory, request.FileName + "." + request.FileExtension);
+            File.WriteAllBytes(filePath, imageBytes);
+            Guid fileId = Guid.NewGuid();
 
-        //Save to database
-        await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension, fileDirectory));
-        await _context.UserFileInstance.AddAsync(new UserFileInstance(request.UserId, fileId));
-        var success = await _context.SaveChangesAsync();
-        return new UploadAvatarUserResponse(fileId, success > 0, null);       
-     }   
+            //Save to database
+            await _context.FileInstance.AddAsync(new FileInstance(fileId, request.FileName, request.FileExtension,
+                fileDirectory));
+            await _context.UserFileInstance.AddAsync(new UserFileInstance(request.UserId, fileId));
+            var success = await _context.SaveChangesAsync();
+            return new UploadAvatarUserResponse(fileId, success > 0, null);
+        }
 
-     public async Task<UploadAvatarUserResponse> ChangeAvatar(UploadAvatarRequest request)
-     {
-        byte[] imageBytes = Convert.FromBase64String(request.Content);
+        public async Task<UploadAvatarUserResponse> ChangeAvatar(UploadAvatarRequest request)
+        {
+            byte[] imageBytes = Convert.FromBase64String(request.Content);
 
-        //Save the Byte Array as Image File.
-        string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
-        string fileDirectory = Path.Combine(path, "Web.Api\\FileInstance");
-        string filePath = Path.Combine(fileDirectory, request.FileName + "." +  request.FileExtension);
-        File.WriteAllBytes(filePath, imageBytes);
+            //Save the Byte Array as Image File.
+            string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
+            string fileDirectory = Path.Combine(path, "Web.Api", "FileInstance");
+            string filePath = Path.Combine(fileDirectory, request.FileName + "." + request.FileExtension);
+            File.WriteAllBytes(filePath, imageBytes);
 
-        var fileId = request.FileId;
-        //await _context.FileInstance.AddAsync(new FileInstance((Guid)fileId, request.FileName, request.FileExtension, "Some path" ));
-        var updatedFileInstance = await _context.FileInstance.FirstOrDefaultAsync(i => i.Id == fileId);
+            var fileId = request.FileId;
+            //await _context.FileInstance.AddAsync(new FileInstance((Guid)fileId, request.FileName, request.FileExtension, "Some path" ));
+            var updatedFileInstance = await _context.FileInstance.FirstOrDefaultAsync(i => i.Id == fileId);
             if (updatedFileInstance != null)
             {
                 _context.Attach(updatedFileInstance);
                 updatedFileInstance.FileName = request.FileName;
                 updatedFileInstance.Extension = request.FileExtension;
             }
-        var success = await _context.SaveChangesAsync();
-        return new UploadAvatarUserResponse(success > 0, null);       
-     }   
-  }
+
+            var success = await _context.SaveChangesAsync();
+            return new UploadAvatarUserResponse(success > 0, null);
+        }
+
+
+        public async Task<UpdateUserResponse> ResetPassword(string userEmail)
+        {
+            var user = await FindByEmail(userEmail);
+            var rawPassword = new Password().IncludeLowercase().IncludeNumeric().IncludeUppercase().IncludeSpecial()
+                                        .Next();
+
+            var response = await ChangePassword(user, rawPassword);
+
+            if (response.Success)
+            {
+                await _eventBus.Trigger(new UserPasswordResetted(
+                    user.Email, $"{user.FirstName} {user.LastName}",
+                    rawPassword));
+            }
+
+            return response;
+        }
+    }
 }

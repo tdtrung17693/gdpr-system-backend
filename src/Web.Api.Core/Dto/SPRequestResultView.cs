@@ -7,7 +7,7 @@ namespace Web.Api.Core.Domain.Entities
     public partial class SPRequestResultView
     {
         public SPRequestResultView(string title, DateTime? startDate, DateTime? endDate, Guid serverId, string description, string requestStatus, string response, Guid? approvedBy, Guid id, Guid createdBy, DateTime createdAt, Guid? updatedBy, DateTime? updatedAt, Guid? deletedBy, DateTime? deletedAt,
-                              string serverName, string serverIP, string createdByFName, string createdByLName, string createdByEmail, string updatedByFName, string updatedByLName, string updatedByEmail, string roleName)
+                              string serverName, string serverIP, string createdByFName, string createdByLName, string createdByEmail, string updatedByFName, string updatedByLName, string updatedByEmail, string roleName                         )
         {
             Title = title;
             StartDate = startDate;
