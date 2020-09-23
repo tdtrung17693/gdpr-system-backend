@@ -186,14 +186,16 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
-            public DataTable getNoRows(string searchKey)
+            public DataTable getNoRows(Guid? Uid, string searchKey)
             {
                 using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
                     searchKey = searchKey == null ? "" : searchKey;
                     var filterBy = new SqlParameter("@SearchKey", searchKey);
+                    var uid = new SqlParameter("@uid", Uid);
                     command.CommandText = "GetRequestCount";
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(uid);
                     command.Parameters.Add(filterBy);
                     DataTable dt = new DataTable();
                     _context.Database.OpenConnection();
