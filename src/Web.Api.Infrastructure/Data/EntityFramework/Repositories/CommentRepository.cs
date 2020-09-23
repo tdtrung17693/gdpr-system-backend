@@ -98,7 +98,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                     content,
                     author.FirstName,
                     author.LastName,
-                    Path.Combine((string) reader["AvatarPath"], $"{reader["AvatarFileName"]}.{reader["AvatarExtension"]}"),
+                    reader["AvatarPath"] != DBNull.Value ? Path.Combine((string) reader["AvatarPath"], $"{reader["AvatarFileName"]}.{reader["AvatarExtension"]}") : null,
                     createdAt,
                     parentId));
                 return new CreateCommentResponse(newId, createdAt);

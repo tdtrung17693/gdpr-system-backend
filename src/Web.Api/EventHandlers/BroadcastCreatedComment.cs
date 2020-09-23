@@ -19,17 +19,22 @@ namespace Web.Api.EventHandlers
         }
         public async Task HandleAsync(CommentCreated ev)
         {
-            byte[] file = System.IO.File.ReadAllBytes(ev.AuthorAvatar);
-            var content = Convert.ToBase64String(file);
+            string avatarContent = null;
+            if (ev.AuthorAvatar != null)
+            {
+              byte[] file = System.IO.File.ReadAllBytes(ev.AuthorAvatar);
+              avatarContent = Convert.ToBase64String(file);
+            }
+
             await _hubContext.Clients.Group($"conversation:{ev.RequestId.ToString().ToLower()}").SendAsync("commentCreated", new
             {
                 Author=new
                 {
                     FirstName=ev.AuthorFirstName,
                     LastName=ev.AuthorLastName,
-                    Avatar=content
+                    Avatar=avatarContent
                 },
-                ev.CreatedAt,
+                CreatedAt = ev.CreatedAt.ToLocalTime(),
                 ev.Content,
                 ev.Id,
                 ev.ParentId,
