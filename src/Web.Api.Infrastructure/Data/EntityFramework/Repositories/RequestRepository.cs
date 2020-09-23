@@ -217,12 +217,14 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return null;
             }
 
-            public async Task<IList<ExportRequestDetail>> exportBulkRequest(BulkExportRequest message)
+            public async Task<IList<ExportRequestDetail>> exportBulkRequest(Guid? Uid, BulkExportRequest message)
             {
                 var parameters = new List<SqlParameter>();
-                var param3 = new SqlParameter("@RequestList", message.IdList);
-                parameters.Add(param3);
-                var sql = "EXEC GetExportBulkRequest @RequestList";
+                var reqList = new SqlParameter("@RequestList", message.IdList);
+                parameters.Add(reqList);
+                var uid = new SqlParameter("@uid", Uid);
+                parameters.Add(uid);
+                var sql = "EXEC GetExportBulkRequest @uid, @RequestList";
                 List<SPRequestResultExportView> result = await _context.SPRequestResultExportView.FromSql(sql, parameters.ToArray()).ToListAsync();
                 if (result != null) return _mapper.Map<List<SPRequestResultExportView>, IList<ExportRequestDetail>>(result);
                 return null;
@@ -273,55 +275,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             }
 
 
-            /*-----------------------------------------------------------------------------------------------------------------------------------*/
-            public IEnumerable<Request> GetRequestList()
-            {
-                return _context.Request.ToList();
-            }
-
-
-            public async Task<CRUDRequestResponse> Create(Request request)
-            {
-                var creator = new Guid("9D2B0228-4D0D-4C23-8B49-01A698857709");
-                var createdBy = new SqlParameter("@CreatedBy", creator);
-                var title = new SqlParameter("@Title", request.Title);
-                var fromDate = new SqlParameter("@FromDate", request.StartDate);
-                var toDate = new SqlParameter("@ToDate", request.EndDate);
-                var server = new SqlParameter("@Server", request.ServerId);
-                var description = new SqlParameter("@Description", request.Description);
-                await _context.Database.ExecuteSqlCommandAsync(" EXEC dbo.CreateRequest @CreatedBy, @Title, @Fromdate, @ToDate, @Server, @Description ", createdBy, title, fromDate, toDate, server, description);
-                var success = await _context.SaveChangesAsync();
-                
-                return new CRUDRequestResponse(request.Id, success > 0, null);
-            }
-
-
-            public async Task<CRUDRequestResponse> Update(Request request)
-            {
-                var id = new SqlParameter("@Id", request.Id);
-                var title = new SqlParameter("@Title", request.Title);
-                var fromDate = new SqlParameter("@StartDate", request.StartDate);
-                var toDate = new SqlParameter("@EndDate", request.EndDate);
-                var server = new SqlParameter("@Server", request.ServerId);
-                var description = new SqlParameter("@Description", request.Description);
-                var requestStatus = new SqlParameter("@RequestStatus", request.RequestStatus);
-                var response = new SqlParameter("@Response", request.Response);
-                var approvedBy = new SqlParameter("@ApprovedBy", request.ApprovedBy);
-                var updateBy = new SqlParameter("@UpdateBy", request.UpdatedBy);
-                var updateAt = new SqlParameter("@UpdateAt", Convert.ToDateTime(DateTime.Now));
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.UpdateRequest @Id, @Title, @StartDate, @EndDate, @Server, @Description, @RequestStatus, @Response, @ApprovedBy, @UpdateBy, @UpdateAt ", id, title, fromDate, toDate, server, description, requestStatus, response, approvedBy, updateBy, updateAt);
-                var success = await _context.SaveChangesAsync();
-                return new CRUDRequestResponse(request.Id, success > 0, null);
-            }
-
-            public async Task<CRUDRequestResponse> Delete(Request request)
-            {
-                var id = new SqlParameter("@Id", request.Id);
-                _context.Database.ExecuteSqlCommand(" EXEC dbo.DeleteRequest @Id ", id);
-                var success = await _context.SaveChangesAsync();
-                return new CRUDRequestResponse(request.Id, success > 0, null);
-            }
-
+           
         }
     }
 }
