@@ -18,6 +18,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Web.Api.Core.Dto.UseCaseRequests;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
 {
@@ -283,8 +284,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             byte[] imageBytes = Convert.FromBase64String(request.Content);
 
             //Save the Byte Array as Image File.
-            string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
-            string fileDirectory = Path.Combine(path, "Web.Api", "FileInstance");
+            string path = AppContext.BaseDirectory;
+            string fileDirectory = Path.Combine(path, "FileInstance");
             string filePath = Path.Combine(fileDirectory, request.FileName + "." + request.FileExtension);
             if (!Directory.Exists(fileDirectory))
       {
@@ -306,8 +307,8 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             byte[] imageBytes = Convert.FromBase64String(request.Content);
 
             //Save the Byte Array as Image File.
-            string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
-            string fileDirectory = Path.Combine(path, "Web.Api", "FileInstance");
+            string path = AppContext.BaseDirectory;
+            string fileDirectory = Path.Combine(path, "FileInstance");
             string filePath = Path.Combine(fileDirectory, request.FileName + "." + request.FileExtension);
             File.WriteAllBytes(filePath, imageBytes);
 

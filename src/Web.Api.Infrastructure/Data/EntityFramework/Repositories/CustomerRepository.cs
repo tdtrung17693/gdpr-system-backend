@@ -111,7 +111,7 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
         public async Task<IEnumerable<Object>> GetAllContactPoint()
         {
             return await _context.User.AsNoTracking()
-                .Where(c => c.Role.Name == "Contact Point" || c.Role.Name == "Administrator")
+                .Where(c => (c.Role.Name == "Contact Point" || c.Role.Name == "Administrator") && c.Status == true)
                 .Select(c => new
                 {
                     id = c.Id,
