@@ -41,9 +41,25 @@ namespace Web.Api.Infrastructure
         var config = c.Resolve<IConfiguration>();
         var adminEmail = config["Mail:From"];
         var adminName = config["Mail:AdminName"];
+        var smtpServer = config["Mail:Host"];
+        int smtpPort = int.TryParse(config["Mail:Port"], out smtpPort) ? smtpPort : 587;
+        var smtpUsername = config["Mail:Username"];
+        var smtpPassword = config["Mail:Password"];
 
-        return new Email(c.Resolve<ITemplateRenderer>(), c.Resolve<ISender>(), adminEmail, adminName);
+        var smtpSender = new SmtpSender(() =>
+        {
+          var client = new SmtpClient(smtpServer, smtpPort)
+          {
+            Credentials = new System.Net.NetworkCredential(smtpUsername, smtpPassword),
+            EnableSsl = config.GetValue<bool>("Mail:EnableSsl"),
+            DeliveryMethod = config.GetValue<SmtpDeliveryMethod>("Mail:DeliveryMethod")
+          };
+          return client;
+        });
+
+        return new Email(c.Resolve<ITemplateRenderer>(), smtpSender, adminEmail, adminName);
       }).As<IFluentEmail>().InstancePerDependency();
+
       builder.Register(c => new RazorRenderer()).As<ITemplateRenderer>().SingleInstance();
       builder.Register(c =>
       {

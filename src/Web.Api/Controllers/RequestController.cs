@@ -123,7 +123,7 @@ namespace Web.Api.Controllers
         [HttpGet("totalRows")]
         public ActionResult<DataTable> GetTotalRow(string searchKey = "")
         {
-            return _requestRepository.getNoRows(searchKey);
+            return _requestRepository.getNoRows(_authService.GetCurrentUser().Id, searchKey);
         }
 
         [HttpGet]

@@ -13,18 +13,15 @@ namespace Web.Api.Core.Interfaces.Gateways.Repositories
 {
     public interface IRequestRepository
     {
-        IEnumerable<Request> GetRequestList();
-        Task<CRUDRequestResponse> Create(Request request);
-        Task<CRUDRequestResponse> Update(Request request);
-        Task<CRUDRequestResponse> Delete(Request request);
+       
         
         Task<CreateRequestResponse> CreateRequest(Request request);
         Task<UpdateRequestResponse> UpdateRequest(Request request);
-        Task<IList<ExportRequestDetail>> exportBulkRequest(BulkExportRequest message);
-        Task<IList<RequestDetail>> GetRequest(Guid? uid,int PageNo = 1, int PageSize = 10, string keyword = "", string filterStatus = ""/*, DateTime? FromDateExport = null, DateTime? TSoDateExport = null*/);
+        Task<IList<ExportRequestDetail>> exportBulkRequest(Guid? uid, BulkExportRequest message);
+        Task<IList<RequestDetail>> GetRequest(Guid? uid,int PageNo = 1, int PageSize = 10, string keyword = "", string filterStatus = "");
         Task<IList<ExportRequestDetail>> GetRequestForExport(ExportRequest request);
         RequestDetail getEachRequest(string requestId, string role);
-        DataTable getNoRows(string searchKey);
+        DataTable getNoRows(Guid? uid, string searchKey);
         Task<bool> ManageRequest(ManageRequestRequest message);
     }
 }

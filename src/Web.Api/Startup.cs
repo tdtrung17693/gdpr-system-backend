@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using Elmah.Io.AspNetCore;
 using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -72,10 +73,7 @@ namespace Web.Api
       {
         options.AddPolicy(name: MyAllowSpecificOrigins, build =>
         {
-          build.WithOrigins(
-              "http://localhost:3000",
-              "http://localhost:3000/servers"
-            )
+          build
             .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -169,6 +167,8 @@ namespace Web.Api
         .AddJsonOptions(
           options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
         );
+      services.Configure<ElmahIoOptions>(Configuration.GetSection("ElmahIo")); 
+      services.AddElmahIo();
 
       services.AddSignalR();
       services.AddAutoMapper(cfg => { cfg.AddDataReaderMapping(); });
@@ -221,7 +221,7 @@ namespace Web.Api
       }).As<BroadcastCreatedComment>().SingleInstance();
       builder.Register(c =>
       {
-        var handler = new SendCreateRequestToAmin(c.Resolve<ApplicationDbContext>() ,c.Resolve<IMailService>());
+        var handler = new SendCreateRequestToAmin(c.Resolve<IServiceProvider>() ,c.Resolve<IMailService>());
         return handler;
       }).As<SendCreateRequestToAmin>().SingleInstance();
 
@@ -234,17 +234,17 @@ namespace Web.Api
       builder.RegisterType<NotifyRequestAcceptRejectStatus>().As<NotifyRequestAcceptRejectStatus>().InstancePerLifetimeScope();
       builder.Register(c =>
       {
-        var handler = new LogNewRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        var handler = new LogNewRequest(c.Resolve<IServiceProvider>());
         return handler;
       }).As<LogNewRequest>().SingleInstance();
       builder.Register(c =>
       {
-        var handler = new LogRequestUpdated(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        var handler = new LogRequestUpdated(c.Resolve<IServiceProvider>());
         return handler;
       }).As<LogRequestUpdated>().SingleInstance();
       builder.Register(c =>
       {
-        var handler = new LogAcceptedRejectedRequest(c.Resolve<ApplicationDbContext>(), c.Resolve<ILogRepository>());
+        var handler = new LogAcceptedRejectedRequest(c.Resolve<IServiceProvider>());
         return handler;
       }).As<LogAcceptedRejectedRequest>().SingleInstance();
 
@@ -310,7 +310,7 @@ namespace Web.Api
       app.UseHangfireDashboard();
       app.UseAuthentication();
       // app.UseJwtTokenMiddleware();
-
+      app.UseElmahIo();
 
       app.UseCors(MyAllowSpecificOrigins);
       app.UseSignalR(e => { e.MapHub<ConversationHub>("/conversation"); });

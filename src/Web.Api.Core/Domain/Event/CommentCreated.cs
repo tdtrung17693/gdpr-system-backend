@@ -10,7 +10,7 @@ namespace Web.Api.Core.Domain.Event
     public Guid? ParentId { get; set; }
     public string AuthorFirstName { get; set; }
     public string AuthorLastName { get; set; }
-    public string AuthorAvatar { get; set; }
+    public string? AuthorAvatar { get; set; }
     public Guid RequestId { get; set; }
     public DateTime CreatedAt { get; set; }
 

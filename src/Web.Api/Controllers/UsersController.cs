@@ -189,6 +189,6 @@ namespace Web.Api.Controllers
             return BadRequest(ModelState);
         }
         return Ok(await _userRepository.ChangeAvatar(request));
-     }  
+     }
   }
 }
