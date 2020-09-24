@@ -195,5 +195,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
                 return result;
             }
         }
-    }
+
+        public void Dispose()
+        {
+          _context?.Dispose();
+        }
+  }
 }

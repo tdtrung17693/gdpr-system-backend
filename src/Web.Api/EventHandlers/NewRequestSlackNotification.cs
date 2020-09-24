@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SlackAPI;
 using SlackBotMessages;
 using SlackBotMessages.Enums;
@@ -15,25 +17,28 @@ namespace Web.Api.EventHandlers
 {
     public class NewRequestSlackNotification : IEventHandler<RequestCreated>
     {
-        private readonly ApplicationDbContext _context;
+        private IServiceProvider _provider;
         private IConfiguration _configuration;
 
-        public NewRequestSlackNotification(ApplicationDbContext context, IConfiguration configuration)
+        public NewRequestSlackNotification(IServiceProvider provider, IConfiguration configuration)
         {
-            _context = context;
+            _provider = provider;
             _configuration = configuration;
         }
 
         public async Task HandleAsync(RequestCreated ev)
         {
+            using (var scope = _provider.CreateScope())
+            using (var ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            {
             var slackToken = _configuration.GetValue<string>("Slack:Token");
             var slackWebHook = _configuration.GetValue<string>("Slack:WebHook");
 
             if (string.IsNullOrEmpty(slackToken) || string.IsNullOrEmpty(slackWebHook)) return;
             
-            var admin = await _context.User
+            var admin = await ctx.User
                 .Include(user => user.Role)
-                .Where(user => user.Role.Name == "Administrator")
+                .Where(user => user.Role.Name == "Administrator" && user.Id != ev.RequesterId)
                 .Select(u => u.Email)
                 .ToListAsync();
 
@@ -59,6 +64,7 @@ namespace Web.Api.EventHandlers
                 message.Channel = $"@{user.user.name}";
                 await client.SendAsync(message);
                 await Task.Delay(2000);
+            }
             }
         }
     }

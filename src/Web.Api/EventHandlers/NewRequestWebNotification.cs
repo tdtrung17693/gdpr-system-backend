@@ -30,7 +30,7 @@ namespace Web.Api.EventHandlers
             using (var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>())
             {
                 var admin = await ctx.User.Include(user => user.Role)
-                    .Where(user => user.Role.Name == "Administrator").ToListAsync();
+                    .Where(user => user.Role.Name == "Administrator" && user.Id != ev.RequesterId).ToListAsync();
                 await notificationRepository.CreateNewRequestNotification(new Requester()
                 {
                     FullName = ev.RequesterFullName,
