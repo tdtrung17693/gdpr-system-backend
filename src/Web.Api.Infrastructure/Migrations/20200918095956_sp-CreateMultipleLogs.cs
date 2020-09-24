@@ -30,8 +30,8 @@ namespace Web.Api.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("drop type NewLogs;");
             migrationBuilder.Sql("drop proc CreateMultipleLogs");
+            migrationBuilder.Sql("drop type NewLogs;");
         }
     }
 }

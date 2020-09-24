@@ -80,7 +80,7 @@ END");
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-	        migrationBuilder.Sql("UpdateRequest");
+	        migrationBuilder.Sql(" drop proc UpdateRequest");
         }
     }
 }

@@ -30,11 +30,11 @@ namespace Web.Api.Infrastructure.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var sp = "drop type IdList";
+            var sp = "drop procedure UpdateMutilServerStatus";
+            migrationBuilder.Sql(sp);
+            sp = "drop type IdList";
             migrationBuilder.Sql(sp);
 
-            sp = "drop procedure UpdateMultiServerStatus";
-            migrationBuilder.Sql(sp);
         }
     }
 }

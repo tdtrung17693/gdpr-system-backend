@@ -46,13 +46,13 @@ namespace Web.Api.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             var sql = @"
-            drop type [dbo].[NewNotification];
-            ";
-            migrationBuilder.Sql(sql);
-            sql = @"
             drop proc CreateNotifications;
             ";
+            migrationBuilder.Sql(sql);
 
+             sql = @"
+            drop type [dbo].[NewNotifications];
+            ";
             migrationBuilder.Sql(sql);
         }
     }

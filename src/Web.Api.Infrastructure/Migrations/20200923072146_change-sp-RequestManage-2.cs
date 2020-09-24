@@ -38,7 +38,7 @@ BEGIN
         U2.Id as RequesterId, U2.Email as RequesterEmail, CONCAT(U2.FirstName, ' ', U2.LastName) as RequesterFullName, A2.Username as RequesterUsername,
         S.Name
     from Request R
-    join [User] U on U.Id = R.ApprovedBy
+    join [User] U on U.Id = R.UpdatedBy
     join Account A on U.Id = A.UserId
     join [User] U2 on U2.Id = R.CreatedBy
     join Account A2 on U2.Id = A2.UserId

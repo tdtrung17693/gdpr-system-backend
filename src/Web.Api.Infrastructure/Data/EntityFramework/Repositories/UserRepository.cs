@@ -286,6 +286,10 @@ namespace Web.Api.Infrastructure.Data.EntityFramework.Repositories
             string path = Directory.GetParent(Environment.CurrentDirectory).FullName;
             string fileDirectory = Path.Combine(path, "Web.Api", "FileInstance");
             string filePath = Path.Combine(fileDirectory, request.FileName + "." + request.FileExtension);
+            if (!Directory.Exists(fileDirectory))
+      {
+        Directory.CreateDirectory(fileDirectory);
+      } 
             File.WriteAllBytes(filePath, imageBytes);
             Guid fileId = Guid.NewGuid();
 
