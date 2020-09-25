@@ -259,7 +259,7 @@ namespace Web.Api.Controllers
         }
 
         [HttpPost("bulkExport")]
-        [Authorize("CasExportData")]
+        [Authorize("CanExportData")]
         public async Task<ActionResult> BulkExportAction(string id, [FromBody] Models.Request.BulkExportRequest message)
         {
             if (!ModelState.IsValid)

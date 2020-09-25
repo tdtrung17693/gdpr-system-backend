@@ -22,13 +22,13 @@ BEGIN
 	IF @Status = 'Open'
 	BEGIN
 		UPDATE Request
-		SET UpdatedAt = GETDATE(), UpdatedBy = @UserId, Response = @Response, RequestStatus = @Status, ApprovedBy = @UserId
+		SET UpdatedAt = GETUTCDATE(), UpdatedBy = @UserId, Response = @Response, RequestStatus = @Status, ApprovedBy = @UserId
 		WHERE Id = @RequestId
 	END
 	ELSE
 	BEGIN
 		UPDATE Request
-		SET UpdatedAt = GETDATE(), UpdatedBy = @UserId, Response = @Response, RequestStatus = @Status
+		SET UpdatedAt = GETUTCDATE(), UpdatedBy = @UserId, Response = @Response, RequestStatus = @Status
 		WHERE Id = @RequestId
 	END
 
