@@ -68,7 +68,7 @@ BEGIN
 				 EndDate = @EndDate,
 				 ServerId = @ServerId,
 				 [Description] = @Description,
-				 UpdatedAt = GETDATE(),
+				 UpdatedAt = GETUTCDATE(),
 				 UpdatedBy = @UpdatedBy
 				
 	WHERE @Id = Request.Id

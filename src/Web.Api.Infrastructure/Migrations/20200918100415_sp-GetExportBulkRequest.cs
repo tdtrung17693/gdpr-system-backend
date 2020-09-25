@@ -57,7 +57,7 @@ BEGIN
 				LEFT JOIN [dbo].[User] AS UU ON R.UpdatedBy = UU.Id 
 				LEFT JOIN [dbo].[User] AS AU ON R.ApprovedBy = AU.Id 
 
-				SELECT * FROM #RequestInfo
+				SELECT * FROM #RequestInfo1
 
 		END
 END");
